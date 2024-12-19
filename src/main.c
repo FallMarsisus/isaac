@@ -31,9 +31,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Set the renderer color to blue
-    SDL_SetRenderDrawColor(ren, 0, 0, 0, 0);
-
     // Clear the window
     SDL_RenderClear(ren);
 
@@ -55,19 +52,23 @@ int main(int argc, char* argv[]) {
         }
 
         const Uint8 *state = SDL_GetKeyboardState(NULL);
-        if (state[SDL_SCANCODE_LEFT])  x -= 5;
+        if (state[SDL_SCANCODE_LEFT]) x -= 5;
         if (state[SDL_SCANCODE_RIGHT]) x += 5;
-        if (state[SDL_SCANCODE_UP])    y -= 5;
-        if (state[SDL_SCANCODE_DOWN])  y += 5;
+        if (state[SDL_SCANCODE_UP]) y -= 5;
+        if (state[SDL_SCANCODE_DOWN]) y += 5;
 
         if (x < 0) x = 0;
         if (y < 0) y = 0;
         if (x > win_width - 200) x = win_width - 200;
         if (y > win_height - 200) y = win_height - 200;
-
+        
+        SDL_SetRenderDrawColor(ren, 255, 255, 255, 255 );
         SDL_RenderClear(ren);
+        
         SDL_Rect dstrect = { x, y, 200, 200 };
-        SDL_RenderCopy(ren, texture, NULL, &dstrect);
+        SDL_SetRenderDrawColor(ren , 0, 0, 255, 255 );
+        SDL_RenderDrawRect(ren, &dstrect);
+
         SDL_RenderPresent(ren);
     }
     

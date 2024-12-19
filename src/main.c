@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include "display.h"
 
 
 int main(int argc, char* argv[]) {
@@ -24,9 +25,7 @@ int main(int argc, char* argv[]) {
     // Create a renderer
     SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    SDL_Surface * image = SDL_LoadBMP("image.bmp");
-
-    SDL_Texture * texture = SDL_CreateTextureFromSurface(ren, image);
+    SDL_Texture * texture = loadBitMap("./assets/images/image.bmp", ren);
 
     if (ren == NULL) {
         SDL_DestroyWindow(win);
@@ -79,8 +78,9 @@ int main(int argc, char* argv[]) {
 
         // On affiche le sprite et on render
         SDL_RenderClear(ren);
-        SDL_Rect dstrect = { x, y, 200, 200 };
-        SDL_RenderCopy(ren, texture, NULL, &dstrect);
+
+        displayBitmap(texture, ren, x, y, 200, 200);
+        
         SDL_RenderPresent(ren);
     }
     
@@ -90,7 +90,6 @@ int main(int argc, char* argv[]) {
 
     // Clean up
     SDL_DestroyTexture(texture);
-    SDL_FreeSurface(image);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     SDL_Quit();

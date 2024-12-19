@@ -31,8 +31,6 @@ int main(int argc, char* argv[]) {
     // Clear the window
     SDL_RenderClear(ren);
 
-
-
     // Present the renderer
     SDL_RenderPresent(ren);
 

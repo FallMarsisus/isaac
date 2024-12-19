@@ -1,5 +1,8 @@
 #include <SDL2/SDL.h>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <stdio.h>
+#include <string.h>
 
 int main(int argc, char* argv[]) {
     // Initialize SDL

@@ -154,7 +154,7 @@ void add(int x, int y, void* value, dict dico) {
 	if (isRealAddition) dico->count++;
 }
 
-bool remove(int x, int y, dict dico) {
+bool removeValue(int x, int y, dict dico) {
 
 	// Si le nombre d'éléments est bcp plus petit que la taille du dico
 	if (dico->count * 4 < dico->size + 4 && dico->size >= 2*defaultSize) {
@@ -166,5 +166,7 @@ bool remove(int x, int y, dict dico) {
 	dico->array[h] = removeOneNode(x, y, dico->array[h], &hasBeenRemoved);
 
 	if (hasBeenRemoved) dico->count--;
+
+	return hasBeenRemoved;
 }
 

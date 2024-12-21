@@ -1,7 +1,5 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <string.h>
 
 
 SDL_Texture* loadBitMap(const char* fileName, SDL_Renderer* renderer) {

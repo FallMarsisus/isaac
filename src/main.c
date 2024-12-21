@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "display.h"
+#include "player.h"
 
 
 int main(int argc, char* argv[]) {
@@ -25,7 +26,7 @@ int main(int argc, char* argv[]) {
     // Create a renderer
     SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    SDL_Texture * texture = loadBitMap("./assets/images/image.bmp", ren);
+    player joueur = createPlayer(0, 0, 200, 200, "./assets/images/image.bmp", ren);
 
     if (ren == NULL) {
         SDL_DestroyWindow(win);
@@ -42,16 +43,13 @@ int main(int argc, char* argv[]) {
 
 
     // On affiche un sprite dans le terminal
-    	
 
 
     int win_width, win_height;
     SDL_GetWindowSize(win, &win_width, &win_height);
 
     SDL_Event event;
-    int x = 0, y = 0;
     int running = 1;
-    bool moving = false;
 
     while (running) {
 
@@ -64,22 +62,18 @@ int main(int argc, char* argv[]) {
 
         // On get les appuis de touche
         const Uint8 *state = SDL_GetKeyboardState(NULL);
-        if (state[SDL_SCANCODE_LEFT])  x -= 5;
-        if (state[SDL_SCANCODE_RIGHT]) x += 5;
-        if (state[SDL_SCANCODE_UP])    y -= 5;
-        if (state[SDL_SCANCODE_DOWN])  y += 5;
+        if (state[SDL_SCANCODE_LEFT])  move(joueur, -5, 0);
+        if (state[SDL_SCANCODE_RIGHT]) move(joueur, 5, 0);
+        if (state[SDL_SCANCODE_UP])    move(joueur, 0, -5);
+        if (state[SDL_SCANCODE_DOWN])  move(joueur, 0, 5);
 
         // On teste si on hit les bordures
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        if (x > win_width - 200) x = win_width - 200;
-        if (y > win_height - 200) y = win_height - 200;
-
+        clipPlayer(joueur, win_width - 200, win_height - 200);
 
         // On affiche le sprite et on render
         SDL_RenderClear(ren);
 
-        displayBitmap(texture, ren, x, y, 200, 200);
+        displayPlayer(joueur, ren);
         
         SDL_RenderPresent(ren);
     }
@@ -89,7 +83,7 @@ int main(int argc, char* argv[]) {
     SDL_Delay(100);
 
     // Clean up
-    SDL_DestroyTexture(texture);
+    freePlayer(joueur);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     SDL_Quit();

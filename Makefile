@@ -1,8 +1,8 @@
 build:
-	gcc -Wall ./src/*.c `sdl2-config --libs --cflags` -lm -o game
+	gcc -Wall ./src/*.c `sdl2-config --libs --cflags` -lm -o ./bins/game
 
 run:
-	./game
+	./bins/game
 
 clean:
-	rm game
+	rm ./bins/game

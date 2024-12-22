@@ -62,10 +62,10 @@ int main(int argc, char* argv[]) {
 
         // On get les appuis de touche
         const Uint8 *state = SDL_GetKeyboardState(NULL);
-        if (state[SDL_SCANCODE_LEFT])  move(joueur, -5, 0);
-        if (state[SDL_SCANCODE_RIGHT]) move(joueur, 5, 0);
-        if (state[SDL_SCANCODE_UP])    move(joueur, 0, -5);
-        if (state[SDL_SCANCODE_DOWN])  move(joueur, 0, 5);
+        if (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_A])  move(joueur, -5, 0);
+        if (state[SDL_SCANCODE_RIGHT] || state[SDL_SCANCODE_D]) move(joueur, 5, 0);
+        if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W])    move(joueur, 0, -5);
+        if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])  move(joueur, 0, 5);
 
         // On teste si on hit les bordures
         clipPlayer(joueur, win_width - 200, win_height - 200);
@@ -89,4 +89,9 @@ int main(int argc, char* argv[]) {
     SDL_Quit();
 
     return 0;
+}
+
+// Si y'a un problème c'est clairement d'ici que ça vient
+int WinMain(int argc, char *argv[]) {
+    return main(argc, argv);
 }

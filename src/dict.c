@@ -8,7 +8,7 @@ typedef struct dictNode_s {
 	int x, y;
 	void* value;
 	struct dictNode_s* next;
-} node;
+} node; //meant to never be discorverd by the user of the lib
 
 typedef struct dict_s {
 	int size;
@@ -31,7 +31,7 @@ int hashFunction(int x, int y, int size) {
 }
 
 
-// ========= Node functions ==========
+// ========= Node functions ========== (all private)
 node* cons(int x, int y, void* value, node* next) {
 	node* noeud = malloc(sizeof(node));
 	noeud->next = next;
@@ -89,28 +89,46 @@ node* removeOneNode(int x, int y, node* noeud, bool* hasRemoved) {
 }
 
 void* getValueInNode(int x, int y, node* noeud) {
-	while (noeud != NULL) {
+
+    while (noeud != NULL) {
 		if (noeud->x == x && noeud->y == y) {
 			return noeud->value;
 		}
+        noeud = noeud->next;
+    }
+
+    return NULL;
+}
+
+bool isIsNode(int x, int y, node* noeud) {
+	while (noeud != NULL) {
+		if (noeud->x == x && noeud->y == y) {
+			return true;
+		}
 		noeud = noeud->next;
 	}
-
-	fprintf(stderr, "/!\\ Element does not exist\n");
-	exit(EXIT_FAILURE);
+	return false;
 }
+
+void freeNode(node* noeud, bool freeElements) {
+	if (noeud == NULL) {
+		return;
+	}
+	node* next = noeud->next;
+	while (noeud->next != NULL) {
+		if (freeElements) free(noeud->value);
+		free(noeud);
+		noeud = next;
+		next = noeud->next;
+	}
+	free(noeud);
+}
+
 
 
 // ========= Dict functions =========
-dict create() {
-	node** arr = malloc(sizeof(node*)*defaultSize);
-	dict dico = malloc(sizeof(struct dict_s));
-	dico->array = arr;
-	dico->count = 0;
-	dico->size = defaultSize;
-	return dico;
-}
 
+//Private
 void resize(dict dico, int newSize) {
 	node** newArr = malloc(sizeof(node*)*newSize);
 	for (int i = 0; i < newSize; i++) {
@@ -128,6 +146,10 @@ void resize(dict dico, int newSize) {
 		}
 	}
 
+	for (int i = 0; i < dico->size; i++) {
+		freeNode(dico->array[i], false);
+	}
+
 	node** oldArr = dico->array;
 	dico->array = newArr;
 	dico->size = newSize;
@@ -135,26 +157,45 @@ void resize(dict dico, int newSize) {
 	free(oldArr);
 }
 
-void* getValue(int x, int y, dict dico) {
+
+// public
+dict createDict() {
+	node** arr = malloc(sizeof(node*)*defaultSize);
+	for (int i = 0; i < defaultSize; i++) {
+		arr[i] = NULL;
+	}
+
+	dict dico = malloc(sizeof(struct dict_s));
+	dico->array = arr;
+	dico->count = 0;
+	dico->size = defaultSize;
+	return dico;
+}
+
+void* getValue(const int x, const int y, dict dico) {
+	//Return null if value does not exist
+
 	int h = hashFunction(x, y, dico->size);
 	return getValueInNode(x, y, dico->array[h]);
 }
 
-void add(int x, int y, void* value, dict dico) {
+bool add(const int x, const int y, void* value, dict dico) {
 
-	//Si le nombre d'éléments devient plus grand que la talle du dico
+	//Si le nombre d'éléments devient plus grand que la taille du dico
 	if (dico->count + 1 >= dico->size) {
 		resize(dico, dico->size * 2);
 	}
 
 	int h = hashFunction(x, y, dico->size);
-	bool isRealAddition;
+	bool isRealAddition = true;
 	dico->array[h] = addInNode(x, y, value, dico->array[h], &isRealAddition);
 
 	if (isRealAddition) dico->count++;
+
+	return isRealAddition;
 }
 
-bool removeValue(int x, int y, dict dico) {
+bool removeValue(const int x, const int y, dict dico) {
 
 	// Si le nombre d'éléments est bcp plus petit que la taille du dico
 	if (dico->count * 4 < dico->size + 4 && dico->size >= 2*defaultSize) {
@@ -170,3 +211,14 @@ bool removeValue(int x, int y, dict dico) {
 	return hasBeenRemoved;
 }
 
+bool mem(const int x, const int y, dict dico) {
+	return isIsNode(x, y, dico->array[hashFunction(x, y, dico->size)]);
+}
+
+void destroyDict(dict dico, bool freeElements) {
+	for (int i = 0; i < dico->size; i++) {
+		freeNode(dico->array[i], freeElements);
+	}
+	free(dico->array);
+	free(dico);
+}

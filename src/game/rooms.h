@@ -1,15 +1,27 @@
 #ifndef ROOMS_H_
 #define ROOMS_H_
 
-#include "list_entities.h"
-
+#include "entities.h"
 #include <stdlib.h>
 #include <assert.h>
 #include "../utils/utils.h"
+#include "../utils/chained_list.h"
 
 typedef struct room room;
 
 room* create_room(int posx, int posy);
 void free_room(room* r);
 
+int getX(room* r);
+int getY(room* r);
+
+void setUp(room* r, room* up);
+void setDown(room* r, room* down);
+void setLeft(room* r, room* left);
+void setRight(room* r, room* right);
+
+void clearUp(room* r, room* up);
+void clearDown(room* r, room* down);
+void clearLeft(room* r, room* left);
+void clearRight(room* r, room* right);
 #endif

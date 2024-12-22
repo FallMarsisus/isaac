@@ -2,6 +2,7 @@
 #define DYN_ARRAYS_H_
 
 #include <stdlib.h>
+#include <assert.h>
 
 typedef struct dyn_array_s dyn_array;
 

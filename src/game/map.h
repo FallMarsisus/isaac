@@ -2,9 +2,9 @@
 #define MAP_H_
 
 #include "rooms.h"
-#include "../utils/chained_list.h"
+#include "../utils/dict.h"
 
-typedef struct map map;
+typedef struct map_s map;
 
 map* create_map();
 void free_map(map* m);

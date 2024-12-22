@@ -1,15 +1,13 @@
+#ifndef ENTITIES_H_
+#define ENTITIES_H_
+
+#include <SDL2/SDL.h>
 
 typedef struct entity_s entity;
 
-//Listes doublement chainées pour une suppression facile en o(1)
-typedef struct list_entity_s list_entity;
+entity* create_entity(SDL_Rect* pos, SDL_Texture* tex);
+void free_entity(entity* e);
 
-list_entity create_list();
-void destroy_list(list_entity l);
+void print_entity(entity* e);
 
-int get_len(list_entity l);
-entity* get_first(list_entity l);
-entity* get_last(list_entity l);
-
-void append(list_entity l, entity* e);
-void remove(list_entity l, entity* e);
+#endif

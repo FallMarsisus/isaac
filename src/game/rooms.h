@@ -1,18 +1,15 @@
+#ifndef ROOMS_H_
+#define ROOMS_H_
 
-#include "entities.h"
+#include "list_entities.h"
+
+#include <stdlib.h>
+#include <assert.h>
+#include "../utils/utils.h"
 
 typedef struct room room;
-typedef struct map map;
 
-void add_room(map* m, int posx, int posy);
-void destroy_room(map* m, int posx, int posy);
+room* create_room(int posx, int posy);
+void free_room(room* r);
 
-room* get_room(map* m, int posx, int posy);
-
-room* get_up(map* m, room* r);
-room* get_down(map* m, room* r);
-room* get_left(map* m, room* r);
-room* get_right(map* m, room* r);
-
-map* create_map();
-void free_map(map* m);
+#endif

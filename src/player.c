@@ -27,7 +27,7 @@ void freePlayer(player joueur) {
 }
 
 void displayPlayer(player joueur, SDL_Renderer* renderer) {
-	displayBitmap(joueur->texture, renderer, joueur->x, joueur->y, joueur->sizeX, joueur->sizeY);
+	drawBitmap(joueur->texture, renderer, joueur->x, joueur->y, joueur->sizeX, joueur->sizeY);
 }
 
 void move(player joueur, int deltaX, int deltaY) {

@@ -1,14 +1,17 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 #include "display.h"
 #include "player.h"
+#include "text.h"
+#include "rooms.h"
 
 
 int main(int argc, char* argv[]) {
+
+
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("SDL_Init Error: %s\n", SDL_GetError());
@@ -35,6 +38,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+
     // Set the renderer color to blue
     SDL_SetRenderDrawColor(ren, 0, 0, 0, 0);
 
@@ -43,8 +47,16 @@ int main(int argc, char* argv[]) {
 
 
     // On affiche un sprite dans le terminal
+    if (TTF_Init() == -1) {
+        printf("TTF_Init Error: %s\n", TTF_GetError());
+        SDL_DestroyRenderer(ren);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return 1;
+    }
 
-
+    text texte = createText(ren, 100, 100, 50, 150, 255, "Miam", "./assets/fonts/FRESHFACE.ttf", 100);
+    
     int win_width, win_height;
     SDL_GetWindowSize(win, &win_width, &win_height);
 
@@ -67,6 +79,7 @@ int main(int argc, char* argv[]) {
         if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W])    move(joueur, 0, -5);
         if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])  move(joueur, 0, 5);
 
+
         // On teste si on hit les bordures
         clipPlayer(joueur, win_width - 200, win_height - 200);
 
@@ -74,6 +87,8 @@ int main(int argc, char* argv[]) {
         SDL_RenderClear(ren);
 
         displayPlayer(joueur, ren);
+        displayText(ren, texte);
+
         
         SDL_RenderPresent(ren);
     }

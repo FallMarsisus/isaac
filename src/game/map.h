@@ -9,8 +9,10 @@ typedef struct map_s map;
 map* create_map();
 void free_map(map* m);
 
+void print_map(map* m);
+
 void add_room(map* m, room* r);
-void destroy_room(map* m, room* r);
+void destroy_room(map* m, int x, int y);
 
 room* get_room(map* m, int posx, int posy);
 

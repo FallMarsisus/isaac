@@ -6,11 +6,6 @@
 #include <assert.h>
 #include <stdbool.h>
 
-typedef enum {
-    INT,
-    FLOAT,
-    STRING
-} Datatype;
 
 typedef struct chained_list_s chained_list;
 

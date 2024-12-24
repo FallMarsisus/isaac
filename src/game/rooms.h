@@ -3,6 +3,7 @@
 
 #include "entities.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include "../utils/utils.h"
 #include "../utils/chained_list.h"
@@ -14,6 +15,10 @@ void free_room(room* r);
 
 int getX(room* r);
 int getY(room* r);
+
+void print_room(room* r);
+
+void draw_room(SDL_Renderer* ren, room* r);
 
 void setUp(room* r, room* up);
 void setDown(room* r, room* down);

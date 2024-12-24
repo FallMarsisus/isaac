@@ -25,7 +25,6 @@ room* create_room(int posx, int posy) {
 void free_room(room* r) {
     if(r == NULL) return;
     free_list(r->entities);
-    free(r);
 }
 
 int getX(room* r) {
@@ -34,6 +33,22 @@ int getX(room* r) {
 
 int getY(room* r) {
     return r->y;
+}
+
+void print_entity_modif(void* data) {
+    print_entity((entity*) data);
+}
+void print_room(room* r) {
+    printf("----------Printing room x : %d, y : %d----------\n", r->x, r->y);
+    if(r->up) printf("Has up\n");
+    if(r->down) printf("Has down\n");
+    if(r->left) printf("Has left\n");
+    if(r->right) printf("Has right\n");
+    iter(r->entities, print_entity_modif);
+}
+
+void draw_room(SDL_Renderer* ren, room* r) {
+    iter(r->entities, draw_entity);
 }
 
 void setUp(room* r, room* up) {
@@ -56,7 +71,6 @@ void setRight(room* r, room* right) {
     r->right = right;
     right->left = r;
 }
-
 
 void clearUp(room* r, room* up) {
     assert(r != NULL && up != NULL);

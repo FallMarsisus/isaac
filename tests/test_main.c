@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 
-#include "../../src/game/map.h"
+#include "../src/game/map.h"
 
 void print_node(int x, int y, void* data) {
     print_room((room*) data);
@@ -50,9 +50,8 @@ int main() {
 
     printf("\nRemoved\n");
     print_map(m);
-
     int x = 0, y = 0;
-    while(true) {
+    while(1 == 1) {
         const Uint8 *state = SDL_GetKeyboardState(NULL);
         if (state[SDL_SCANCODE_LEFT]) x -= 5;
         if (state[SDL_SCANCODE_RIGHT]) x += 5;
@@ -65,12 +64,12 @@ int main() {
         
         SDL_Rect dstrect = { x, y, 20, 20 };
         SDL_SetRenderDrawColor(ren , 0, 0, 255, 255 );
-        SDL_RenderDrawRect(ren, &dstrect);
 
         SDL_RenderPresent(ren);
     }
 
     free_map(m);
+
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     SDL_Quit();

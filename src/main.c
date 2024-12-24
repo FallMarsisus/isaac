@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include "game/map.h"
@@ -40,6 +41,19 @@ int main(int argc, char* argv[]) {
     int win_width, win_height;
     SDL_GetWindowSize(win, &win_width, &win_height);
 
+    TTF_Font* Sans = TTF_OpenFont("assets/fonts/test_font.ttf", 24);
+    SDL_Color White = {255, 255, 0};
+    SDL_Surface* surfaceMessage =
+    TTF_RenderText_Solid(Sans, "put your text here", White); 
+
+    // now you can convert it into a texture
+    SDL_Texture* Message = SDL_CreateTextureFromSurface(ren, surfaceMessage);
+
+    SDL_Rect Message_rect; //create a rect
+    Message_rect.x = 100;  //controls the rect's x coordinate 
+    Message_rect.y = 100; // controls the rect's y coordinte
+    Message_rect.w = 100; // controls the width of the rect
+    Message_rect.h = 100; // controls the height of the rect
     SDL_Event event;
     int x = 0, y = 0;
     int running = 1;
@@ -59,19 +73,20 @@ int main(int argc, char* argv[]) {
             running = 0;
             }
         }
+        
 
         const Uint8 *state = SDL_GetKeyboardState(NULL);
         if (state[SDL_SCANCODE_LEFT]) x -= 5;
         if (state[SDL_SCANCODE_RIGHT]) x += 5;
         if (state[SDL_SCANCODE_UP]) y -= 5;
         if (state[SDL_SCANCODE_DOWN]) y += 5;
-
+        
         if (x < 0) {
             x = win_width - 20;
             mx--;
             current = get_room(m, mx, my);
             if(current == NULL) {
-                room* current = create_room(mx, my);
+                current = create_room(mx, my);
                 add_room(m, current);
             }
         }
@@ -80,7 +95,7 @@ int main(int argc, char* argv[]) {
             my--;
             current = get_room(m, mx, my);
             if(current == NULL) {
-                room* current = create_room(mx, my);
+                current = create_room(mx, my);
                 add_room(m, current);
             }
         }
@@ -89,7 +104,7 @@ int main(int argc, char* argv[]) {
             mx++;
             current = get_room(m, mx, my);
             if(current == NULL) {
-                room* current = create_room(mx, my);
+                current = create_room(mx, my);
                 add_room(m, current);
             }
         }
@@ -98,7 +113,7 @@ int main(int argc, char* argv[]) {
             my++;
             current = get_room(m, mx, my);
             if(current == NULL) {
-                room* current = create_room(mx, my);
+                current = create_room(mx, my);
                 add_room(m, current);
             }
         }
@@ -109,17 +124,25 @@ int main(int argc, char* argv[]) {
         SDL_Rect dstrect = { x, y, 20, 20 };
         SDL_SetRenderDrawColor(ren , 0, 0, 255, 255 );
         SDL_RenderDrawRect(ren, &dstrect);
+        
+        SDL_RenderCopy(ren, Message, NULL, &Message_rect);
 
         SDL_RenderPresent(ren);
+
+        print_room(current);
+        
+        SDL_Delay(16); // Approximately 60 frames per second
     }
     
 
-    // Wait for 0.1 second
-    SDL_Delay(100);
+    free_map(m);
 
     // Clean up
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(image);
+
+    SDL_FreeSurface(surfaceMessage);
+    SDL_DestroyTexture(Message);
 
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);

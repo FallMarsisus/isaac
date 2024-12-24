@@ -1,4 +1,5 @@
 #include "chained_list.h"
+
 struct cell_s {
     void* data;
     struct cell_s* next;
@@ -14,27 +15,13 @@ struct chained_list_s {
 
 typedef struct chained_list_s chained_list;
 
-chained_list* create_list(Datatype type) {
+chained_list* create_list() {
     chained_list* c = malloc(sizeof(chained_list));
     c->len = 0;
     c->first = malloc(sizeof(cell));
     c->last = malloc(sizeof(cell));
     c->first->next = c->last;
     return c;
-}
-
-void free_cell(cell* c) {
-    if(c == NULL) return;
-    if(c->data != NULL) free(c->data);
-    cell* temp = c->next;
-    free(c);
-    free_cell(temp);
-}
-
-void free_list(chained_list* l) {
-    assert(l != NULL);
-    free_cell(l->first);
-    free(l);
 }
 
 void append_elt(chained_list* l, void* element) {
@@ -59,13 +46,29 @@ void remove_elt(chained_list* l, void* element) {
     }
 }
 
+void free_list(chained_list* l) {
+    if(l == NULL) return;
+
+    cell* temp = l->first->next;
+    while(temp != l->last) {
+        cell* next = temp->next;
+        if(temp->data != NULL) free(temp->data);
+        free(temp);
+        temp = next;
+    }
+    free(l->first);
+    free(l->last);
+    free(l);
+}
+
 void iter(chained_list* l, void (*f)(void*)) {
     if(l == NULL) return;
     if(f == NULL) return;
 
-    cell* temp = l->first;
-    while(temp != NULL) {
+    cell* temp = l->first->next;
+    while(temp != l->last) {
+        cell* next = temp->next;
         if(temp->data != NULL) f(temp->data);
-        temp = temp->next;
+        temp = next;
     }
 }

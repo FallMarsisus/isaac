@@ -18,6 +18,10 @@ void free_entity(entity* e) {
     free(e);
 }
 
+void draw_entity(SDL_Renderer* ren, entity* e) {
+    SDL_RenderCopy(ren, e->texture, NULL, e->pos);
+}
+
 void print_entity(entity* e) {
     printf("Enemy {x : %d, y : %d, width : %d, height : %d}\n", e->pos->x, e->pos->y, e->pos->w, e->pos->h);
 }

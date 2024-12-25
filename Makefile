@@ -1,7 +1,7 @@
 .PHONY: build run clean winbuild
 
 build:
-	gcc -Wall -g ./src/*.c ./src/*.h `sdl2-config --libs --cflags` -lSDL2_ttf -lm -o ./bins/game
+	gcc -Wall ./src/*.c `sdl2-config --libs --cflags` -lSDL2_ttf -lm -o ./bins/game
 
 run:
 	./bins/game

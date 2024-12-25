@@ -50,3 +50,17 @@ void drawText(SDL_Renderer *renderer, char* text, int x, int y, int sizeX, int s
 	SDL_RenderCopy(renderer, messageTexture, NULL, &messageRect);
 
 }
+
+
+void drawBox(SDL_Renderer* renderer, int x, int y, int sizeX, int sizeY, int red, int green, int blue) {
+	SDL_Rect box = {x, y, sizeX, sizeY};
+
+	SDL_SetRenderDrawColor(renderer, red, green, blue, 0xFF);
+	SDL_RenderFillRect(renderer, &box);
+}
+
+
+void newFrame(SDL_Renderer* renderer, int red, int green, int blue) {
+	SDL_SetRenderDrawColor(renderer, red, green, blue, 0xFF);
+    SDL_RenderClear(renderer);
+}

@@ -7,6 +7,7 @@ typedef struct text_s {
     SDL_Texture* texture;
     SDL_Color color;
     TTF_Font* font;
+    bool underlined;
     char* text;
     char* fontName;
     int fontSize;
@@ -50,6 +51,12 @@ void renderText(SDL_Renderer* renderer, text texte) {
     SDL_FreeSurface(surface);
 }
 
+int max(int a, int b) {
+    return a < b ? b : a;
+}
+
+
+
 // fonctions de création
 text createExmptyText() {
     text texte = malloc(sizeof(struct text_s));
@@ -58,6 +65,7 @@ text createExmptyText() {
     texte->sizeX = -1;
     texte->sizeY = -1;
     texte->fontSize = -1;
+    texte->underlined = false;
     texte->font = NULL;
     texte->texture = NULL;
     texte->color = (SDL_Color){0, 0, 0};
@@ -75,6 +83,7 @@ text createText(SDL_Renderer* renderer, int x, int y, int red, int green, int bl
     texte->x = x;
     texte->y = y;
     texte->fontSize = fontSize;
+    texte->underlined = false;
 
     texte->font = TTF_OpenFont(fontName, fontSize);
     int textWidth, textHeight;
@@ -123,6 +132,7 @@ void changeTextFontSize(text texte, int newSize) {
 
     texte->sizeX = textWidth;
     texte->sizeY = textHeight;
+    texte->fontSize = newSize;
 }
 
 void forceTextNewWidth(text texte, int newSizeX) {
@@ -137,11 +147,19 @@ void changeTextColor(SDL_Renderer* renderer, text texte, SDL_Color newColor) {
 	renderText(renderer, texte);
 }
 
+void changeTextUnderline(text texte, bool underlining) {
+    texte->underlined = underlining;
+}
+
 
 
 // display functions
 void displayText(SDL_Renderer* renderer, text texte) {
     SDL_Rect messageRect = {texte->x, texte->y, texte->sizeX, texte->sizeY};
+
+    if (texte->underlined) {
+        drawBox(renderer, texte->x, texte->y + texte->sizeY - (texte->fontSize / 10), texte->sizeX, max(texte->fontSize / 15, 1), texte->color.r, texte->color.g, texte->color.b);
+    }
 
     SDL_RenderCopy(renderer, texte->texture, NULL, &messageRect);
 }
@@ -162,7 +180,7 @@ int getTextSizeX(text texte) {
 }
 
 int getTextSizeY(text texte) {
-    return texte->sizeY;
+    return texte->underlined ? texte->sizeY + 4 : texte->sizeY;
 }
 
 int getTextFontSize(text texte) {
@@ -183,4 +201,8 @@ SDL_Color getTextColor(text texte) {
 
 bool messageIsNull(text texte) {
     return texte->texture == NULL;
+}
+
+bool getTextUnderlineState(text texte) {
+    return texte->underlined;
 }

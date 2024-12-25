@@ -56,7 +56,8 @@ int main(int argc, char* argv[]) {
     }
 
     text texte = createText(ren, 100, 100, 50, 150, 255, "Miam", "./assets/fonts/FRESHFACE.ttf", 100);
-    
+    changeTextUnderline(texte, true);
+
     int win_width, win_height;
     SDL_GetWindowSize(win, &win_width, &win_height);
 
@@ -79,12 +80,15 @@ int main(int argc, char* argv[]) {
         if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W])    move(joueur, 0, -5);
         if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])  move(joueur, 0, 5);
 
+        if (state[SDL_SCANCODE_SPACE]) changeTextFontSize(texte, 25);
+        else changeTextFontSize(texte, 50);
+
 
         // On teste si on hit les bordures
         clipPlayer(joueur, win_width - 200, win_height - 200);
 
         // On affiche le sprite et on render
-        SDL_RenderClear(ren);
+        newFrame(ren, 0, 0, 0);
 
         displayPlayer(joueur, ren);
         displayText(ren, texte);

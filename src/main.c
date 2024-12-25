@@ -50,10 +50,11 @@ int main(int argc, char* argv[]) {
     //=========Loads textures===========
     load_player_textures(
         p, 
-        SDL_CreateTextureFromSurface(ren, SDL_LoadBMP("assets/player/player_up.bmp")), 
-        SDL_CreateTextureFromSurface(ren, SDL_LoadBMP("assets/player/player_down.bmp")), 
-        SDL_CreateTextureFromSurface(ren, SDL_LoadBMP("assets/player/player_left.bmp")),
-        SDL_CreateTextureFromSurface(ren, SDL_LoadBMP("assets/player/player_right.bmp"))
+        ren,
+        "assets/player/player_up.bmp", 
+        "assets/player/player_down.bmp", 
+        "assets/player/player_left.bmp",
+        "assets/player/player_right.bmp"
     );
 
     while (running) {

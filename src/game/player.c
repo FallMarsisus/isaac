@@ -33,11 +33,21 @@ player* create_player(int x, int y) {
     return p;
 }
 
-void load_player_textures(player* p, SDL_Texture* up_texture, SDL_Texture* down_texture, SDL_Texture* left_texture, SDL_Texture* right_texture) {
-    p->up_texture = up_texture;
-    p->down_texture = down_texture;
-    p->left_texture = left_texture;
-    p->right_texture = right_texture;
+void load_player_textures(player* p, SDL_Renderer* ren, char* up_texture, char* down_texture, char* left_texture, char* right_texture) {
+    SDL_Surface* surf_up = SDL_LoadBMP(up_texture);
+    SDL_Surface* surf_down = SDL_LoadBMP(down_texture);
+    SDL_Surface* surf_left = SDL_LoadBMP(left_texture);
+    SDL_Surface* surf_right = SDL_LoadBMP(right_texture);
+
+    p->up_texture = SDL_CreateTextureFromSurface(ren, surf_up);
+    p->down_texture = SDL_CreateTextureFromSurface(ren, surf_down);
+    p->left_texture = SDL_CreateTextureFromSurface(ren, surf_left);
+    p->right_texture = SDL_CreateTextureFromSurface(ren, surf_right);
+
+    SDL_FreeSurface(surf_up);
+    SDL_FreeSurface(surf_down);
+    SDL_FreeSurface(surf_left);
+    SDL_FreeSurface(surf_right);
 
     set_sprite(p->body, p->down_texture);
 }

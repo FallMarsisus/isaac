@@ -127,10 +127,11 @@ int main(int argc, char* argv[]) {
         
         SDL_RenderCopy(ren, Message, NULL, &Message_rect);
 
-        SDL_RenderPresent(ren);
+        draw_room(ren, current);
 
         print_room(current);
         
+        SDL_RenderPresent(ren);
         SDL_Delay(16); // Approximately 60 frames per second
     }
     

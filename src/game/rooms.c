@@ -19,6 +19,11 @@ room* create_room(int posx, int posy) {
     r->x = posx;
     r->y = posy;
     r->entities = create_list();
+    append_elt(r->entities, create_entity());
+    r->up = NULL;
+    r->down = NULL;
+    r->left = NULL;
+    r->right = NULL;
     return r;
 }
 
@@ -48,7 +53,9 @@ void print_room(room* r) {
 }
 
 void draw_room(SDL_Renderer* ren, room* r) {
-    iter(r->entities, draw_entity);
+    for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
+        if(get_data(c) != NULL) draw_entity(ren, (entity*) get_data(c));
+    }
 }
 
 void setUp(room* r, room* up) {

@@ -19,8 +19,11 @@ chained_list* create_list() {
     chained_list* c = malloc(sizeof(chained_list));
     c->len = 0;
     c->first = malloc(sizeof(cell));
+    c->first->data = NULL;
     c->last = malloc(sizeof(cell));
+    c->last->data = NULL;
     c->first->next = c->last;
+    c->last->next = NULL;
     return c;
 }
 
@@ -31,6 +34,8 @@ void append_elt(chained_list* l, void* element) {
 
     c->next = l->first->next;
     l->first->next = c;
+
+    l->len++;
 }
 
 void remove_elt(chained_list* l, void* element) {
@@ -44,6 +49,8 @@ void remove_elt(chained_list* l, void* element) {
         }
         temp = temp->next;
     }
+
+    l->len--;
 }
 
 void free_list(chained_list* l) {
@@ -71,4 +78,14 @@ void iter(chained_list* l, void (*f)(void*)) {
         if(temp->data != NULL) f(temp->data);
         temp = next;
     }
+}
+
+cell* get_first(chained_list* l) {
+    return l->first->next;
+}
+cell* get_next(cell* c) {
+    return c->next;
+}
+void* get_data(cell* c) {
+    return c->data;
 }

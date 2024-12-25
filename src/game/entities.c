@@ -7,9 +7,13 @@ struct entity_s {
 
 typedef struct entity_s entity;
 
-entity* create_entity(SDL_Rect* pos, SDL_Texture* tex) {
+entity* create_entity(int x, int y, int width, int height, SDL_Texture* tex) {
     entity* e = malloc(sizeof(entity));
-    e->pos = pos;
+    e->pos = malloc(sizeof(SDL_Rect));
+    e->pos->x = x;
+    e->pos->y = y;
+    e->pos->w = width;
+    e->pos->h = height;
     e->texture = tex;
     return e;
 }
@@ -19,6 +23,7 @@ void free_entity(entity* e) {
 }
 
 void draw_entity(SDL_Renderer* ren, entity* e) {
+    if(e == NULL || e->texture == NULL || e->pos == NULL) return;
     SDL_RenderCopy(ren, e->texture, NULL, e->pos);
 }
 

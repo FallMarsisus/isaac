@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-typedef struct room_s
-{
+typedef struct room_s {
 	int x;
 	int y;
 	struct room_s* up;

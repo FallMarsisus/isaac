@@ -19,7 +19,7 @@ room* create_room(int posx, int posy) {
     r->x = posx;
     r->y = posy;
     r->entities = create_list();
-    append_elt(r->entities, create_entity());
+    append_elt(r->entities, create_entity(rand() % 640, rand() % 360, 50, 50));
     r->up = NULL;
     r->down = NULL;
     r->left = NULL;

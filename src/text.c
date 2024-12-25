@@ -1,144 +1,186 @@
 #include <SDL2/SDL_ttf.h>
-#include "display.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include "display.h"
 
 typedef struct text_s {
-	SDL_Texture* texture;
-	SDL_Color color;
-	TTF_Font* font;
-	char* text;
-	char* fontName;
-	int fontSize;
-	int x;
-	int y;
-	int sizeX;
-	int sizeY;
+    SDL_Texture* texture;
+    SDL_Color color;
+    TTF_Font* font;
+    char* text;
+    char* fontName;
+    int fontSize;
+    int x;
+    int y;
+    int sizeX;
+    int sizeY;
 }* text;
 
-//private
+// private
 void renderText(SDL_Renderer* renderer, text texte) {
-	if (texte->font == NULL) {
-		fprintf(stderr, "Font not loaded: %s\n", TTF_GetError());
-		exit(EXIT_FAILURE);
-	}
+    if (texte->font == NULL) {
+        fprintf(stderr, "Font not loaded: %s\n", TTF_GetError());
+        exit(EXIT_FAILURE);
+    }
 
-	if (texte->text == NULL) {
-		fprintf(stderr, "Text is NULL\n");
-		exit(EXIT_FAILURE);
-	}
+    if (texte->text == NULL) {
+        fprintf(stderr, "Text is NULL\n");
+        exit(EXIT_FAILURE);
+    }
 
-	if (texte->texture != NULL) {
-		SDL_DestroyTexture(texte->texture);
-		texte->texture = NULL;
-	}
+    if (texte->texture != NULL) {
+        SDL_DestroyTexture(texte->texture);
+        texte->texture = NULL;
+    }
 
-	SDL_Surface* surface = TTF_RenderText_Solid(texte->font, texte->text, texte->color);
+    SDL_Surface* surface = TTF_RenderText_Solid(texte->font, texte->text, texte->color);
 
-	if (surface == NULL) {
-		fprintf(stderr, "Failed to load surface\n");
-		exit(EXIT_FAILURE);
-	}
+    if (surface == NULL) {
+        fprintf(stderr, "Failed to load surface\n");
+        exit(EXIT_FAILURE);
+    }
 
-	texte->texture = SDL_CreateTextureFromSurface(renderer, surface);
+    texte->texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-	if (texte->texture == NULL) {
-		fprintf(stderr, "Failed to load texture\n");
-		exit(EXIT_FAILURE);
-	}
+    if (texte->texture == NULL) {
+        fprintf(stderr, "Failed to load texture\n");
+        exit(EXIT_FAILURE);
+    }
 
-	SDL_FreeSurface(surface);
+    SDL_FreeSurface(surface);
 }
 
-
+// fonctions de création
 text createExmptyText() {
-	text texte = malloc(sizeof(struct text_s));
-	texte->x = -1;
-	texte->y = -1;
-	texte->sizeX = -1;
-	texte->sizeY = -1;
-	texte->fontSize = -1;
-	texte->font = NULL;
-	texte->texture = NULL;
-	texte->color = (SDL_Color){0, 0, 0};
-	texte->fontName = malloc(sizeof(char)*2);
-	texte->text = malloc(sizeof(char)*2);
-	strcpy(texte->fontName, "");
-	strcpy(texte->text, "");
+    text texte = malloc(sizeof(struct text_s));
+    texte->x = -1;
+    texte->y = -1;
+    texte->sizeX = -1;
+    texte->sizeY = -1;
+    texte->fontSize = -1;
+    texte->font = NULL;
+    texte->texture = NULL;
+    texte->color = (SDL_Color){0, 0, 0};
+    texte->fontName = malloc(sizeof(char)*2);
+    texte->text = malloc(sizeof(char)*2);
+    strcpy(texte->fontName, "");
+    strcpy(texte->text, "");
 
-	return texte;
+    return texte;
 }
-
 
 text createText(SDL_Renderer* renderer, int x, int y, int red, int green, int blue, char* string, char* fontName, int fontSize) {
+    text texte = malloc(sizeof(struct text_s));
+    texte->color = (SDL_Color){red, green, blue};
+    texte->x = x;
+    texte->y = y;
+    texte->fontSize = fontSize;
 
-	text texte = malloc(sizeof(struct text_s));
-	texte->color = (SDL_Color){red, green, blue};
-	texte->x = x;
-	texte->y = y;
-	texte->fontSize = fontSize;
-
-	texte->font = TTF_OpenFont(fontName, fontSize);
-	int textWidth, textHeight;
+    texte->font = TTF_OpenFont(fontName, fontSize);
+    int textWidth, textHeight;
     TTF_SizeText(texte->font, string, &textWidth, &textHeight);
 
-	texte->sizeX = textWidth;
-	texte->sizeY = textHeight;
+    texte->sizeX = textWidth;
+    texte->sizeY = textHeight;
 
+    texte->text = malloc(strlen(string) + 1);
+    strcpy(texte->text, string);
 
-	texte->text = malloc(strlen(string) + 1);
-	strcpy(texte->text, string);
+    texte->fontName = malloc(strlen(fontName) + 1);
+    strcpy(texte->fontName, fontName);
 
-	texte->fontName = malloc(strlen(fontName) + 1);
-	strcpy(texte->fontName, fontName);
+    renderText(renderer, texte);
 
-	
-	renderText(renderer, texte);
-
-	return texte;
+    return texte;
 }
 
-void changeTextMessage(text texte, char* newString) {
-	free(texte->text);
 
-	texte->text = malloc(strlen(newString) + 1);
-	strcpy(texte->text, newString);
+
+// fonctions transformateurs
+void changeTextMessage(text texte, char* newString) {
+    free(texte->text);
+
+    texte->text = malloc(strlen(newString) + 1);
+    strcpy(texte->text, newString);
 }
 
 void sizeTextCoord(text texte, int x, int y) {
-	texte->x = x;
-	texte->y = y;
+    texte->x = x;
+    texte->y = y;
 }
 
 void resizeText(SDL_Renderer* renderer, text texte, int newSize) {
-	texte->fontSize = newSize;
-	texte->font = TTF_OpenFont(texte->fontName, newSize);
+    texte->fontSize = newSize;
+    texte->font = TTF_OpenFont(texte->fontName, newSize);
 
-	renderText(renderer, texte);
-}
-
-void displayText(SDL_Renderer* renderer, text texte) {
-	SDL_Rect messageRect = {texte->x, texte->y, texte->sizeX, texte->sizeY};
-
-	SDL_RenderCopy(renderer, texte->texture, NULL, &messageRect);
-}
-
-bool messageIsNull(text texte) {
-	return texte->texture == NULL;
+    renderText(renderer, texte);
 }
 
 void changeTextFontSize(text texte, int newSize) {
-	int textWidth, textHeight;
-	texte->font = TTF_OpenFont(texte->fontName, newSize);
+    int textWidth, textHeight;
+    texte->font = TTF_OpenFont(texte->fontName, newSize);
     TTF_SizeText(texte->font, texte->text, &textWidth, &textHeight);
 
-	texte->sizeX = textWidth;
-	texte->sizeY = textHeight;
+    texte->sizeX = textWidth;
+    texte->sizeY = textHeight;
 }
 
 void forceTextNewWidth(text texte, int newSizeX) {
-	texte->sizeY = (texte->sizeY * newSizeX) / texte->sizeX;
-	texte->sizeX = newSizeX;
-	texte->fontSize = texte->sizeY;
-	texte->font = TTF_OpenFont(texte->fontName, texte->fontSize);
+    texte->sizeY = (texte->sizeY * newSizeX) / texte->sizeX;
+    texte->sizeX = newSizeX;
+    texte->fontSize = texte->sizeY;
+    texte->font = TTF_OpenFont(texte->fontName, texte->fontSize);
+}
+
+void changeTextColor(SDL_Renderer* renderer, text texte, SDL_Color newColor) {
+	texte->color = newColor;
+	renderText(renderer, texte);
+}
+
+
+
+// display functions
+void displayText(SDL_Renderer* renderer, text texte) {
+    SDL_Rect messageRect = {texte->x, texte->y, texte->sizeX, texte->sizeY};
+
+    SDL_RenderCopy(renderer, texte->texture, NULL, &messageRect);
+}
+
+
+
+// getter functions
+int getTextX(text texte) {
+    return texte->x;
+}
+
+int getTextY(text texte) {
+    return texte->y;
+}
+
+int getTextSizeX(text texte) {
+    return texte->sizeX;
+}
+
+int getTextSizeY(text texte) {
+    return texte->sizeY;
+}
+
+int getTextFontSize(text texte) {
+    return texte->fontSize;
+}
+
+char* getTextString(text texte) {
+    return texte->text;
+}
+
+char* getTextFontName(text texte) {
+    return texte->fontName;
+}
+
+SDL_Color getTextColor(text texte) {
+    return texte->color;
+}
+
+bool messageIsNull(text texte) {
+    return texte->texture == NULL;
 }

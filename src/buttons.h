@@ -6,7 +6,7 @@
 
 typedef struct button_s* button;
 
-button createButton(SDL_Renderer* renderer, text texte, SDL_Color background, SDL_Color hoverColor, unsigned int id);
+button createButton(SDL_Renderer* renderer, text texte, SDL_Color background, SDL_Color hoverColor, unsigned int id, int margin);
 void displayButton(SDL_Renderer* renderer, button bouton, bool isHovering);
 bool mouseInButton(button bouton, int mouseX, int mouseY);
 text getButtonText(button bouton);

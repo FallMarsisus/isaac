@@ -5,6 +5,6 @@
 #include "buttons.h"
 
 button* createMainMenuButtons(SDL_Renderer* renderer, int winWidth, int winHeigth);
-void displayMainMenu(SDL_Renderer* renderer, button* boutons);
+void displayMainMenu(SDL_Renderer* renderer, button* boutons, int mouseX, int mouseY);
 
 #endif // MENU_H

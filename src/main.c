@@ -7,6 +7,7 @@
 #include "player.h"
 #include "text.h"
 #include "rooms.h"
+#include "buttons.h"
 
 
 int main(int argc, char* argv[]) {
@@ -57,6 +58,7 @@ int main(int argc, char* argv[]) {
 
     text texte = createText(ren, 100, 100, 50, 150, 255, "Miam", "./assets/fonts/FRESHFACE.ttf", 100);
     changeTextUnderline(texte, true);
+    button bouton = createButton(ren, texte, (SDL_Color){0, 255, 0}, (SDL_Color){0, 150, 0}, NULL);
 
     int win_width, win_height;
     SDL_GetWindowSize(win, &win_width, &win_height);
@@ -64,12 +66,17 @@ int main(int argc, char* argv[]) {
     SDL_Event event;
     int running = 1;
 
+    int mouseX, mouseY;
+
     while (running) {
+
+        // Update mouse coordinates
+        SDL_GetMouseState(&mouseX, &mouseY);
 
         // On vérifie qu'on quitte pas et on attend un appui de touche 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
-            running = 0;
+                running = 0;
             }
         }
 
@@ -80,8 +87,6 @@ int main(int argc, char* argv[]) {
         if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W])    move(joueur, 0, -5);
         if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])  move(joueur, 0, 5);
 
-        if (state[SDL_SCANCODE_SPACE]) changeTextFontSize(texte, 25);
-        else changeTextFontSize(texte, 50);
 
 
         // On teste si on hit les bordures
@@ -91,7 +96,10 @@ int main(int argc, char* argv[]) {
         newFrame(ren, 0, 0, 0);
 
         displayPlayer(joueur, ren);
-        displayText(ren, texte);
+
+
+        if (mouseInButton(bouton, mouseX, mouseY)) displayButton(ren, bouton, true);
+        else displayButton(ren, bouton, false);
 
         
         SDL_RenderPresent(ren);

@@ -106,11 +106,13 @@ text createText(SDL_Renderer* renderer, int x, int y, int red, int green, int bl
 
 
 // fonctions transformateurs
-void changeTextMessage(text texte, char* newString) {
+void changeTextMessage(SDL_Renderer* renderer, text texte, char* newString) {
     free(texte->text);
 
     texte->text = malloc(strlen(newString) + 1);
     strcpy(texte->text, newString);
+    
+    renderText(renderer, texte);
 }
 
 void sizeTextCoord(text texte, int x, int y) {
@@ -180,7 +182,7 @@ int getTextSizeX(text texte) {
 }
 
 int getTextSizeY(text texte) {
-    return texte->underlined ? texte->sizeY + 4 : texte->sizeY;
+    return texte->underlined ? texte->sizeY + max(texte->fontSize / 15, 1) : texte->sizeY;
 }
 
 int getTextFontSize(text texte) {

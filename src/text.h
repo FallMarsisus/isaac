@@ -11,7 +11,7 @@ text createExmptyText();
 text createText(SDL_Renderer* renderer, int x, int y, int red, int green, int blue, char* string, char* fontName, int fontSize);
 
 // modification functions
-void changeTextMessage(text texte, char* newString);
+void changeTextMessage(SDL_Renderer* renderer, text texte, char* newString);
 void sizeTextCoord(text texte, int x, int y);
 void resizeText(SDL_Renderer* renderer, text texte, int newSize);
 void changeTextFontSize(text texte, int newSize);

@@ -8,7 +8,7 @@
 #include "text.h"
 #include "rooms.h"
 #include "buttons.h"
-
+#include "menu.h"
 
 int main(int argc, char* argv[]) {
 
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 
     text texte = createText(ren, 100, 100, 50, 150, 255, "Miam", "./assets/fonts/FRESHFACE.ttf", 100);
     changeTextUnderline(texte, true);
-    button bouton = createButton(ren, texte, (SDL_Color){0, 255, 0}, (SDL_Color){0, 150, 0}, NULL);
+    button bouton = createButton(ren, texte, (SDL_Color){0, 255, 0}, (SDL_Color){0, 150, 0}, 0);
 
     int win_width, win_height;
     SDL_GetWindowSize(win, &win_width, &win_height);
@@ -67,6 +67,8 @@ int main(int argc, char* argv[]) {
     int running = 1;
 
     int mouseX, mouseY;
+
+    button* menu = createMainMenuButtons(ren, win_width, win_height);
 
     while (running) {
 
@@ -95,11 +97,13 @@ int main(int argc, char* argv[]) {
         // On affiche le sprite et on render
         newFrame(ren, 0, 0, 0);
 
-        displayPlayer(joueur, ren);
+        // displayPlayer(joueur, ren);
 
 
-        if (mouseInButton(bouton, mouseX, mouseY)) displayButton(ren, bouton, true);
-        else displayButton(ren, bouton, false);
+        // if (mouseInButton(bouton, mouseX, mouseY)) displayButton(ren, bouton, true);
+        // else displayButton(ren, bouton, false);
+
+        displayMainMenu(ren, menu);    
 
         
         SDL_RenderPresent(ren);

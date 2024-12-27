@@ -9,10 +9,7 @@ struct player_s {
     
     entity* body;
 
-    SDL_Texture* up_texture;
-    SDL_Texture* down_texture;
-    SDL_Texture* left_texture;
-    SDL_Texture* right_texture;
+    anim_core* core;
 };
 
 typedef struct player_s player;
@@ -21,7 +18,7 @@ player* create_player(int x, int y) {
     player* p = malloc(sizeof(player));
     
     p->body = create_entity(x, y, 32, 32);
-    p->speed = 5;
+    p->speed = 3;
     p->map_x = 0; p->map_y = 0;
     p->dir = malloc(sizeof(Vector));
     p->dir->x = 0; p->dir->y = 0;
@@ -33,31 +30,21 @@ player* create_player(int x, int y) {
     return p;
 }
 
-void load_player_textures(player* p, SDL_Renderer* ren, char* up_texture, char* down_texture, char* left_texture, char* right_texture) {
-    SDL_Surface* surf_up = SDL_LoadBMP(up_texture);
-    SDL_Surface* surf_down = SDL_LoadBMP(down_texture);
-    SDL_Surface* surf_left = SDL_LoadBMP(left_texture);
-    SDL_Surface* surf_right = SDL_LoadBMP(right_texture);
-
-    p->up_texture = SDL_CreateTextureFromSurface(ren, surf_up);
-    p->down_texture = SDL_CreateTextureFromSurface(ren, surf_down);
-    p->left_texture = SDL_CreateTextureFromSurface(ren, surf_left);
-    p->right_texture = SDL_CreateTextureFromSurface(ren, surf_right);
-
-    SDL_FreeSurface(surf_up);
-    SDL_FreeSurface(surf_down);
-    SDL_FreeSurface(surf_left);
-    SDL_FreeSurface(surf_right);
-
-    set_sprite(p->body, p->down_texture);
+void load_player_textures(player* p, SDL_Renderer* ren, char* path) {
+    p->core = create_core(ren, path, 16, 16);
+    printf("Y\n");
+    fflush(stdout);
+    
+    add_anim(p->core, 0, 0.1, 4);
+    add_anim(p->core, 1, 0.1, 4);
+    add_anim(p->core, 2, 0.1, 2);
+    add_anim(p->core, 3, 0.1, 2);
+    
+    set_active_anim(p->core, 0);
 }
 
 void free_player(player* p) {
-    SDL_DestroyTexture(p->up_texture);
-    SDL_DestroyTexture(p->down_texture);
-    SDL_DestroyTexture(p->left_texture);
-    SDL_DestroyTexture(p->right_texture);
-
+    free_core(p->core);
     free_entity(p->body);
     free(p->dir);
     free(p->keys);
@@ -138,24 +125,29 @@ void move(player* p) {
     }
 }
 
+void update_player_sprite(player* p) {
+    bool anim = true;
+    if(p->dir->y < -0.1) set_active_anim(p->core, 1);
+    else if(p->dir->y > 0.1) set_active_anim(p->core, 0);
+    else if(p->dir->x < -0.1) set_active_anim(p->core, 2);
+    else if(p->dir->x > 0.1) set_active_anim(p->core, 3);
+    else {
+        stop_anim(p->core);
+        anim = false;
+    }
+    if(anim) play_anim(p->core);
+}
+
 //Do the whole shit
 room* update(player* p, int win_width, int win_height, map* m, room* current) {
-    //SDL_Rect* pos = get_pos(p->body);
-
     move(p);
+
+    update_player_sprite(p);
+
     room* new_room = change_room(p, win_width, win_height, m, current);
     return new_room;
 }
 
-void update_player_sprite(player* p) {
-    if(p->dir->x < -0.1) set_sprite(p->body, p->left_texture);
-    else if(p->dir->x > 0.1) set_sprite(p->body, p->right_texture);
-    else if(p->dir->y < -0.1) set_sprite(p->body, p->up_texture);
-    else if(p->dir->y > 0.1) set_sprite(p->body, p->down_texture);
-}
-
 void draw_player(SDL_Renderer* ren, player* p) {
-    update_player_sprite(p);
-
-    draw_entity(ren, p->body);
+    draw_texture(ren, get_pos(p->body), p->core);
 }

@@ -3,6 +3,7 @@
 #include "rooms.h"
 #include "map.h"
 #include "../utils/vector.h"
+#include "anim.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -11,7 +12,7 @@
 typedef struct player_s player;
 
 player* create_player(int x, int y);
-void load_player_textures(player* p, SDL_Renderer* ren, char* up_texture, char* down_texture, char* left_texture, char* right_texture);
+void load_player_textures(player* p, SDL_Renderer* ren, char* path);
 
 void free_player(player* p);
 

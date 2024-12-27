@@ -51,10 +51,7 @@ int main(int argc, char* argv[]) {
     load_player_textures(
         p, 
         ren,
-        "assets/player/player_up.bmp", 
-        "assets/player/player_down.bmp", 
-        "assets/player/player_left.bmp",
-        "assets/player/player_right.bmp"
+        "assets/player/sprite_sheet.bmp"
     );
 
     while (running) {
@@ -74,9 +71,7 @@ int main(int argc, char* argv[]) {
         
         draw_room(ren, current);
         draw_player(ren, p);
-
-        print_room(current);
-        
+                
         SDL_RenderPresent(ren);
         SDL_Delay(16); // Approximately 60 frames per second
     }

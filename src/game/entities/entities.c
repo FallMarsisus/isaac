@@ -62,6 +62,10 @@ void set_damage(entity* e, int damage) {
     e->damage = damage;
 }
 
+void update_entity(entity* e) {
+    // Do nothing
+}
+
 void draw_entity(SDL_Renderer* ren, entity* e) {
     if(e == NULL || e->pos == NULL) return;
     if(e->has_sprite) {

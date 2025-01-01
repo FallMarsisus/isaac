@@ -8,6 +8,8 @@
 #include "../utils/chained_list.h"
 
 #include "entities/entities.h"
+#include "entities/item.h"
+#include "entities/enemy.h"
 
 typedef struct room room;
 

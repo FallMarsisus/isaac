@@ -2,7 +2,7 @@
 
 typedef enum {
     ENEMY,
-    FURNITURE,
+    ITEM,
     ENTITY_SIMPLE
 } entity_type;
 
@@ -73,7 +73,14 @@ void add_entity(room* r, entity* e) {
 
 void update_room(room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
-        //if((container*) get_data(c) != NULL) update_entity(((container*) get_data(c))->data);
+        if((container*) get_data(c) != NULL) {
+            if(((container*) get_data(c))->type == ENTITY_SIMPLE)
+                update_entity(((container*) get_data(c))->data);
+            else if(((container*) get_data(c))->type == ENEMY)
+                update_enemy(((container*) get_data(c))->data);
+            else if(((container*) get_data(c))->type == ITEM)
+                update_item(((container*) get_data(c))->data);
+        }
     }
 }
 

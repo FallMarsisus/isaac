@@ -22,4 +22,6 @@ void set_max_health(entity* e, int max_health);
 void set_health(entity* e, int health);
 void set_damage(entity* e, int damage);
 
+void update_entity(entity* e);
+
 void draw_entity(SDL_Renderer* ren, entity* e);

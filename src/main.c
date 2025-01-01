@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include "game/map.h"
@@ -33,26 +34,21 @@ int main(int argc, char* argv[]) {
     int win_width = 640, win_height = 360;
     SDL_RenderSetLogicalSize(ren, win_width, win_height);
 
-    //Calibre la taille de la fenetre
-    //SDL_GetWindowSize(win, &win_width, &win_height);
+    // Load ttf
+    if (TTF_Init() == -1) {
+        printf("TTF_Init Error: %s\n", TTF_GetError());
+        SDL_DestroyRenderer(ren);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return 1;
+    }
 
     SDL_Event event;
     
     int running = 1;
 
     map* m = create_map();
-    
-    room* current = create_room(0, 0);
-    add_room(m, current);
-
-    player* p = create_player(320, 180);
-
-    //=========Loads textures===========
-    load_player_textures(
-        p, 
-        ren,
-        "assets/player/sprite_sheet.bmp"
-    );
+    load_textures(m, ren);
 
     while (running) {
         // On vérifie qu'on quitte pas et on attend un appui de touche 
@@ -62,22 +58,18 @@ int main(int argc, char* argv[]) {
             }
         }
         
-        get_inputs(p);
-
-        current = update(p, win_width, win_height, m, current);
+        update_map(m, win_width, win_height);
         
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255 );
         SDL_RenderClear(ren);
-        
-        draw_room(ren, current);
-        draw_player(ren, p);
+
+        draw_map(m, ren);
                 
         SDL_RenderPresent(ren);
         SDL_Delay(16); // Approximately 60 frames per second
     }
 
     //Free all the shit
-    free_player(p);
     free_map(m);
 
     SDL_DestroyRenderer(ren);

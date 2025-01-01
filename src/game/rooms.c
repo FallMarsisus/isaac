@@ -1,5 +1,16 @@
 #include "rooms.h"
 
+typedef enum {
+    ENEMY,
+    FURNITURE,
+    ENTITY_SIMPLE
+} entity_type;
+
+typedef struct {
+    entity_type type;
+    void* data;
+} container;
+
 struct room {
     int x;
     int y;
@@ -19,11 +30,12 @@ room* create_room(int posx, int posy) {
     r->x = posx;
     r->y = posy;
     r->entities = create_list();
-    append_elt(r->entities, create_entity(rand() % 640, rand() % 360, 50, 50));
     r->up = NULL;
     r->down = NULL;
     r->left = NULL;
     r->right = NULL;
+
+    add_entity(r, create_entity(rand() % 640, rand() % 360, 50, 50));
     return r;
 }
 
@@ -35,13 +47,13 @@ void free_room(room* r) {
 int getX(room* r) {
     return r->x;
 }
-
 int getY(room* r) {
     return r->y;
 }
 
 void print_entity_modif(void* data) {
-    print_entity((entity*) data);
+    container* c = data;
+    print_entity((entity*) c->data);
 }
 void print_room(room* r) {
     printf("----------Printing room x : %d, y : %d----------\n", r->x, r->y);
@@ -52,9 +64,22 @@ void print_room(room* r) {
     iter(r->entities, print_entity_modif);
 }
 
+void add_entity(room* r, entity* e) {
+    container* c = malloc(sizeof(container));
+    c->data = e;
+    c->type = ENTITY_SIMPLE;
+    append_elt(r->entities, c);
+}
+
+void update_room(room* r) {
+    for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
+        //if((container*) get_data(c) != NULL) update_entity(((container*) get_data(c))->data);
+    }
+}
+
 void draw_room(SDL_Renderer* ren, room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
-        if(get_data(c) != NULL) draw_entity(ren, (entity*) get_data(c));
+        if((container*) get_data(c) != NULL) draw_entity(ren, ((container*) get_data(c))->data);
     }
 }
 

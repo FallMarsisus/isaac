@@ -2,8 +2,12 @@
 
 struct entity_s {
     SDL_Rect* pos;
+
     bool has_sprite;
     SDL_Texture* texture;
+
+    int maxhealth; int health;
+    int damage;
 };
 
 typedef struct entity_s entity;
@@ -25,12 +29,21 @@ void free_entity(entity* e) {
 SDL_Rect* get_pos(entity* e) {
     return e->pos;
 }
+int get_max_health(entity* e) {
+    return e->maxhealth;
+}
+int get_health(entity* e) {
+    return e->health;
+}
+int get_damage(entity* e) {
+    return e->damage;
+}
 
 void print_entity(entity* e) {
     printf("Entity {x : %d, y : %d, width : %d, height : %d}\n", e->pos->x, e->pos->y, e->pos->w, e->pos->h);
 }
 
-void set_pos(int x, int y, entity* e) {
+void set_pos(entity* e, int x, int y) {
     e->pos->x = x;
     e->pos->y = y;
 }
@@ -38,6 +51,15 @@ void set_sprite(entity* e, SDL_Texture* tex) {
     assert(tex != NULL);
     e->has_sprite = true;
     e->texture = tex;
+}
+void set_max_health(entity* e, int max_health) {
+    e->maxhealth = max_health;
+}
+void set_health(entity* e, int health) {
+    e->health = health;
+}
+void set_damage(entity* e, int damage) {
+    e->damage = damage;
 }
 
 void draw_entity(SDL_Renderer* ren, entity* e) {

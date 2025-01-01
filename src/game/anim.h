@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../utils/dyn_arrays.h"
-#include "entities.h"
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include <SDL2/SDL_image.h>
 
 typedef struct {
     float interval;

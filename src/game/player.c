@@ -2,7 +2,6 @@
 
 struct player_s {
     bool* keys; //Keys pressed
-    int map_x; int map_y; //Map Coords
 
     Vector* dir;
     int speed;
@@ -19,7 +18,6 @@ player* create_player(int x, int y) {
     
     p->body = create_entity(x, y, 32, 32);
     p->speed = 3;
-    p->map_x = 0; p->map_y = 0;
     p->dir = malloc(sizeof(Vector));
     p->dir->x = 0; p->dir->y = 0;
     
@@ -51,6 +49,14 @@ void free_player(player* p) {
     free(p);
 }
 
+SDL_Rect* get_player_pos(player* e) {
+    return get_pos(e->body);
+}
+
+void set_player_pos(player* e, int x, int y) {
+    set_pos(e->body, x, y);
+}
+
 //Maps the keys to the keys array
 void get_inputs(player* p) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -58,51 +64,6 @@ void get_inputs(player* p) {
     p->keys[1] = state[SDL_SCANCODE_DOWN];
     p->keys[2] = state[SDL_SCANCODE_LEFT];
     p->keys[3] = state[SDL_SCANCODE_RIGHT];
-}
-
-//Changes the room if the player is at the edge of the screen
-room* change_room(player* p, int win_width, int win_height, map* m, room* current) {
-    SDL_Rect* pos = get_pos(p->body);
-    room* new_room = current;
-
-    if (pos->x < 0) {
-        pos->x = win_width - pos->w;
-        p->map_x--;
-        new_room = get_room(m, p->map_x, p->map_y);
-        if(new_room == NULL) {
-            new_room = create_room(p->map_x, p->map_y);
-            add_room(m, new_room);
-        }
-    }
-    if (pos->y < 0) {
-        pos->y = win_height - pos->h;
-        p->map_y--;
-        new_room = get_room(m, p->map_x, p->map_y);
-        if(new_room == NULL) {
-            new_room = create_room(p->map_x, p->map_y);
-            add_room(m, new_room);
-        }
-    }
-    if (pos->x > win_width - pos->w) {
-        pos->x = 0;
-        p->map_x++;
-        new_room = get_room(m, p->map_x, p->map_y);
-        if(new_room == NULL) {
-            new_room = create_room(p->map_x, p->map_y);
-            add_room(m, new_room);
-        }
-    }
-    if (pos->y > win_height - pos->h) {
-        pos->y = 0;
-        p->map_y++;
-        new_room = get_room(m, p->map_x, p->map_y);
-        if(new_room == NULL) {
-            new_room = create_room(p->map_x, p->map_y);
-            add_room(m, new_room);
-        }
-    }
-
-    return new_room;
 }
 
 //Moves the player
@@ -139,13 +100,10 @@ void update_player_sprite(player* p) {
 }
 
 //Do the whole shit
-room* update(player* p, int win_width, int win_height, map* m, room* current) {
+void update_player(player* p, int win_width, int win_height) {
     move(p);
 
     update_player_sprite(p);
-
-    room* new_room = change_room(p, win_width, win_height, m, current);
-    return new_room;
 }
 
 void draw_player(SDL_Renderer* ren, player* p) {

@@ -7,6 +7,8 @@
 #include "../utils/utils.h"
 #include "../utils/chained_list.h"
 
+#include "entities/enemies/monster.h"
+
 #include "entities/entities.h"
 #include "entities/item.h"
 #include "entities/enemy.h"
@@ -22,6 +24,8 @@ int getY(room* r);
 void print_room(room* r);
 
 void add_entity(room* r, entity* e);
+void add_enemy(room* r, enemy* e);
+void add_item(room* r, item* i);
 
 void update_room(room* r);
 

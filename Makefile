@@ -1,4 +1,4 @@
-OTHERS = ./src/utils/*.c ./src/game/*.c ./src/game/entities/*.c
+OTHERS = ./src/utils/*.c ./src/game/*.c ./src/game/entities/*.c ./src/game/entities/enemies/*.c
 
 #CC specifies which compiler we're using
 CC = gcc

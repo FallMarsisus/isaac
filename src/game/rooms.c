@@ -35,7 +35,7 @@ room* create_room(int posx, int posy) {
     r->left = NULL;
     r->right = NULL;
 
-    add_entity(r, create_entity(rand() % 640, rand() % 360, 50, 50));
+    add_enemy(r, create_monster(rand() % 640, rand() % 360));
     return r;
 }
 
@@ -70,6 +70,18 @@ void add_entity(room* r, entity* e) {
     c->type = ENTITY_SIMPLE;
     append_elt(r->entities, c);
 }
+void add_enemy(room* r, enemy* e) {
+    container* c = malloc(sizeof(container));
+    c->data = e;
+    c->type = ENEMY;
+    append_elt(r->entities, c);
+}
+void add_item(room* r, item* i) {
+    container* c = malloc(sizeof(container));
+    c->data = i;
+    c->type = ITEM;
+    append_elt(r->entities, c);
+}
 
 void update_room(room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
@@ -86,7 +98,14 @@ void update_room(room* r) {
 
 void draw_room(SDL_Renderer* ren, room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
-        if((container*) get_data(c) != NULL) draw_entity(ren, ((container*) get_data(c))->data);
+        if((container*) get_data(c) != NULL) {
+            if(((container*) get_data(c))->type == ENTITY_SIMPLE)
+                draw_entity(ren, ((container*) get_data(c))->data);
+            else if(((container*) get_data(c))->type == ENEMY)
+                draw_enemy(ren, ((container*) get_data(c))->data);
+            else if(((container*) get_data(c))->type == ITEM)
+                draw_item(ren, ((container*) get_data(c))->data);
+        }
     }
 }
 

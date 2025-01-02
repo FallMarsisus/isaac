@@ -26,4 +26,4 @@ void play_anim(anim_core* core);
 void pause_anim(anim_core* core);
 void stop_anim(anim_core* core);
 
-void draw_texture(SDL_Renderer* ren, SDL_Rect* pos, anim_core* core);
+void draw_core(SDL_Renderer* ren, SDL_Rect* pos, anim_core* core);

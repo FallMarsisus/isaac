@@ -107,5 +107,5 @@ void update_player(player* p, int win_width, int win_height) {
 }
 
 void draw_player(SDL_Renderer* ren, player* p) {
-    draw_texture(ren, get_pos(p->body), p->core);
+    draw_core(ren, get_pos(p->body), p->core);
 }

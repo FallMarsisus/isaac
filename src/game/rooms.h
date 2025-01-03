@@ -7,6 +7,8 @@
 #include "../utils/utils.h"
 #include "../utils/chained_list.h"
 
+#include "player.h"
+
 #include "entities/enemies/monster.h"
 
 #include "entities/entities.h"
@@ -27,7 +29,7 @@ void add_entity(room* r, entity* e);
 void add_enemy(room* r, enemy* e);
 void add_item(room* r, item* i);
 
-void update_room(room* r);
+void update_room(player* p, room* r);
 
 void draw_room(SDL_Renderer* ren, room* r);
 

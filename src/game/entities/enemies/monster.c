@@ -8,6 +8,11 @@ enemy* create_monster(int x, int y) {
     return e;
 }
 
-void update_monster(enemy* e) {
-    move_enemy(e, 5, 5);
+void update_monster(player* p, enemy* e) {
+    Vector v = {0, 0};
+    v.x = get_player_pos(p)->x - get_enemy_pos(e)->x;
+    v.y = get_player_pos(p)->y - get_enemy_pos(e)->y;
+    if(fabs(v.x) < 0.1 && fabs(v.y) < 0.1) return;
+    normalize(&v);
+    move_enemy(e, v.x * 2, v.y * 2);
 }

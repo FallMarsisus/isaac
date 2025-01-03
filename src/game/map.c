@@ -151,7 +151,7 @@ void update_map(map* m, int win_width, int win_height) {
         change_room(m, get_map_x(m), get_map_y(m) + 1);
     }
 
-    update_room(m->current_room);
+    update_room(m->p, m->current_room);
     set_player_pos(m->p, pos->x, pos->y);
 }
 

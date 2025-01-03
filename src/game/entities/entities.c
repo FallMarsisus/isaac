@@ -12,7 +12,7 @@ struct entity_s {
 
 typedef struct entity_s entity;
 
-entity* create_entity(int x, int y, int width, int height) {
+entity* create_entity(float x, float y, int width, int height) {
     entity* e = malloc(sizeof(entity));
     e->pos = malloc(sizeof(SDL_Rect));
     e->pos->x = x;
@@ -43,7 +43,7 @@ void print_entity(entity* e) {
     printf("Entity {x : %d, y : %d, width : %d, height : %d}\n", e->pos->x, e->pos->y, e->pos->w, e->pos->h);
 }
 
-void set_pos(entity* e, int x, int y) {
+void set_pos(entity* e, float x, float y) {
     e->pos->x = x;
     e->pos->y = y;
 }

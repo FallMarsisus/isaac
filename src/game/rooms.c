@@ -83,13 +83,13 @@ void add_item(room* r, item* i) {
     append_elt(r->entities, c);
 }
 
-void update_room(room* r) {
+void update_room(player* p, room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
         if((container*) get_data(c) != NULL) {
             if(((container*) get_data(c))->type == ENTITY_SIMPLE)
                 update_entity(((container*) get_data(c))->data);
             else if(((container*) get_data(c))->type == ENEMY)
-                update_enemy(((container*) get_data(c))->data);
+                update_enemy(p, ((container*) get_data(c))->data);
             else if(((container*) get_data(c))->type == ITEM)
                 update_item(((container*) get_data(c))->data);
         }

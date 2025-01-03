@@ -1,21 +1,5 @@
 #include "anim.h"
 
-struct anim_core_s {
-    SDL_Texture* sprite_sheet;
-
-    int sprite_width; int sprite_height;
-
-    dyn_array* animations;
-    int anim_index;
-    int current;
-    bool playing;
-
-    struct timeval* prev;
-    struct timeval* now;
-};
-
-typedef struct anim_core_s anim_core;
-
 anim_core* create_core(SDL_Renderer* ren, char* path, int sprite_width, int sprite_height) {
     anim_core* core = malloc(sizeof(anim_core));
     core->animations = create_array();

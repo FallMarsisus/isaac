@@ -15,13 +15,31 @@
 #include "entities/item.h"
 #include "entities/enemy.h"
 
-typedef struct room room;
+typedef enum {
+    ENEMY,
+    ITEM,
+    ENTITY_SIMPLE
+} entity_type;
+
+typedef struct {
+    entity_type type;
+    void* data;
+} entity_container;
+
+typedef struct room_s{
+    int x;
+    int y;
+
+    struct room_s* up;
+    struct room_s* down;
+    struct room_s* left;
+    struct room_s* right;
+
+    chained_list* entities;
+} room;
 
 room* create_room(int posx, int posy);
 void free_room(room* r);
-
-int getX(room* r);
-int getY(room* r);
 
 void print_room(room* r);
 

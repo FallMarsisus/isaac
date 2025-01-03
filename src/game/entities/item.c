@@ -1,9 +1,5 @@
 #include "item.h"
 
-typedef struct item_s {
-    entity* body;
-} item;
-
 item* create_item(int x, int y, int w, int h) {
     item* i = malloc(sizeof(item));
     i->body = create_entity(x, y, w, h);

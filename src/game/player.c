@@ -1,26 +1,10 @@
 #include "player.h"
 
-struct player_s {
-    bool* keys; //Keys pressed
-
-    Vector* dir;
-    int speed;
-    
-    entity* body;
-
-    anim_core* core;
-};
-
-typedef struct player_s player;
-
 player* create_player(int x, int y) {
     player* p = malloc(sizeof(player));
-    
     p->body = create_entity(x, y, 32, 32);
-    p->speed = 3;
-    p->dir = malloc(sizeof(Vector));
-    p->dir->x = 0; p->dir->y = 0;
-    
+    p->body->speed = 2;
+
     p->keys = malloc(sizeof(bool) * 4);
     for(int i = 0; i < 4; i ++) {
         p->keys[i] = false;
@@ -44,17 +28,8 @@ void load_player_textures(player* p, SDL_Renderer* ren, char* path) {
 void free_player(player* p) {
     free_core(p->core);
     free_entity(p->body);
-    free(p->dir);
     free(p->keys);
     free(p);
-}
-
-SDL_Rect* get_player_pos(player* e) {
-    return get_pos(e->body);
-}
-
-void set_player_pos(player* e, int x, int y) {
-    set_pos(e->body, x, y);
 }
 
 //Maps the keys to the keys array
@@ -68,30 +43,20 @@ void get_inputs(player* p) {
 
 //Moves the player
 void move(player* p) {
-    SDL_Rect* pos = get_pos(p->body);
-    p->dir->x = 0; p->dir->y = 0;
+    p->body->vel->x = 0; p->body->vel->y = 0;
 
-    if(p->keys[0]) p->dir->y -= 1;
-    if(p->keys[1]) p->dir->y += 1;
-    if(p->keys[2]) p->dir->x -= 1;
-    if(p->keys[3]) p->dir->x += 1;
-
-    normalize(p->dir);
-    
-    if(fabs(p->dir->x) > 0.1) {
-        pos->x += p->dir->x * p->speed;
-    }
-    if(fabs(p->dir->y) > 0.1) {
-        pos->y += p->dir->y * p->speed;
-    }
+    if(p->keys[0]) p->body->vel->y -= 1;
+    if(p->keys[1]) p->body->vel->y += 1;
+    if(p->keys[2]) p->body->vel->x -= 1;
+    if(p->keys[3]) p->body->vel->x += 1;
 }
 
 void update_player_sprite(player* p) {
     bool anim = true;
-    if(p->dir->y < -0.1) set_active_anim(p->core, 1);
-    else if(p->dir->y > 0.1) set_active_anim(p->core, 0);
-    else if(p->dir->x < -0.1) set_active_anim(p->core, 2);
-    else if(p->dir->x > 0.1) set_active_anim(p->core, 3);
+    if(p->body->vel->y < -0.1) set_active_anim(p->core, 1);
+    else if(p->body->vel->y > 0.1) set_active_anim(p->core, 0);
+    else if(p->body->vel->x < -0.1) set_active_anim(p->core, 2);
+    else if(p->body->vel->x > 0.1) set_active_anim(p->core, 3);
     else {
         stop_anim(p->core);
         anim = false;
@@ -103,9 +68,11 @@ void update_player_sprite(player* p) {
 void update_player(player* p, int win_width, int win_height) {
     move(p);
 
+    update_entity(p->body);
+
     update_player_sprite(p);
 }
 
 void draw_player(SDL_Renderer* ren, player* p) {
-    draw_core(ren, get_pos(p->body), p->core);
+    draw_core(ren, p->body->hitbox, p->core);
 }

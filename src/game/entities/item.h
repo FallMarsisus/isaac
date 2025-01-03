@@ -7,7 +7,9 @@
 
 #include "entities.h"
 
-typedef struct item_s item;
+typedef struct {
+    entity* body;
+} item;
 
 item* create_item(int x, int y, int w, int h);
 void free_item(item* i);

@@ -13,7 +13,19 @@ typedef struct {
     int line;
 } anim;
 
-typedef struct anim_core_s anim_core;
+typedef struct anim_core_s {
+    SDL_Texture* sprite_sheet;
+
+    int sprite_width; int sprite_height;
+
+    dyn_array* animations;
+    int anim_index;
+    int current;
+    bool playing;
+
+    struct timeval* prev;
+    struct timeval* now;
+} anim_core;
 
 anim_core* create_core(SDL_Renderer* ren, char* path, int sprite_width, int sprite_height);
 void free_core(anim_core* core);

@@ -8,15 +8,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef struct player_s player;
+typedef struct {
+    bool* keys; //Keys pressed
+    
+    entity* body;
+
+    anim_core* core;
+} player;
 
 player* create_player(int x, int y);
 void load_player_textures(player* p, SDL_Renderer* ren, char* path);
 void free_player(player* p);
-
-SDL_Rect* get_player_pos(player* e);
-
-void set_player_pos(player* e, int x, int y);
 
 void get_inputs(player* p);
 

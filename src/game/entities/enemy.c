@@ -1,14 +1,5 @@
 #include "enemy.h"
 
-typedef struct enemy_s {
-    entity* body;
-
-    anim_core* core;
-
-    void (*update)(player* p, struct enemy_s* e);
-    void (*draw_additional)(SDL_Renderer* ren, struct enemy_s* e);
-} enemy;
-
 enemy* create_enemy(float x, float y, int w, int h) {
     enemy* e = malloc(sizeof(enemy));
     e->body = create_entity(x, y, w, h);
@@ -28,28 +19,18 @@ void free_enemy(enemy* e) {
     free(e);
 }
 
-SDL_Rect* get_enemy_pos(enemy* e) {
-    return get_pos(e->body);
-}
-
-void set_update(enemy* e, void (*update)(player* p, enemy* e)) {
-    e->update = update;
-}
-void set_draw_additional(enemy* e, void (*draw_additional)(SDL_Renderer* ren, enemy* e)) {
-    e->draw_additional = draw_additional;
-}
-
-void update_enemy(player* p, enemy* e) {
+void update_enemy(player* p, enemy* e, chained_list* entities) {
     update_entity(e->body);
-    if(e->update != NULL) e->update(p, e);
+    if(e->update != NULL) e->update(p, e, entities);
+    update_entity_collisions(p->body, e->body);
 }
 void move_enemy(enemy* e, float dx, float dy) {
-    set_pos(e->body, get_pos(e->body)->x + dx, get_pos(e->body)->y + dy);
+    set_position(e->body, e->body->pos->x + dx, e->body->pos->y + dy);
 }
 
 void draw_enemy(SDL_Renderer* ren, enemy* e) {
     if(e->draw_additional != NULL) e->draw_additional(ren, e);
 
-    if(e->core != NULL) draw_core(ren, get_pos(e->body), e->core);
+    if(e->core != NULL) draw_core(ren, e->body->hitbox, e->core);
     else draw_entity(ren, e->body);
 }

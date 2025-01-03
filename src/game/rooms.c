@@ -1,30 +1,5 @@
 #include "rooms.h"
 
-typedef enum {
-    ENEMY,
-    ITEM,
-    ENTITY_SIMPLE
-} entity_type;
-
-typedef struct {
-    entity_type type;
-    void* data;
-} container;
-
-struct room {
-    int x;
-    int y;
-
-    struct room* up;
-    struct room* down;
-    struct room* left;
-    struct room* right;
-
-    chained_list* entities;
-};
-
-typedef struct room room;
-
 room* create_room(int posx, int posy) {
     room* r = malloc(sizeof(room));
     r->x = posx;
@@ -44,15 +19,8 @@ void free_room(room* r) {
     free_list(r->entities);
 }
 
-int getX(room* r) {
-    return r->x;
-}
-int getY(room* r) {
-    return r->y;
-}
-
 void print_entity_modif(void* data) {
-    container* c = data;
+    entity_container* c = data;
     print_entity((entity*) c->data);
 }
 void print_room(room* r) {
@@ -65,19 +33,19 @@ void print_room(room* r) {
 }
 
 void add_entity(room* r, entity* e) {
-    container* c = malloc(sizeof(container));
+    entity_container* c = malloc(sizeof(entity_container));
     c->data = e;
     c->type = ENTITY_SIMPLE;
     append_elt(r->entities, c);
 }
 void add_enemy(room* r, enemy* e) {
-    container* c = malloc(sizeof(container));
+    entity_container* c = malloc(sizeof(entity_container));
     c->data = e;
     c->type = ENEMY;
     append_elt(r->entities, c);
 }
 void add_item(room* r, item* i) {
-    container* c = malloc(sizeof(container));
+    entity_container* c = malloc(sizeof(entity_container));
     c->data = i;
     c->type = ITEM;
     append_elt(r->entities, c);
@@ -85,26 +53,26 @@ void add_item(room* r, item* i) {
 
 void update_room(player* p, room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
-        if((container*) get_data(c) != NULL) {
-            if(((container*) get_data(c))->type == ENTITY_SIMPLE)
-                update_entity(((container*) get_data(c))->data);
-            else if(((container*) get_data(c))->type == ENEMY)
-                update_enemy(p, ((container*) get_data(c))->data);
-            else if(((container*) get_data(c))->type == ITEM)
-                update_item(((container*) get_data(c))->data);
+        if((entity_container*) get_data(c) != NULL) {
+            if(((entity_container*) get_data(c))->type == ENTITY_SIMPLE)
+                update_entity(((entity_container*) get_data(c))->data);
+            else if(((entity_container*) get_data(c))->type == ENEMY)
+                update_enemy(p, ((entity_container*) get_data(c))->data, r->entities);
+            else if(((entity_container*) get_data(c))->type == ITEM)
+                update_item(((entity_container*) get_data(c))->data);
         }
     }
 }
 
 void draw_room(SDL_Renderer* ren, room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
-        if((container*) get_data(c) != NULL) {
-            if(((container*) get_data(c))->type == ENTITY_SIMPLE)
-                draw_entity(ren, ((container*) get_data(c))->data);
-            else if(((container*) get_data(c))->type == ENEMY)
-                draw_enemy(ren, ((container*) get_data(c))->data);
-            else if(((container*) get_data(c))->type == ITEM)
-                draw_item(ren, ((container*) get_data(c))->data);
+        if((entity_container*) get_data(c) != NULL) {
+            if(((entity_container*) get_data(c))->type == ENTITY_SIMPLE)
+                draw_entity(ren, ((entity_container*) get_data(c))->data);
+            else if(((entity_container*) get_data(c))->type == ENEMY)
+                draw_enemy(ren, ((entity_container*) get_data(c))->data);
+            else if(((entity_container*) get_data(c))->type == ITEM)
+                draw_item(ren, ((entity_container*) get_data(c))->data);
         }
     }
 }

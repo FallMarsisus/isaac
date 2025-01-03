@@ -4,23 +4,29 @@
 #include <stdbool.h>
 #include <assert.h>
 
-typedef struct entity_s entity;
+#include "../../utils/vector.h"
+
+typedef struct {
+    Vector* pos;
+    Vector* vel;
+    int speed;
+
+    bool has_sprite;
+    SDL_Texture* texture;
+    SDL_Rect* hitbox;
+
+    int maxhealth; int health;
+    int damage;
+} entity;
 
 entity* create_entity(float x, float y, int width, int height);
 void free_entity(entity* e);
 
-SDL_Rect* get_pos(entity* e);
-int get_max_health(entity* e);
-int get_health(entity* e);
-int get_damage(entity* e);
-
 void print_entity(entity* e);
 
-void set_pos(entity* e, float x, float y);
-void set_sprite(entity* e, SDL_Texture* tex);
-void set_max_health(entity* e, int max_health);
-void set_health(entity* e, int health);
-void set_damage(entity* e, int damage);
+void set_position(entity* e, float x, float y);
+
+void update_entity_collisions(entity* e1, entity* e2);
 
 void update_entity(entity* e);
 

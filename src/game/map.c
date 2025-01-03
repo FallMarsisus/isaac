@@ -1,16 +1,5 @@
 #include "map.h"
 
-struct map_s {
-    player* p;
-
-    dict dict_rooms;
-
-    int map_x; int map_y; //Map Coords
-    room* current_room;
-};
-
-typedef struct map_s map;
-
 map* create_map() {
     map* m = malloc(sizeof(map));
     m->dict_rooms = create_dict();
@@ -42,18 +31,6 @@ void free_map(map* m) {
     free(m);
 }
 
-int get_map_x(map* m) {
-    assert(m != NULL);
-    return m->map_x;
-}
-int get_map_y(map* m) {
-    assert(m != NULL);
-    return m->map_y;
-}
-room* get_current_room(map* m) {
-    assert(m != NULL);
-    return m->current_room;
-}
 room* get_room(map* m, int posx, int posy) {
     assert(m != NULL);
     if(!mem(posx, posy, m->dict_rooms)) {
@@ -71,8 +48,8 @@ void print_map(map* m) {
 
 void add_room(map* m, room* r) {
     assert(m != NULL && r != NULL && m->dict_rooms != NULL);
-    int x = getX(r);
-    int y = getY(r);
+    int x = r->x;
+    int y = r->y;
     add(x, y, r, m->dict_rooms);
 
     room* up = get_room(m, x, y - 1);
@@ -102,18 +79,6 @@ void destroy_room(map* m, int x, int y) {
     removeValue(x, y, m->dict_rooms);
 }
 
-void set_map_x(map* m, int x) {
-    assert(m != NULL);
-    m->map_x = x;
-}
-void set_map_y(map* m, int y) {
-    assert(m != NULL);
-    m->map_y = y;
-}
-void set_current_room(map* m, room* r) {
-    assert(m != NULL && r != NULL);
-    m->current_room = r;
-}
 void change_room(map* m, int x, int y) {
     assert(m != NULL);
     room* r = get_room(m, x, y);
@@ -121,9 +86,9 @@ void change_room(map* m, int x, int y) {
         r = create_room(x, y);
         add_room(m, r);
     }
-    set_current_room(m, r);
-    set_map_x(m, x);
-    set_map_y(m, y);
+    m->current_room = r;
+    m->map_x = x;
+    m->map_y = y;
 }
 
 //Changes the room if the player is at the edge of the screen
@@ -132,27 +97,26 @@ void update_map(map* m, int win_width, int win_height) {
 
     update_player(m->p, win_width, win_height);
 
-    SDL_Rect* pos = get_player_pos(m->p);
+    Vector* pos = m->p->body->pos;
 
     if (pos->x < 0) {
-        pos->x = win_width - pos->w;
-        change_room(m, get_map_x(m) - 1, get_map_y(m));
+        set_position(m->p->body, win_width - m->p->body->hitbox->w, pos->y);
+        change_room(m, m->map_x - 1, m->map_y);
     }
     if (pos->y < 0) {
-        pos->y = win_height - pos->h;
-        change_room(m, get_map_x(m), get_map_y(m) - 1);
+        set_position(m->p->body, pos->x, win_height - m->p->body->hitbox->h);
+        change_room(m, m->map_x, m->map_y - 1);
     }
-    if (pos->x > win_width - pos->w) {
-        pos->x = 0;
-        change_room(m, get_map_x(m) + 1, get_map_y(m));
+    if (pos->x > win_width - m->p->body->hitbox->w) {
+        set_position(m->p->body, 0, pos->y);
+        change_room(m, m->map_x + 1, m->map_y);
     }
-    if (pos->y > win_height - pos->h) {
-        pos->y = 0;
-        change_room(m, get_map_x(m), get_map_y(m) + 1);
+    if (pos->y > win_height - m->p->body->hitbox->h) {
+        set_position(m->p->body, pos->x, 0);
+        change_room(m, m->map_x, m->map_y + 1);
     }
 
     update_room(m->p, m->current_room);
-    set_player_pos(m->p, pos->x, pos->y);
 }
 
 void draw_map(map* m, SDL_Renderer* ren) {

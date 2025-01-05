@@ -1,4 +1,4 @@
-OTHERS = ./src/utils/*.c ./src/game/*.c ./src/game/entities/*.c ./src/game/entities/enemies/*.c
+OTHERS = 
 
 #CC specifies which compiler we're using
 CC = gcc
@@ -12,8 +12,8 @@ LINKER_FLAGS = -lSDL2 -lSDL2_ttf -LSDL2_image
 #This is the target that compiles our executable
 
 build:
-	gcc ./src/*.c $(OTHERS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o exec/game
-
+	find ./src/. -name "*.c" -exec gcc $(COMPILER_FLAGS) $(LINKER_FLAGS) -o exec/game {} +
+#find . -name "*.c" -exec gcc -o {output_file} {} +
 build_test:
 	gcc ./tests/test_main/*.c $(OTHERS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o exec/game
 

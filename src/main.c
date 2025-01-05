@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include "game/map.h"
 
-#include "game/player.h"
-
 int main(int argc, char* argv[]) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {

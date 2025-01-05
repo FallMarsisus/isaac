@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rooms.h"
-#include "player.h"
+#include "objects/entities/player/player.h"
 #include "../utils/dict.h"
 
 typedef struct {
@@ -18,8 +18,6 @@ void load_textures(map* m, SDL_Renderer* ren);
 void free_map(map* m);
 
 room* get_room(map* m, int posx, int posy);
-
-void print_map(map* m);
 
 void add_room(map* m, room* r);
 void destroy_room(map* m, int x, int y);

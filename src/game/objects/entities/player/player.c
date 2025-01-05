@@ -2,7 +2,7 @@
 
 player* create_player(int x, int y) {
     player* p = malloc(sizeof(player));
-    p->body = create_entity(x, y, 32, 32);
+    p->body = create_entity(x, y, 32, 32, "assets/player/sprite_sheet.bmp");
     p->body->speed = 2;
 
     p->keys = malloc(sizeof(bool) * 4);
@@ -12,21 +12,20 @@ player* create_player(int x, int y) {
     return p;
 }
 
-void load_player_textures(player* p, SDL_Renderer* ren, char* path) {
-    p->core = create_core(ren, path, 16, 16);
+void load_player_textures(player* p, SDL_Renderer* ren) {
+    p->body->core = create_core(ren, p->body->texture_path, 16, 16);
     printf("Y\n");
     fflush(stdout);
     
-    add_anim(p->core, 0, 0.1, 4);
-    add_anim(p->core, 1, 0.1, 4);
-    add_anim(p->core, 2, 0.1, 2);
-    add_anim(p->core, 3, 0.1, 2);
+    add_anim(p->body->core, 0, 0.1, 4);
+    add_anim(p->body->core, 1, 0.1, 4);
+    add_anim(p->body->core, 2, 0.1, 2);
+    add_anim(p->body->core, 3, 0.1, 2);
     
-    set_active_anim(p->core, 0);
+    set_active_anim(p->body->core, 0);
 }
 
 void free_player(player* p) {
-    free_core(p->core);
     free_entity(p->body);
     free(p->keys);
     free(p);
@@ -53,26 +52,26 @@ void move(player* p) {
 
 void update_player_sprite(player* p) {
     bool anim = true;
-    if(p->body->vel->y < -0.1) set_active_anim(p->core, 1);
-    else if(p->body->vel->y > 0.1) set_active_anim(p->core, 0);
-    else if(p->body->vel->x < -0.1) set_active_anim(p->core, 2);
-    else if(p->body->vel->x > 0.1) set_active_anim(p->core, 3);
+    if(p->body->vel->y < -0.1) set_active_anim(p->body->core, 1);
+    else if(p->body->vel->y > 0.1) set_active_anim(p->body->core, 0);
+    else if(p->body->vel->x < -0.1) set_active_anim(p->body->core, 2);
+    else if(p->body->vel->x > 0.1) set_active_anim(p->body->core, 3);
     else {
-        stop_anim(p->core);
+        stop_anim(p->body->core);
         anim = false;
     }
-    if(anim) play_anim(p->core);
+    if(anim) play_anim(p->body->core);
 }
 
 //Do the whole shit
 void update_player(player* p, int win_width, int win_height) {
     move(p);
 
-    update_entity(p->body);
+    update_entity(p->body, NULL, NULL, NULL);
 
     update_player_sprite(p);
 }
 
 void draw_player(SDL_Renderer* ren, player* p) {
-    draw_core(ren, p->body->hitbox, p->core);
+    draw_entity(p->body, ren);
 }

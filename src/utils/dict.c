@@ -124,8 +124,6 @@ void freeNode(node* noeud, bool freeElements) {
 	free(noeud);
 }
 
-
-
 // ========= Dict functions =========
 
 //Private

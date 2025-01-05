@@ -19,13 +19,16 @@ void load_textures(map* m, SDL_Renderer* ren) {
     //=========Loads textures===========
     load_player_textures(
         m->p, 
-        ren,
-        "assets/player/sprite_sheet.bmp"
+        ren
     );
 }
 
+void free_room_modif(int x, int y, void* data) {
+    free_room((room*) data);
+}
 void free_map(map* m) {
     assert(m != NULL && m->dict_rooms != NULL);
+    iter_dict(free_room_modif, m->dict_rooms);
     free_dict(m->dict_rooms, true);
     free_player(m->p);
     free(m);
@@ -37,13 +40,6 @@ room* get_room(map* m, int posx, int posy) {
         return NULL;
     }
     return (room*) getValue(posx, posy, m->dict_rooms);
-}
-
-void print_rm(int x, int y, void* data) {
-    print_room((room*) data);
-}
-void print_map(map* m) {
-    iter_dict(print_rm, m->dict_rooms);
 }
 
 void add_room(map* m, room* r) {
@@ -100,19 +96,19 @@ void update_map(map* m, int win_width, int win_height) {
     Vector* pos = m->p->body->pos;
 
     if (pos->x < 0) {
-        set_position(m->p->body, win_width - m->p->body->hitbox->w, pos->y);
+        set_entity_position(m->p->body, win_width - m->p->body->hitbox->w, pos->y);
         change_room(m, m->map_x - 1, m->map_y);
     }
     if (pos->y < 0) {
-        set_position(m->p->body, pos->x, win_height - m->p->body->hitbox->h);
+        set_entity_position(m->p->body, pos->x, win_height - m->p->body->hitbox->h);
         change_room(m, m->map_x, m->map_y - 1);
     }
     if (pos->x > win_width - m->p->body->hitbox->w) {
-        set_position(m->p->body, 0, pos->y);
+        set_entity_position(m->p->body, 0, pos->y);
         change_room(m, m->map_x + 1, m->map_y);
     }
     if (pos->y > win_height - m->p->body->hitbox->h) {
-        set_position(m->p->body, pos->x, 0);
+        set_entity_position(m->p->body, pos->x, 0);
         change_room(m, m->map_x, m->map_y + 1);
     }
 

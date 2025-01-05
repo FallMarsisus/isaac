@@ -7,24 +7,9 @@
 #include "../utils/utils.h"
 #include "../utils/chained_list.h"
 
-#include "player.h"
+#include "objects/entities/player/player.h"
 
-#include "entities/enemies/monster.h"
-
-#include "entities/entities.h"
-#include "entities/item.h"
-#include "entities/enemy.h"
-
-typedef enum {
-    ENEMY,
-    ITEM,
-    ENTITY_SIMPLE
-} entity_type;
-
-typedef struct {
-    entity_type type;
-    void* data;
-} entity_container;
+#include "objects/entities/entity.h"
 
 typedef struct room_s{
     int x;
@@ -36,16 +21,12 @@ typedef struct room_s{
     struct room_s* right;
 
     chained_list* entities;
+    chained_list* tiles;
 } room;
 
 room* create_room(int posx, int posy);
+void add_entity_to_room(room* r, void* e, entity_type type);
 void free_room(room* r);
-
-void print_room(room* r);
-
-void add_entity(room* r, entity* e);
-void add_enemy(room* r, enemy* e);
-void add_item(room* r, item* i);
 
 void update_room(player* p, room* r);
 

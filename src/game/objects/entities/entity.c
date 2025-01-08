@@ -1,26 +1,5 @@
 #include "entity.h"
 
-/*
-typedef struct entity_s {
-    Vector* pos;
-    SDL_Rect* hitbox;
-    
-    Vector* vel;
-    int speed;
-
-    char* texture_path;
-    anim_core* core;
-
-    int maxhealth; int health;
-    int damage;
-
-    void* other_variables;
-
-    void (*update)(void* pl, struct entity_s* e, chained_list* entities);
-    void (*draw_additional)(SDL_Renderer* ren, struct entity_s* e);
-} entity;
-*/
-
 Entity* create_entity(float x, float y, int width, int height, char* tex) {
     Entity* e = malloc(sizeof(Entity));
     e->pos = malloc(sizeof(Vector)); e->pos->x = x; e->pos->y = y;
@@ -37,7 +16,7 @@ Entity* create_entity(float x, float y, int width, int height, char* tex) {
     e->other_variables = NULL;
     e->free_additionnal = NULL;
     e->update = NULL;
-    e->draw_additional = NULL;
+    e->draw = NULL;
     return e;
 }
 void load_entity_texture(Entity* e, SDL_Renderer* ren) {

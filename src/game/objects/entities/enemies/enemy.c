@@ -4,7 +4,7 @@ Entity* create_enemy(float x, float y) {
     Entity* e = create_entity(x, y, 32, 32, "assets/player/sprite_sheet.bmp");
     e->free_additionnal = free_additional;
     e->update = update_enemy;
-    e->draw_additional = draw_enemy;
+    e->draw = draw_enemy;
 
     e->speed = 1;
     return e;
@@ -26,6 +26,6 @@ void update_enemy(Entity* e, void* cc, chained_list* entities, chained_list* til
         normalize(e->vel);
     }
 }
-void draw_enemy(SDL_Renderer* ren, Entity* e) {
-    //
+void draw_enemy(Entity* e, SDL_Renderer* ren) {
+    draw_entity(e, ren);
 }

@@ -50,7 +50,8 @@ void draw_room(SDL_Renderer* ren, room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
         if((Entity*) get_data(c) != NULL) {
             Entity* e = get_data(c);
-            draw_entity(e, ren);
+            if(e->draw != NULL) e->draw(e, ren);
+            else draw_entity(e, ren);
         }
     }
 }

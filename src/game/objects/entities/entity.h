@@ -25,9 +25,9 @@ typedef struct entity_s {
 
     void* other_variables;
     void (*free_additionnal)(struct entity_s* e);
-
+    
     void (*update)(struct entity_s* e, void* pl, chained_list* entities, chained_list* tiles);
-    void (*draw_additional)(SDL_Renderer* ren, struct entity_s* e);
+    void (*draw)(struct entity_s* e, SDL_Renderer* ren);
 } Entity;
 
 Entity* create_entity(float x, float y, int width, int height, char* tex);

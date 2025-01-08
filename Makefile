@@ -12,13 +12,13 @@ LINKER_FLAGS = -lSDL2 -lSDL2_ttf -LSDL2_image
 #This is the target that compiles our executable
 
 build:
-	find ./src/. -name "*.c" -exec gcc $(COMPILER_FLAGS) $(LINKER_FLAGS) -o exec/game {} +
+	find ./src/. -name "*.c" -exec gcc $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game {} +
 #find . -name "*.c" -exec gcc -o {output_file} {} +
 build_test:
-	gcc ./tests/test_main/*.c $(OTHERS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o exec/game
+	gcc ./tests/test_main/*.c $(OTHERS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game
 
 run:
-	./exec/game
+	./bins/game
 
 clean:
-	rm exec/*
+	rm bins/*

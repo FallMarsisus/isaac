@@ -5,7 +5,7 @@ void print_int(void* i) {
 }
 
 int main() {
-    chained_list* l = create_list(INT);
+    chained_list* l = create_list();
 
     int* e = malloc(sizeof(int));
     *e = 5;

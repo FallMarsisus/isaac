@@ -31,18 +31,6 @@ cell* createCell(void* data, cell* next) {
 }
 
 
-// chained_list* create_list() {
-//     chained_list* c = malloc(sizeof(chained_list));
-//     c->len = 0;
-//     c->first = malloc(sizeof(cell));
-//     c->first->data = NULL;
-//     c->last = malloc(sizeof(cell));
-//     c->last->data = NULL;
-//     c->first->next = c->last;
-//     c->last->next = NULL;
-//     return c;
-// }
-
 void append_elt(chained_list* l, void* element) {
 
     if (l->len == 0) {
@@ -61,14 +49,25 @@ void remove_elt(chained_list* l, void* element) {
     if(element == NULL) return;
     if(l == NULL || l->len == 0) return;
 
-    cell* temp = l->first;
-    while(temp->next != NULL) {
-        if(temp->next->data == element) {
-            temp->next = temp->next->next;
-            free(temp->next);
+    cell* temp = l->first->next;
+    cell* last = NULL;
+
+    while (temp != NULL) {
+
+        if (temp->data == element) {
+            cell* next = temp->next;
+            if (last == NULL) {
+                l->first = next; //pour gérer le cas où les premiers élément doivent être suppr 
+            } else {
+                last->next = next;
+            }
+            free(temp);
+            temp = next;
             l->len--;
+        } else {
+            last = temp;
+            temp = temp->next;
         }
-        temp = temp->next;
     }
 }
 

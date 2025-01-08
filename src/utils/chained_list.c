@@ -88,11 +88,10 @@ void iter(chained_list* l, void (*f)(void*)) {
     if(l == NULL) return;
     if(f == NULL) return;
 
-    cell* temp = l->first->next;
-    while(temp != l->last) {
-        cell* next = temp->next;
+    cell* temp = l->first;
+    while(temp != NULL) {
         if(temp->data != NULL) f(temp->data);
-        temp = next;
+        temp = temp->next;
     }
 }
 

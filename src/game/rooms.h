@@ -8,10 +8,12 @@
 #include "../utils/chained_list.h"
 
 #include "objects/entities/player/player.h"
-
+#include "objects/entities/enemies/enemy.h"
 #include "objects/entities/entity.h"
 
-typedef struct room_s{
+#include "objects/items/item.h"
+
+typedef struct room_s {
     int x;
     int y;
 
@@ -22,10 +24,12 @@ typedef struct room_s{
 
     chained_list* entities;
     chained_list* tiles;
+    chained_list* items;
 } room;
 
 room* create_room(int posx, int posy);
-void add_entity_to_room(room* r, void* e, entity_type type);
+void add_entity_to_room(room* r, Entity* e);
+void add_item_to_room(room* r, Item* item);
 void free_room(room* r);
 
 void update_room(player* p, room* r);

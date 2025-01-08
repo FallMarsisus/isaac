@@ -6,23 +6,26 @@ room* create_room(int posx, int posy) {
     r->y = posy;
     r->entities = create_list();
     r->tiles = create_list();
+    r->items = create_list();
     r->up = NULL;
     r->down = NULL;
     r->left = NULL;
     r->right = NULL;
 
-    add_entity_to_room(r, create_entity(rand() % 640, rand() % 360, 32, 32, "assets/player/sprite_sheet.bmp"), ENTITY_SIMPLE);
+    add_entity_to_room(r, create_enemy(rand() % 640, rand() % 360));
+    add_item_to_room(r, create_item(rand() % 640, rand() % 360, 16, 16, "assets/player/sword.bmp"));
     return r;
 }
-void add_entity_to_room(room* r, void* e, entity_type type) {
-    entity_container* e_c = malloc(sizeof(entity_container));
-    e_c->data = e;
-    e_c->type = type;
-
-    append_elt(r->entities, e_c);
+void add_entity_to_room(room* r, Entity* e) {
+    append_elt(r->entities, e);
+}
+void add_item_to_room(room* r, Item* item) {
+    if(r == NULL || item == NULL) return;
+    append_elt(r->items, item);
 }
 void free_room(room* r) {
     if(r == NULL) return;
+    free_list(r->items);
     free_list(r->entities);
     free_list(r->tiles);
     free(r);
@@ -30,34 +33,24 @@ void free_room(room* r) {
 
 void update_room(player* p, room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
-        if((entity_container*) get_data(c) != NULL) {
-            entity_container* e_c = get_data(c);
-            switch (e_c->type) {
-                case ENEMY: break;
-                case NPC: break;
-                case ENTITY_SIMPLE:
-                    Entity* e = e_c->data;
-                    update_entity(e, p, r->entities, r->tiles);
-                    break;
-                default: break;
-            }
+        if((Entity*) get_data(c) != NULL) {
+            Entity* e = get_data(c);
+            update_entity(e, p, r->entities, r->tiles);
         }
     }
 }
 
 void draw_room(SDL_Renderer* ren, room* r) {
+    for(cell* c = get_first(r->items); c != NULL; c = get_next(c)) {
+        if((Item*) get_data(c) != NULL) {
+            Item* item = get_data(c);
+            draw_item(item, ren);
+        }
+    }
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
-        if((entity_container*) get_data(c) != NULL) {
-            entity_container* e_c = get_data(c);
-            switch (e_c->type) {
-                case ENEMY: break;
-                case NPC: break;
-                case ENTITY_SIMPLE:
-                    Entity* e = e_c->data;
-                    draw_entity(e, ren);
-                    break;
-                default: break;
-            }
+        if((Entity*) get_data(c) != NULL) {
+            Entity* e = get_data(c);
+            draw_entity(e, ren);
         }
     }
 }

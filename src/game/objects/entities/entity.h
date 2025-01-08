@@ -10,17 +10,6 @@
 
 #include "../../anim.h"
 
-typedef enum {
-    ENEMY,
-    NPC,
-    ENTITY_SIMPLE
-} entity_type ;
-
-typedef struct {
-    void* data;
-    entity_type type;
-} entity_container;
-
 typedef struct entity_s {
     Vector* pos;
     SDL_Rect* hitbox;

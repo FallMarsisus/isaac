@@ -29,7 +29,7 @@ void free_room_modif(int x, int y, void* data) {
 void free_map(map* m) {
     assert(m != NULL && m->dict_rooms != NULL);
     iter_dict(free_room_modif, m->dict_rooms);
-    free_dict(m->dict_rooms, true);
+    free_dict(m->dict_rooms, false);
     free_player(m->p);
     free(m);
 }

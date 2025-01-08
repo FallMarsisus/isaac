@@ -3,11 +3,13 @@
 #include <SDL2/SDL.h>
 
 #include "../entity.h"
-#include "../anim.h"
+#include "../../../anim.h"
 #include "../player/player.h"
 
-#include "../../utils/chained_list.h"
+#include "../../../../utils/chained_list.h"
 
-entity_container* create_enemy(float x, float y, int w, int h);
+Entity* create_enemy(float x, float y);
+void free_additional(Entity* e);
 
-void update_enemy(player* p, struct enemy_s* e, chained_list* entities);
+void update_enemy(Entity* e, void* pl, chained_list* entities, chained_list* tiles);
+void draw_enemy(SDL_Renderer* ren, Entity* e);

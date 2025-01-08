@@ -32,15 +32,6 @@ int main(int argc, char* argv[]) {
     int win_width = 640, win_height = 360;
     SDL_RenderSetLogicalSize(ren, win_width, win_height);
 
-    // Load ttf
-    if (TTF_Init() == -1) {
-        printf("TTF_Init Error: %s\n", TTF_GetError());
-        SDL_DestroyRenderer(ren);
-        SDL_DestroyWindow(win);
-        SDL_Quit();
-        return 1;
-    }
-
     SDL_Event event;
     
     int running = 1;

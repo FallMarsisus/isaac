@@ -97,7 +97,7 @@ void iter(chained_list* l, void (*f)(void*)) {
 }
 
 cell* get_first(chained_list* l) {
-    return l->first->next;
+    return l->first;
 }
 cell* get_next(cell* c) {
     return c->next;

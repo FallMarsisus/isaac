@@ -1,7 +1,12 @@
 #include "anim.h"
 
+
 anim_core* create_core(SDL_Renderer* ren, char* path, int sprite_width, int sprite_height) {
     anim_core* core = malloc(sizeof(anim_core));
+    if (core == NULL) {
+        fprintf(stderr, "Failed to allocate memory for anim_core\n");
+        return NULL;
+    }
     core->animations = create_array();
     core->playing = false;
     core->anim_index = 0;
@@ -15,14 +20,23 @@ anim_core* create_core(SDL_Renderer* ren, char* path, int sprite_width, int spri
     core->sprite_height = sprite_height;
 
     SDL_Surface* temp = SDL_LoadBMP(path);
+    if (temp == NULL) {
+        fprintf(stderr, "SDL_LoadBMP Error: %s\n", SDL_GetError());
+        free(core);
+        return NULL;
+    }
 
     core->sprite_sheet = SDL_CreateTextureFromSurface(ren, temp);
-
     SDL_FreeSurface(temp);
+
+    if (core->sprite_sheet == NULL) {
+        fprintf(stderr, "SDL_CreateTextureFromSurface Error: %s\n", SDL_GetError());
+        free(core);
+        return NULL;
+    }
 
     return core;
 }
-
 void free_core(anim_core* core) {
     for(int i = 0; i < get_len(core->animations); i++) {
         free((anim*) get_elt(core->animations, i));
@@ -62,18 +76,19 @@ void stop_anim(anim_core* core) {
     core->current = 0;
 }
 
+
 void draw_core(SDL_Renderer* ren, SDL_Rect* pos, anim_core* core) {
-    if(core->playing) {
+    if (core->playing) {
         gettimeofday(core->now, NULL);
         double delta_time = (core->now->tv_sec - core->prev->tv_sec) + (core->now->tv_usec - core->prev->tv_usec) * 1e-6;
-        if(core->anim_index >= get_len(core->animations)) return;
-        
-        anim* curren_anim = get_elt(core->animations, core->anim_index);
-        if(curren_anim == NULL) return;
+        if (core->anim_index >= get_len(core->animations)) return;
 
-        if(delta_time >= curren_anim->interval) {
+        anim* curren_anim = get_elt(core->animations, core->anim_index);
+        if (curren_anim == NULL) return;
+
+        if (delta_time >= curren_anim->interval) {
             core->current++;
-            if(core->current >= curren_anim->amount) core->current = 0;
+            if (core->current >= curren_anim->amount) core->current = 0;
             gettimeofday(core->prev, NULL);
         }
     }

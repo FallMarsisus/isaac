@@ -2,6 +2,10 @@
 
 room* create_room(int posx, int posy) {
     room* r = malloc(sizeof(room));
+    if (r == NULL) {
+        fprintf(stderr, "Failed to allocate memory for room\n");
+        return NULL;
+    }
     r->x = posx;
     r->y = posy;
     r->entities = create_list();
@@ -12,25 +16,40 @@ room* create_room(int posx, int posy) {
     r->left = NULL;
     r->right = NULL;
 
-    add_entity_to_room(r, create_enemy(rand() % 640, rand() % 360));
-    add_item_to_room(r, create_item(rand() % 640, rand() % 360, 16, 16, "assets/player/sword.bmp"));
+    Entity* enemy = create_enemy(rand() % 640, rand() % 360);
+    if (enemy != NULL) {
+        add_entity_to_room(r, enemy);
+    } else {
+        fprintf(stderr, "Failed to create enemy\n");
+    }
+
+    Item* item = create_item(rand() % 640, rand() % 360, 16, 16, "assets/player/sword.bmp");
+    if (item != NULL) {
+        add_item_to_room(r, item);
+    } else {
+        fprintf(stderr, "Failed to create item\n");
+    }
+
     return r;
 }
+
 void add_entity_to_room(room* r, Entity* e) {
+    if (r == NULL || e == NULL) return;
     append_elt(r->entities, e);
 }
+
 void add_item_to_room(room* r, Item* item) {
-    if(r == NULL || item == NULL) return;
+    if (r == NULL || item == NULL) return;
     append_elt(r->items, item);
 }
+
 void free_room(room* r) {
-    if(r == NULL) return;
+    if (r == NULL) return;
     free_list(r->items);
     free_list(r->entities);
     free_list(r->tiles);
     free(r);
 }
-
 void update_room(player* p, room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
         if((Entity*) get_data(c) != NULL) {

@@ -6,6 +6,7 @@ Tile* create_tile(int x, int y, int width, int height, sprite_list* sprites) {
     tile->hitbox->x = x; tile->hitbox->y = y; tile->hitbox->w = width; tile->hitbox->h = height;
 
     tile->sprites = sprites;
+    tile->core = NULL;
     return tile;
 }
 void load_tile_texture(Tile* tile, SDL_Renderer* ren) {

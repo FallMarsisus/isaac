@@ -60,7 +60,9 @@ void stop_anim(anim_core* core) {
 }
 
 void draw_core(SDL_Renderer* ren, SDL_Rect* pos, anim_core* core) {
+    if(core == NULL) return;
     if(core->sprite_sheet == NULL) return;
+    
     if (core->playing) {
         gettimeofday(core->now, NULL);
         double delta_time = (core->now->tv_sec - core->prev->tv_sec) + (core->now->tv_usec - core->prev->tv_usec) * 1e-6;

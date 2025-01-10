@@ -8,7 +8,10 @@
 #include "../../../utils/vector.h"
 #include "../../../utils/chained_list.h"
 
+#include "../tiles/tile.h"
 #include "../../anim.h"
+#include "../../../display.h"
+#include "../../../utils/utils.h"
 
 typedef struct entity_s {
     Vector* pos;
@@ -16,8 +19,8 @@ typedef struct entity_s {
     
     Vector* vel;
     int speed;
-
-    char* texture_path;
+    
+    sprite_list* sprites;
     anim_core* core;
 
     int maxhealth; int health;
@@ -30,7 +33,7 @@ typedef struct entity_s {
     void (*draw)(struct entity_s* e, SDL_Renderer* ren);
 } Entity;
 
-Entity* create_entity(float x, float y, int width, int height, char* tex);
+Entity* create_entity(float x, float y, int width, int height, sprite_list* sprites);
 void load_entity_texture(Entity* e, SDL_Renderer* ren);
 void free_entity(Entity* e);
 

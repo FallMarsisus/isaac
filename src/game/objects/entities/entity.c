@@ -1,14 +1,13 @@
 #include "entity.h"
 
-Entity* create_entity(float x, float y, int width, int height, char* tex) {
+Entity* create_entity(float x, float y, int width, int height, sprite_list* sprites) {
     Entity* e = malloc(sizeof(Entity));
     e->pos = malloc(sizeof(Vector)); e->pos->x = x; e->pos->y = y;
     e->hitbox = malloc(sizeof(SDL_Rect)); e->hitbox->x = x; e->hitbox->y = y; e->hitbox->w = width; e->hitbox->h = height;
 
     e->vel = malloc(sizeof(Vector)); e->vel->x = 0; e->vel->y = 0;
     e->speed = 0;
-
-    e->texture_path = tex;
+    e->sprites = sprites;
     e->core = NULL;
 
     e->maxhealth = -1; e->health = e->maxhealth; e->damage = 0;
@@ -20,8 +19,8 @@ Entity* create_entity(float x, float y, int width, int height, char* tex) {
     return e;
 }
 void load_entity_texture(Entity* e, SDL_Renderer* ren) {
-    if(ren == NULL || e->texture_path == NULL || e->hitbox == NULL) return;
-    e->core = create_core(ren, e->texture_path, e->hitbox->w, e->hitbox->h);
+    if(ren == NULL || e->sprites == NULL || e->hitbox == NULL) return;
+    e->core = create_core(ren, e->sprites->player_texture, e->hitbox->w, e->hitbox->h);
 }
 void free_entity(Entity* e) {
     free(e->pos);
@@ -41,16 +40,42 @@ void move_entity(Entity* e, float dx, float dy) {
 }
 
 void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* tiles) {
+    if(e == NULL) return;
     if(e->update != NULL) e->update(e, pl, entities, tiles);
 
     if(fabs(e->vel->x) > 0.1 || fabs(e->vel->y) > 0.1) {
         normalize(e->vel);
         move_entity(e, e->vel->x * e->speed, e->vel->y * e->speed);
+        
+        if(tiles == NULL) return;
+        for(cell* c = get_first(tiles); c != NULL; c = get_next(c)) {
+            Tile* tile = get_data(c);
+            if(tile == NULL) continue;
+            if (!checkCollision(e->hitbox, tile->hitbox)) continue; // No collision to handle
+
+            // Handle collision response
+            float overlapX = (e->hitbox->x + e->hitbox->w / 2) - (tile->hitbox->x + tile->hitbox->w / 2);
+            float overlapY = (e->hitbox->y + e->hitbox->h / 2) - (tile->hitbox->y + tile->hitbox->h / 2);
+
+            if (fabs(overlapX) > fabs(overlapY)) {
+                if (overlapX > 0) {
+                    set_entity_position(e, tile->hitbox->x + tile->hitbox->w, e->pos->y);
+                } else {
+                    set_entity_position(e, tile->hitbox->x - e->hitbox->w, e->pos->y);
+                }
+            } else {
+                if (overlapY > 0) {
+                    set_entity_position(e, e->pos->x, tile->hitbox->y + tile->hitbox->h);
+                } else {
+                    set_entity_position(e, e->pos->x, tile->hitbox->y - e->hitbox->h);
+                }
+            }
+        }
     }
 }
 
 void draw_entity(Entity* e, SDL_Renderer* ren) {
-    if(e->texture_path != NULL && e->core == NULL) {
+    if(e->sprites != NULL && e->core == NULL) {
         load_entity_texture(e, ren);
     }
 

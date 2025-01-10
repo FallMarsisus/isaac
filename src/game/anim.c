@@ -1,7 +1,6 @@
 #include "anim.h"
 
-
-anim_core* create_core(SDL_Renderer* ren, char* path, int sprite_width, int sprite_height) {
+anim_core* create_core(SDL_Renderer* ren, SDL_Texture* tex, int sprite_width, int sprite_height) {
     anim_core* core = malloc(sizeof(anim_core));
     if (core == NULL) {
         fprintf(stderr, "Failed to allocate memory for anim_core\n");
@@ -19,21 +18,7 @@ anim_core* create_core(SDL_Renderer* ren, char* path, int sprite_width, int spri
     core->sprite_width = sprite_width;
     core->sprite_height = sprite_height;
 
-    SDL_Surface* temp = SDL_LoadBMP(path);
-    if (temp == NULL) {
-        fprintf(stderr, "SDL_LoadBMP Error: %s\n", SDL_GetError());
-        free(core);
-        return NULL;
-    }
-
-    core->sprite_sheet = SDL_CreateTextureFromSurface(ren, temp);
-    SDL_FreeSurface(temp);
-
-    if (core->sprite_sheet == NULL) {
-        fprintf(stderr, "SDL_CreateTextureFromSurface Error: %s\n", SDL_GetError());
-        free(core);
-        return NULL;
-    }
+    core->sprite_sheet = tex;
 
     return core;
 }
@@ -42,7 +27,6 @@ void free_core(anim_core* core) {
         free((anim*) get_elt(core->animations, i));
     }
     free_array(core->animations);
-    SDL_DestroyTexture(core->sprite_sheet);
     free(core);
 }
 
@@ -58,7 +42,6 @@ int add_anim(anim_core* core, int line, float interval, int amount) {
 
 void set_active_anim(anim_core* core, int index) {
     if(index >= get_len(core->animations)) {
-        printf("NEAHHHAHHA\n");
         return;
     }
     if(core->anim_index == index) return;

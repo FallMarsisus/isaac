@@ -3,6 +3,7 @@
 #include "rooms.h"
 #include "objects/entities/player/player.h"
 #include "../utils/dict.h"
+#include "../display.h"
 
 typedef struct {
     player* p;
@@ -11,9 +12,11 @@ typedef struct {
 
     int map_x; int map_y; //Map Coords
     room* current_room;
+
+    sprite_list* sprites;
 } map;
 
-map* create_map();
+map* create_map(sprite_list* sprites);
 void load_textures(map* m, SDL_Renderer* ren);
 void free_map(map* m);
 

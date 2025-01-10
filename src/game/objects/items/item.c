@@ -1,15 +1,15 @@
 #include "item.h"
 
-Item* create_item(float x, float y, float w, float h, char* path) {
+Item* create_item(float x, float y, float w, float h, sprite_list* sprites) {
     Item* item = malloc(sizeof(Item));
     item->pos = malloc(sizeof(Vector)); item->pos->x = x; item->pos->y = y;
     item->hitbox = malloc(sizeof(SDL_Rect)); item->hitbox->x = x; item->hitbox->y = y; item->hitbox->w = w; item->hitbox->h = h;
-    item->texture_path = path;
     item->core = NULL;
+    item->sprites = sprites;
     return item;
 }
 void load_item_textures(Item* item, SDL_Renderer* ren) {
-    item->core = create_core(ren, item->texture_path, item->hitbox->w, item->hitbox->h);
+    item->core = create_core(ren, item->sprites->sword_slash, item->hitbox->w, item->hitbox->h);
 
     add_anim(item->core, 0, 0.1, 2);
     set_active_anim(item->core, 0);
@@ -23,7 +23,7 @@ void free_item(Item* item) {
 }
 
 void draw_item(Item* item, SDL_Renderer* ren) {
-    if(item->texture_path != NULL && item->core == NULL) {
+    if(item->sprites != NULL && item->core == NULL) {
         load_item_textures(item, ren);
     }
 

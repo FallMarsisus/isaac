@@ -12,11 +12,11 @@ typedef struct {
     Vector* pos;
     SDL_Rect* hitbox;
 
-    char* texture_path;
     anim_core* core;
+    sprite_list* sprites;
 } Item;
 
-Item* create_item(float x, float y, float w, float h, char* path);
+Item* create_item(float x, float y, float w, float h, sprite_list* sprites);
 void load_item_textures(Item* item, SDL_Renderer* ren);
 void free_item(Item* item);
 

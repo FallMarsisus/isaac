@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <SDL2/SDL_image.h>
 
+#include "../display.h"
+
 typedef struct {
     float interval;
     int amount;
@@ -27,7 +29,7 @@ typedef struct anim_core_s {
     struct timeval* now;
 } anim_core;
 
-anim_core* create_core(SDL_Renderer* ren, char* path, int sprite_width, int sprite_height);
+anim_core* create_core(SDL_Renderer* ren, SDL_Texture* tex, int sprite_width, int sprite_height);
 void free_core(anim_core* core);
 
 //Returns the index of the animation

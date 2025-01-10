@@ -1,26 +1,23 @@
 #include "map.h"
 
-map* create_map() {
+map* create_map(sprite_list* sprites) {
     map* m = malloc(sizeof(map));
     m->dict_rooms = create_dict();
     m->map_x = 0;
     m->map_y = 0;
+    m->sprites = sprites;
 
-    m->current_room = create_room(0, 0);
+    m->current_room = create_room(0, 0, m->sprites);
     add_room(m, m->current_room);
     
-    m->p = create_player(320, 180);
+    m->p = create_player(320, 180, m->sprites);
     return m;
 }
 
 void load_textures(map* m, SDL_Renderer* ren) {
     assert(m != NULL);
-
-    //=========Loads textures===========
-    load_player_textures(
-        m->p, 
-        ren
-    );
+    
+    load_player_textures(m->p, ren);
 }
 
 void free_room_modif(int x, int y, void* data) {
@@ -79,7 +76,7 @@ void change_room(map* m, int x, int y) {
     assert(m != NULL);
     room* r = get_room(m, x, y);
     if(r == NULL) {
-        r = create_room(x, y);
+        r = create_room(x, y, m->sprites);
         add_room(m, r);
     }
     m->current_room = r;
@@ -91,7 +88,9 @@ void change_room(map* m, int x, int y) {
 void update_map(map* m, int win_width, int win_height) {
     get_inputs(m->p);
 
-    update_player(m->p, win_width, win_height);
+    if(m->current_room != NULL) {
+        update_player(m->p, m->current_room->entities, m->current_room->tiles);
+    }
 
     Vector* pos = m->p->body->pos;
 

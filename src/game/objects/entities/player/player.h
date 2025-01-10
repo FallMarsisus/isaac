@@ -15,7 +15,7 @@ typedef struct {
     Entity* body;
 } player;
 
-player* create_player(int x, int y);
+player* create_player(int x, int y, sprite_list* sprites);
 void load_player_textures(player* p, SDL_Renderer* ren);
 void free_player(player* p);
 
@@ -23,6 +23,6 @@ void add_item_to_player(player* p, Item* item);
 
 void get_inputs(player* p);
 
-void update_player(player* p, int width, int height);
+void update_player(player* p, chained_list* entities, chained_list* tiles);
 
 void draw_player(SDL_Renderer* ren, player* p);

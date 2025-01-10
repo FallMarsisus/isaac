@@ -1,6 +1,6 @@
 #include "rooms.h"
 
-room* create_room(int posx, int posy) {
+room* create_room(int posx, int posy, sprite_list* sprites) {
     room* r = malloc(sizeof(room));
     if (r == NULL) {
         fprintf(stderr, "Failed to allocate memory for room\n");
@@ -16,18 +16,25 @@ room* create_room(int posx, int posy) {
     r->left = NULL;
     r->right = NULL;
 
-    Entity* enemy = create_enemy(rand() % 640, rand() % 360);
+    Entity* enemy = create_enemy(rand() % 640, rand() % 360, sprites);
     if (enemy != NULL) {
         add_entity_to_room(r, enemy);
     } else {
         fprintf(stderr, "Failed to create enemy\n");
     }
 
-    Item* item = create_item(rand() % 640, rand() % 360, 16, 16, "assets/player/sword.bmp");
+    Item* item = create_item(rand() % 640, rand() % 360, 16, 16, sprites);
     if (item != NULL) {
         add_item_to_room(r, item);
     } else {
         fprintf(stderr, "Failed to create item\n");
+    }
+
+    Tile* tile = create_tile(rand() % 640, rand() % 360, 32, 32, sprites);
+    if (tile != NULL) {
+        add_tile_to_room(r, tile);
+    } else {
+        fprintf(stderr, "Failed to create tile\n");
     }
 
     return r;
@@ -37,10 +44,13 @@ void add_entity_to_room(room* r, Entity* e) {
     if (r == NULL || e == NULL) return;
     append_elt(r->entities, e);
 }
-
 void add_item_to_room(room* r, Item* item) {
     if (r == NULL || item == NULL) return;
     append_elt(r->items, item);
+}
+void add_tile_to_room(room* r, Tile* tile) {
+    if (r == NULL || tile == NULL) return;
+    append_elt(r->tiles, tile);
 }
 
 void free_room(room* r) {
@@ -60,6 +70,12 @@ void update_room(player* p, room* r) {
 }
 
 void draw_room(SDL_Renderer* ren, room* r) {
+    for(cell* c = get_first(r->tiles); c != NULL; c = get_next(c)) {
+        if((Tile*) get_data(c) != NULL) {
+            Tile* tile = get_data(c);
+            draw_tile(tile, ren);
+        }
+    }
     for(cell* c = get_first(r->items); c != NULL; c = get_next(c)) {
         if((Item*) get_data(c) != NULL) {
             Item* item = get_data(c);

@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include "game/map.h"
 
+#include "display.h"
+
 int main(int argc, char* argv[]) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -32,11 +34,13 @@ int main(int argc, char* argv[]) {
     int win_width = 640, win_height = 360;
     SDL_RenderSetLogicalSize(ren, win_width, win_height);
 
+    sprite_list* sprites = load_sprites(ren);
+
     SDL_Event event;
     
     int running = 1;
 
-    map* m = create_map();
+    map* m = create_map(sprites);
     load_textures(m, ren);
 
     while (running) {

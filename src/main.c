@@ -53,7 +53,8 @@ int main(int argc, char* argv[]) {
         
         update_map(m, win_width, win_height);
         
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255 );
+        //Draw bg
+        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
 
         draw_map(m, ren);

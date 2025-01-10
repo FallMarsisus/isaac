@@ -16,8 +16,9 @@
 #include "objects/tiles/tile.h"
 
 typedef struct room_s {
-    int x;
-    int y;
+    int x; int y;
+    
+    SDL_Rect* bg_rect;
 
     struct room_s* up;
     struct room_s* down;

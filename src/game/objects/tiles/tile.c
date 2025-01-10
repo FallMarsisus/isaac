@@ -11,7 +11,7 @@ Tile* create_tile(int x, int y, int width, int height, sprite_list* sprites) {
 }
 void load_tile_texture(Tile* tile, SDL_Renderer* ren) {
     if(ren == NULL || tile->sprites == NULL || tile->hitbox == NULL) return;
-    tile->core = create_core(ren, tile->sprites->player_texture, tile->hitbox->w, tile->hitbox->h);
+    tile->core = create_core(ren, tile->sprites->cobble_texture, tile->hitbox->w, tile->hitbox->h);
 }
 void free_tile(Tile* tile) {
     free_core(tile->core);

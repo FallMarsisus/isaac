@@ -86,29 +86,44 @@ void change_room(map* m, int x, int y) {
 
 //Changes the room if the player is at the edge of the screen
 void update_map(map* m, int win_width, int win_height) {
+    if(m->current_room == NULL) return;
     get_inputs(m->p);
 
-    if(m->current_room != NULL) {
-        update_player(m->p, m->current_room->entities, m->current_room->tiles);
-    }
+    update_player(m->p, m->current_room->entities, m->current_room->tiles);
 
     Vector* pos = m->p->body->pos;
 
-    if (pos->x < 0) {
-        set_entity_position(m->p->body, win_width - m->p->body->hitbox->w, pos->y);
+    if (pos->x < m->current_room->bg_rect->x) {
         change_room(m, m->map_x - 1, m->map_y);
+        set_entity_position(
+            m->p->body, 
+            m->current_room->bg_rect->x + m->current_room->bg_rect->w - m->p->body->hitbox->w, 
+            pos->y
+        );
     }
-    if (pos->y < 0) {
-        set_entity_position(m->p->body, pos->x, win_height - m->p->body->hitbox->h);
+    if (pos->y < m->current_room->bg_rect->y) {
         change_room(m, m->map_x, m->map_y - 1);
+        set_entity_position(
+            m->p->body, 
+            pos->x, 
+            m->current_room->bg_rect->y + m->current_room->bg_rect->h - m->p->body->hitbox->h
+        );
     }
-    if (pos->x > win_width - m->p->body->hitbox->w) {
-        set_entity_position(m->p->body, 0, pos->y);
+    if (pos->x + m->p->body->hitbox->w > m->current_room->bg_rect->x + m->current_room->bg_rect->w) {
         change_room(m, m->map_x + 1, m->map_y);
+        set_entity_position(
+            m->p->body, 
+            m->current_room->bg_rect->x, 
+            pos->y
+        );
     }
-    if (pos->y > win_height - m->p->body->hitbox->h) {
-        set_entity_position(m->p->body, pos->x, 0);
+    if (pos->y + m->p->body->hitbox->h > m->current_room->bg_rect->y + m->current_room->bg_rect->h) {
         change_room(m, m->map_x, m->map_y + 1);
+        set_entity_position(
+            m->p->body, 
+            pos->x, 
+            m->current_room->bg_rect->y
+        );
     }
 
     update_room(m->p, m->current_room);

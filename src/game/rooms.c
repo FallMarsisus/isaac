@@ -8,6 +8,12 @@ room* create_room(int posx, int posy, sprite_list* sprites) {
     }
     r->x = posx;
     r->y = posy;
+
+    int offsetX = random_int(50, 100);
+    int offsetY = 0;
+    r->bg_rect = malloc(sizeof(SDL_Rect));
+    *(r->bg_rect) = (SDL_Rect) {offsetX, offsetY, 640 - 2 * offsetX, 360 - 2 * offsetY};
+
     r->entities = create_list();
     r->tiles = create_list();
     r->items = create_list();
@@ -16,21 +22,37 @@ room* create_room(int posx, int posy, sprite_list* sprites) {
     r->left = NULL;
     r->right = NULL;
 
-    Entity* enemy = create_enemy(rand() % 640, rand() % 360, sprites);
+    Entity* enemy = create_enemy(
+        r->bg_rect->x + rand() % r->bg_rect->w, 
+        r->bg_rect->y + rand() % r->bg_rect->h, 
+        sprites
+    );
     if (enemy != NULL) {
         add_entity_to_room(r, enemy);
     } else {
         fprintf(stderr, "Failed to create enemy\n");
     }
 
-    Item* item = create_item(rand() % 640, rand() % 360, 16, 16, sprites);
+    Item* item = create_item(
+        r->bg_rect->x + rand() % r->bg_rect->w, 
+        r->bg_rect->y + rand() % r->bg_rect->h, 
+        16,
+        16,
+        sprites
+    );
     if (item != NULL) {
         add_item_to_room(r, item);
     } else {
         fprintf(stderr, "Failed to create item\n");
     }
 
-    Tile* tile = create_tile(rand() % 640, rand() % 360, 32, 32, sprites);
+    Tile* tile = create_tile(
+        r->bg_rect->x + rand() % r->bg_rect->w, 
+        r->bg_rect->y + rand() % r->bg_rect->h, 
+        32,
+        32,
+        sprites
+    );
     if (tile != NULL) {
         add_tile_to_room(r, tile);
     } else {
@@ -70,6 +92,8 @@ void update_room(player* p, room* r) {
 }
 
 void draw_room(SDL_Renderer* ren, room* r) {
+    draw_rect(r->bg_rect, ren, 34, 35, 35, 255);
+
     for(cell* c = get_first(r->tiles); c != NULL; c = get_next(c)) {
         if((Tile*) get_data(c) != NULL) {
             Tile* tile = get_data(c);

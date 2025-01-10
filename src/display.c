@@ -35,5 +35,10 @@ sprite_list* load_sprites(SDL_Renderer* ren) {
         free(sl);
         return NULL;
     }
+    sl->cobble_texture = load_sprite("assets/tilemap/cobble.bmp", ren);
+    if(sl->cobble_texture == NULL) {
+        free(sl);
+        return NULL;
+    }
     return sl;
 }

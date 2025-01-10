@@ -21,3 +21,12 @@ bool checkCollision(SDL_Rect *rect1, SDL_Rect *rect2) {
              rect1->y > rect2->y + rect2->h || // rect1 is below rect2
              rect1->y + rect1->h < rect2->y);  // rect1 is above rect2
 }
+
+void draw_rect(SDL_Rect* rect, SDL_Renderer* ren, int r, int g, int b, int a) {
+    SDL_SetRenderDrawColor(ren, r, g, b, a);
+    SDL_RenderFillRect(ren, rect);
+}
+
+int random_int(int a, int b) {
+    return (rand() % (b - a)) + a;
+}

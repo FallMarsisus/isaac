@@ -46,7 +46,6 @@ void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* ti
     if(fabs(e->vel->x) > 0.1 || fabs(e->vel->y) > 0.1) {
         normalize(e->vel);
         move_entity(e, e->vel->x * e->speed, e->vel->y * e->speed);
-        
         if(tiles == NULL) return;
         for(cell* c = get_first(tiles); c != NULL; c = get_next(c)) {
             Tile* tile = get_data(c);

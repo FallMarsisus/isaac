@@ -27,7 +27,7 @@ typedef struct entity_s {
     int damage;
 
     void* other_variables;
-    void (*free_additionnal)(struct entity_s* e);
+    void (*free_entity_other)(struct entity_s* e);
     
     void (*update)(struct entity_s* e, void* pl, chained_list* entities, chained_list* tiles);
     void (*draw)(struct entity_s* e, SDL_Renderer* ren);

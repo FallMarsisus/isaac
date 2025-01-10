@@ -15,7 +15,7 @@ void load_enemy_textures(Entity* e, SDL_Renderer* ren) {
     play_anim(e->core);
 }
 
-void free_additional(Entity* e) {
+void free_enemy(Entity* e) {
     //
 }
 
@@ -61,7 +61,7 @@ Entity* create_enemy(float x, float y, sprite_list* sprites) {
         fprintf(stderr, "Failed to create entity\n");
         return NULL;
     }
-    e->free_additionnal = free_additional;
+    e->free_entity_other = free_enemy;
     e->update = update_enemy;
     e->draw = draw_enemy;
 

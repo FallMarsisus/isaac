@@ -12,8 +12,8 @@
 #include "objects/entities/enemies/enemy.h"
 #include "objects/entities/entity.h"
 
-#include "objects/items/item.h"
 #include "objects/tiles/tile.h"
+#include "objects/tiles/customTiles/teleporter.h"
 
 typedef struct room_s {
     int x; int y;
@@ -27,12 +27,10 @@ typedef struct room_s {
 
     chained_list* entities;
     chained_list* tiles;
-    chained_list* items;
 } room;
 
 room* create_room(int posx, int posy, sprite_list* sprites);
 void add_entity_to_room(room* r, Entity* e);
-void add_item_to_room(room* r, Item* item);
 void add_tile_to_room(room* r, Tile* tile);
 void free_room(room* r);
 

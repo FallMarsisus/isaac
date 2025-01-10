@@ -7,6 +7,12 @@ Tile* create_tile(int x, int y, int width, int height, sprite_list* sprites) {
 
     tile->sprites = sprites;
     tile->core = NULL;
+    tile->collide = true;
+
+    tile->other_variables = NULL;
+    tile->free_tile_other = NULL;
+    tile->update = NULL;
+    tile->draw = NULL;
     return tile;
 }
 void load_tile_texture(Tile* tile, SDL_Renderer* ren) {
@@ -14,9 +20,14 @@ void load_tile_texture(Tile* tile, SDL_Renderer* ren) {
     tile->core = create_core(ren, tile->sprites->cobble_texture, tile->hitbox->w, tile->hitbox->h);
 }
 void free_tile(Tile* tile) {
+    if(tile->free_tile_other != NULL) tile->free_tile_other(tile);
     free_core(tile->core);
     free(tile->hitbox);
     free(tile);
+}
+
+void update_tile(Tile* tile, void* pl) {
+    if(tile->update != NULL) tile->update(tile, pl);
 }
 
 void draw_tile(Tile* tile, SDL_Renderer* ren) {

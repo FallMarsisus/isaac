@@ -16,7 +16,6 @@ room* create_room(int posx, int posy, sprite_list* sprites) {
 
     r->entities = create_list();
     r->tiles = create_list();
-    r->items = create_list();
     r->up = NULL;
     r->down = NULL;
     r->left = NULL;
@@ -33,20 +32,18 @@ room* create_room(int posx, int posy, sprite_list* sprites) {
         fprintf(stderr, "Failed to create enemy\n");
     }
 
-    Item* item = create_item(
+    Tile* tile = create_teleporter(
         r->bg_rect->x + rand() % r->bg_rect->w, 
         r->bg_rect->y + rand() % r->bg_rect->h, 
-        16,
-        16,
         sprites
     );
-    if (item != NULL) {
-        add_item_to_room(r, item);
+    if (tile != NULL) {
+        add_tile_to_room(r, tile);
     } else {
-        fprintf(stderr, "Failed to create item\n");
+        fprintf(stderr, "Failed to create tile\n");
     }
 
-    Tile* tile = create_tile(
+    Tile* tile1 = create_tile(
         r->bg_rect->x + rand() % r->bg_rect->w, 
         r->bg_rect->y + rand() % r->bg_rect->h, 
         32,
@@ -54,7 +51,7 @@ room* create_room(int posx, int posy, sprite_list* sprites) {
         sprites
     );
     if (tile != NULL) {
-        add_tile_to_room(r, tile);
+        add_tile_to_room(r, tile1);
     } else {
         fprintf(stderr, "Failed to create tile\n");
     }
@@ -66,10 +63,6 @@ void add_entity_to_room(room* r, Entity* e) {
     if (r == NULL || e == NULL) return;
     append_elt(r->entities, e);
 }
-void add_item_to_room(room* r, Item* item) {
-    if (r == NULL || item == NULL) return;
-    append_elt(r->items, item);
-}
 void add_tile_to_room(room* r, Tile* tile) {
     if (r == NULL || tile == NULL) return;
     append_elt(r->tiles, tile);
@@ -77,12 +70,17 @@ void add_tile_to_room(room* r, Tile* tile) {
 
 void free_room(room* r) {
     if (r == NULL) return;
-    free_list(r->items);
     free_list(r->entities);
     free_list(r->tiles);
     free(r);
 }
 void update_room(player* p, room* r) {
+    for(cell* c = get_first(r->tiles); c != NULL; c = get_next(c)) {
+        if((Tile*) get_data(c) != NULL) {
+            Tile* tile = get_data(c);
+            update_tile(tile, p);
+        }
+    }
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
         if((Entity*) get_data(c) != NULL) {
             Entity* e = get_data(c);
@@ -97,13 +95,8 @@ void draw_room(SDL_Renderer* ren, room* r) {
     for(cell* c = get_first(r->tiles); c != NULL; c = get_next(c)) {
         if((Tile*) get_data(c) != NULL) {
             Tile* tile = get_data(c);
-            draw_tile(tile, ren);
-        }
-    }
-    for(cell* c = get_first(r->items); c != NULL; c = get_next(c)) {
-        if((Item*) get_data(c) != NULL) {
-            Item* item = get_data(c);
-            draw_item(item, ren);
+            if(tile->draw != NULL) tile->draw(tile, ren);
+            else draw_tile(tile, ren);
         }
     }
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {

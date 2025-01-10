@@ -10,8 +10,6 @@ player* create_player(int x, int y, sprite_list* sprites) {
     for(int i = 0; i < 4; i ++) {
         p->keys[i] = false;
     }
-
-    p->items = create_array();
     return p;
 }
 void load_player_textures(player* p, SDL_Renderer* ren) {
@@ -27,15 +25,7 @@ void load_player_textures(player* p, SDL_Renderer* ren) {
 void free_player(player* p) {
     free_entity(p->body);
     free(p->keys);
-    for(int i = 0; i < get_len(p->items); i++) {
-        free_item(get_elt(p->items, i));
-    }
-    free_array(p->items);
     free(p);
-}
-
-void add_item_to_player(player* p, Item* item) {
-    append(p->items, item);
 }
 
 //Maps the keys to the keys array

@@ -21,24 +21,9 @@ SDL_Texture* load_sprite(char* path, SDL_Renderer* ren) {
 sprite_list* load_sprites(SDL_Renderer* ren) {
     sprite_list* sl = malloc(sizeof(sprite_list));
     sl->player_texture = load_sprite("assets/player/sprite_sheet.bmp", ren);
-    if(sl->player_texture == NULL) {
-        free(sl);
-        return NULL;
-    }
     sl->alien_texture = load_sprite("assets/alien/sprite_sheet.bmp", ren);
-    if(sl->alien_texture == NULL) {
-        free(sl);
-        return NULL;
-    }
     sl->sword_slash = load_sprite("assets/player/sword.bmp", ren);
-    if(sl->sword_slash == NULL) {
-        free(sl);
-        return NULL;
-    }
     sl->cobble_texture = load_sprite("assets/tilemap/cobble.bmp", ren);
-    if(sl->cobble_texture == NULL) {
-        free(sl);
-        return NULL;
-    }
+    sl->iconE_texture = load_sprite("assets/tilemap/iconE.bmp", ren);
     return sl;
 }

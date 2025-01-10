@@ -13,7 +13,7 @@ Entity* create_entity(float x, float y, int width, int height, sprite_list* spri
     e->maxhealth = -1; e->health = e->maxhealth; e->damage = 0;
 
     e->other_variables = NULL;
-    e->free_additionnal = NULL;
+    e->free_entity_other = NULL;
     e->update = NULL;
     e->draw = NULL;
     return e;
@@ -27,7 +27,7 @@ void free_entity(Entity* e) {
     free(e->hitbox);
     free(e->vel);
     if(e->core != NULL) free_core(e->core);
-    if(e->free_additionnal != NULL) e->free_additionnal(e);
+    if(e->free_entity_other != NULL) e->free_entity_other(e);
     free(e);
 }
 
@@ -49,7 +49,7 @@ void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* ti
         if(tiles == NULL) return;
         for(cell* c = get_first(tiles); c != NULL; c = get_next(c)) {
             Tile* tile = get_data(c);
-            if(tile == NULL) continue;
+            if(tile == NULL || !tile->collide) continue;
             if (!checkCollision(e->hitbox, tile->hitbox)) continue; // No collision to handle
 
             // Handle collision response
@@ -86,3 +86,4 @@ void draw_entity(Entity* e, SDL_Renderer* ren) {
         SDL_RenderFillRect(ren, e->hitbox);
     }
 }
+

@@ -7,6 +7,7 @@ Entity* create_entity(float x, float y, int width, int height, sprite_list* spri
 
     e->vel = malloc(sizeof(Vector)); e->vel->x = 0; e->vel->y = 0;
     e->speed = 0;
+    e->can_move = true;
     e->sprites = sprites;
     e->core = NULL;
 
@@ -43,7 +44,7 @@ void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* ti
     if(e == NULL) return;
     if(e->update != NULL) e->update(e, pl, entities, tiles);
 
-    if(fabs(e->vel->x) > 0.1 || fabs(e->vel->y) > 0.1) {
+    if(e->can_move && (fabs(e->vel->x) > 0.1 || fabs(e->vel->y) > 0.1)) {
         normalize(e->vel);
         move_entity(e, e->vel->x * e->speed, e->vel->y * e->speed);
         if(tiles == NULL) return;

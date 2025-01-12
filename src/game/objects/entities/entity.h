@@ -19,6 +19,7 @@ typedef struct entity_s {
     
     Vector* vel;
     int speed;
+    bool can_move;
     
     sprite_list* sprites;
     anim_core* core;

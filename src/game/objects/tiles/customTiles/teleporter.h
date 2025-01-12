@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../tile.h"
+#include "../interactible.h"
 #include "../../entities/player/player.h"
 #include "../../../../utils/utils.h"
 #include "../../../../utils/dyn_arrays.h"

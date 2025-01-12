@@ -32,26 +32,15 @@ room* create_room(int posx, int posy, sprite_list* sprites) {
         fprintf(stderr, "Failed to create enemy\n");
     }
 
-    Tile* tile = create_teleporter(
+    Tile* tile = create_tile(
         r->bg_rect->x + rand() % r->bg_rect->w, 
         r->bg_rect->y + rand() % r->bg_rect->h, 
+        32,
+        32,
         sprites
     );
     if (tile != NULL) {
         add_tile_to_room(r, tile);
-    } else {
-        fprintf(stderr, "Failed to create tile\n");
-    }
-
-    Tile* tile1 = create_tile(
-        r->bg_rect->x + rand() % r->bg_rect->w, 
-        r->bg_rect->y + rand() % r->bg_rect->h, 
-        32,
-        32,
-        sprites
-    );
-    if (tile != NULL) {
-        add_tile_to_room(r, tile1);
     } else {
         fprintf(stderr, "Failed to create tile\n");
     }

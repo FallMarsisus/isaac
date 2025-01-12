@@ -25,5 +25,6 @@ sprite_list* load_sprites(SDL_Renderer* ren) {
     sl->sword_slash = load_sprite("assets/player/sword.bmp", ren);
     sl->cobble_texture = load_sprite("assets/tilemap/cobble.bmp", ren);
     sl->iconE_texture = load_sprite("assets/tilemap/iconE.bmp", ren);
+    sl->teleporter_texture = load_sprite("assets/tilemap/teleporter.bmp", ren);
     return sl;
 }

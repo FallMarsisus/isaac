@@ -12,6 +12,10 @@ Timer* create_timer(float time, void (*on_end)(void* elt), void* elt) {
 
     return timer;
 }
+void free_timer(Timer* timer) {
+    free(timer->start);
+    free(timer);
+}
 
 float get_current_time(Timer* timer) {
     struct timeval now;

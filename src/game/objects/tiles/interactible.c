@@ -26,7 +26,7 @@ void load_interactive_textures(Tile* tile, SDL_Renderer* ren) {
     get_interact_core(tile)->core = 
         create_core(ren, tile->sprites->iconE_texture, 16, 16)
     ;
-    tile->core = create_core(ren, tile->sprites->cobble_texture, 16, 16);
+    tile->core = create_core(ren, tile->sprites->teleporter_texture, 64, 64);
 }
 void free_interactive_tile(Tile* tile) {
     if(get_interact_core(tile) != NULL) {

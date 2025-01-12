@@ -32,6 +32,7 @@ void load_player_textures(player* p, SDL_Renderer* ren) {
 }
 void free_player(player* p) {
     free_entity(p->body);
+    free_timer(p->teleport_timer);
     free(p->keys);
     free(p);
 }

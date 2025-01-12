@@ -11,6 +11,27 @@ map* create_map(sprite_list* sprites) {
     add_room(m, m->current_room);
     
     m->p = create_player(320, 180, m->sprites);
+
+    for(int i = 0; i < 5; i++) {
+        int m1_x = i, m1_y = i;
+        int m2_x = -i, m2_y = -i;
+
+        room* r1 = get_room(m, m1_x, m1_y);
+        if(r1 == NULL) {
+            r1 = create_room(m1_x, m1_y, m->sprites);
+            add_room(m, r1);
+        }
+        room* r2 = get_room(m, m2_x, m2_y);
+        if(r2 == NULL) {
+            r2 = create_room(m2_x, m2_y, m->sprites);
+            add_room(m, r2);
+        }
+
+        Teleporter_pair* pair = create_pair_teleporter(m1_x, m1_y, m2_x, m2_y, sprites);
+
+        add_tile_to_room(r1, pair->teleporter1);
+        add_tile_to_room(r2, pair->teleporter2);
+    }
     return m;
 }
 
@@ -94,46 +115,50 @@ void update_map(map* m, int win_width, int win_height) {
     Vector* pos = m->p->body->pos;
 
     if (pos->x < m->current_room->bg_rect->x) {
-        int nb_rooms = 1 + abs(pos->x / 640);
+        int nb_rooms = 1 + abs(pos->x / win_width);
         change_room(m, m->map_x - nb_rooms, m->map_y);
         
-        int new_pos = (int) pos->x % 640;
+        int new_pos = (int) pos->x % win_width;
         if(-m->current_room->bg_rect->x < new_pos) {
             new_pos = m->current_room->bg_rect->x + m->current_room->bg_rect->w - m->p->body->hitbox->w;
         }
-        if(new_pos < 0) new_pos += 640;
+        if(new_pos < 0) new_pos += win_width;
         set_entity_position(m->p->body, new_pos, pos->y);
     }
     if (pos->y < m->current_room->bg_rect->y) {
-        int nb_rooms = 1 + abs(pos->y / 640);
+        int nb_rooms = 1 + abs(pos->y / win_height);
         change_room(m, m->map_x, m->map_y - nb_rooms);
 
-        int new_pos = (int) pos->y % 640;
+        int new_pos = (int) pos->y % win_height;
         if(-m->current_room->bg_rect->y < new_pos) {
             new_pos = m->current_room->bg_rect->y + m->current_room->bg_rect->h - m->p->body->hitbox->h;
         }
-        if(new_pos < 0) new_pos += 640;
+        if(new_pos < 0) new_pos += win_height;
         set_entity_position(m->p->body, pos->x, new_pos);
     }
     if (pos->x + m->p->body->hitbox->w > m->current_room->bg_rect->x + m->current_room->bg_rect->w) {
-        int nb_rooms = 1 + abs(pos->x / 640);
+        int nb_rooms = abs(pos->x + m->current_room->bg_rect->x + m->p->body->hitbox->w) / win_width;
         change_room(m, m->map_x + nb_rooms, m->map_y);
         
-        int new_pos = (int) pos->x % 640;
-        if(new_pos < 640 + m->current_room->bg_rect->x) {
+        int new_pos = (int) pos->x % win_width;
+        if(pos->x < win_width + m->current_room->bg_rect->x) {
             new_pos = m->current_room->bg_rect->x;
         }
+
+        if(new_pos > win_width) new_pos -= win_width;
         
         set_entity_position(m->p->body, new_pos, pos->y);
     }
     if (pos->y + m->p->body->hitbox->h > m->current_room->bg_rect->y + m->current_room->bg_rect->h) {
-        int nb_rooms = 1 + abs(pos->y / 640);
+        int nb_rooms = abs(pos->y + m->current_room->bg_rect->y + m->p->body->hitbox->h) / win_height;
         change_room(m, m->map_x, m->map_y + nb_rooms);
 
-        int new_pos = (int) pos->y % 640;
-        if(new_pos < 640 + m->current_room->bg_rect->y) {
+        int new_pos = (int) pos->y % win_height;
+        if(pos->y < win_height + m->current_room->bg_rect->y) {
             new_pos = m->current_room->bg_rect->y;
         }
+        if(new_pos > win_height) new_pos -= win_height;
+
         set_entity_position(m->p->body, pos->x, new_pos);
     }
 

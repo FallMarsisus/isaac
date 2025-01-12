@@ -8,6 +8,7 @@ typedef struct {
     SDL_Texture* sword_slash;
     SDL_Texture* cobble_texture;
     SDL_Texture* iconE_texture;
+    SDL_Texture* teleporter_texture;
 } sprite_list;
 
 sprite_list* load_sprites(SDL_Renderer* ren);

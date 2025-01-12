@@ -15,6 +15,8 @@ typedef struct {
 } Timer;
 
 Timer* create_timer(float time, void (*on_end)(void* elt), void* elt);
+void free_timer(Timer* timer);
+
 float get_current_time(Timer* timer);
 
 void play_timer(Timer* timer);

@@ -2,6 +2,7 @@
 
 #include "../entity.h"
 #include "../../../../utils/dyn_arrays.h"
+#include "../../../../utils/timer.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -9,6 +10,9 @@
 
 typedef struct {
     bool* keys; //Keys pressed
+
+    bool can_teleport;
+    Timer* teleport_timer;
 
     Entity* body;
 } player;

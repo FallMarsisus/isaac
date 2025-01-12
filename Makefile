@@ -13,9 +13,9 @@ LINKER_FLAGS = -lSDL2 -lSDL2_ttf -LSDL2_image
 
 build:
 	find ./src/. -name "*.c" -exec gcc $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game {} +
-#find . -name "*.c" -exec gcc -o {output_file} {} +
-build_test:
-	gcc ./tests/test_main/*.c $(OTHERS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game
+
+update_run:
+	find ./src/. -name "*.c" -exec gcc $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game {} + && ./bins/game
 
 run:
 	./bins/game

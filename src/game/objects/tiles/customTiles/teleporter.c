@@ -3,7 +3,11 @@
 void on_teleport(Tile* tile, void* cc) {
     player* p = (player*) cc;
 
-    move_entity(p->body, 0, -100);
+    if(p->can_teleport) {
+        move_entity(p->body, -640, 0);
+        p->can_teleport = false;
+        play_timer(p->teleport_timer);
+    }
 }
 
 Tile* create_teleporter(int posx, int posy, sprite_list* sprites) {

@@ -5,9 +5,13 @@
 #include <stdbool.h>
 #include "game/map.h"
 
+#include <time.h>
+
 #include "display.h"
 
 int main(int argc, char* argv[]) {
+    srand(time(NULL));
+
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("SDL_Init Error: %s\n", SDL_GetError());

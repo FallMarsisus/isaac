@@ -44,11 +44,12 @@ void update_interactive_tile(Tile* tile, void* cc) {
     get_interact_core(tile)->hovered = checkCollision(tile->hitbox, p->body->hitbox);
 
     const Uint8 *state = SDL_GetKeyboardState(NULL);
-    bool key_pressed = state[get_interact_core(tile)->key];
-    if(get_interact_core(tile)->hovered && key_pressed) {
+
+    if(get_interact_core(tile)->hovered && state[get_interact_core(tile)->key]) {
         if(get_interact_core(tile)->on_interact != NULL) {
             get_interact_core(tile)->on_interact(tile, p);
         }
+        get_interact_core(tile)->hovered = false;
     }
 }
 

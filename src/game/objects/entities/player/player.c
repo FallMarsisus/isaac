@@ -1,5 +1,10 @@
 #include "player.h"
 
+void set_teleport(void* cc) {
+    player* p = (player*) cc;
+    p->can_teleport = true;
+}
+
 player* create_player(int x, int y, sprite_list* sprites) {
     player* p = malloc(sizeof(player));
     p->body = create_entity(x, y, 32, 32, sprites);
@@ -10,6 +15,9 @@ player* create_player(int x, int y, sprite_list* sprites) {
     for(int i = 0; i < 4; i ++) {
         p->keys[i] = false;
     }
+
+    p->can_teleport = true;
+    p->teleport_timer = create_timer(1., set_teleport, p);
     return p;
 }
 void load_player_textures(player* p, SDL_Renderer* ren) {
@@ -31,20 +39,22 @@ void free_player(player* p) {
 //Maps the keys to the keys array
 void get_inputs(player* p) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
-    p->keys[0] = state[SDL_SCANCODE_UP];
-    p->keys[1] = state[SDL_SCANCODE_DOWN];
-    p->keys[2] = state[SDL_SCANCODE_LEFT];
-    p->keys[3] = state[SDL_SCANCODE_RIGHT];
+    p->keys[0] = state[SDL_SCANCODE_W];
+    p->keys[1] = state[SDL_SCANCODE_S];
+    p->keys[2] = state[SDL_SCANCODE_A];
+    p->keys[3] = state[SDL_SCANCODE_D];
 }
 
 //Moves the player
 void move(player* p) {
     p->body->vel->x = 0; p->body->vel->y = 0;
 
-    if(p->keys[0]) p->body->vel->y -= 1;
-    if(p->keys[1]) p->body->vel->y += 1;
-    if(p->keys[2]) p->body->vel->x -= 1;
-    if(p->keys[3]) p->body->vel->x += 1;
+    if(p->body->can_move) {
+        if(p->keys[0]) p->body->vel->y -= 1;
+        if(p->keys[1]) p->body->vel->y += 1;
+        if(p->keys[2]) p->body->vel->x -= 1;
+        if(p->keys[3]) p->body->vel->x += 1;
+    }
 }
 void update_player_sprite(player* p) {
     bool anim = true;
@@ -64,6 +74,8 @@ void update_player(player* p, chained_list* entities, chained_list* tiles) {
     move(p);
 
     update_entity(p->body, NULL, entities, tiles);
+
+    update_timer(p->teleport_timer);
 
     update_player_sprite(p);
 }

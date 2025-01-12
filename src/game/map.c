@@ -94,36 +94,47 @@ void update_map(map* m, int win_width, int win_height) {
     Vector* pos = m->p->body->pos;
 
     if (pos->x < m->current_room->bg_rect->x) {
-        change_room(m, m->map_x - 1, m->map_y);
-        set_entity_position(
-            m->p->body, 
-            m->current_room->bg_rect->x + m->current_room->bg_rect->w - m->p->body->hitbox->w, 
-            pos->y
-        );
+        int nb_rooms = 1 + abs(pos->x / 640);
+        change_room(m, m->map_x - nb_rooms, m->map_y);
+        
+        int new_pos = (int) pos->x % 640;
+        if(-m->current_room->bg_rect->x < new_pos) {
+            new_pos = m->current_room->bg_rect->x + m->current_room->bg_rect->w - m->p->body->hitbox->w;
+        }
+        if(new_pos < 0) new_pos += 640;
+        set_entity_position(m->p->body, new_pos, pos->y);
     }
     if (pos->y < m->current_room->bg_rect->y) {
-        change_room(m, m->map_x, m->map_y - 1);
-        set_entity_position(
-            m->p->body, 
-            pos->x, 
-            m->current_room->bg_rect->y + m->current_room->bg_rect->h - m->p->body->hitbox->h
-        );
+        int nb_rooms = 1 + abs(pos->y / 640);
+        change_room(m, m->map_x, m->map_y - nb_rooms);
+
+        int new_pos = (int) pos->y % 640;
+        if(-m->current_room->bg_rect->y < new_pos) {
+            new_pos = m->current_room->bg_rect->y + m->current_room->bg_rect->h - m->p->body->hitbox->h;
+        }
+        if(new_pos < 0) new_pos += 640;
+        set_entity_position(m->p->body, pos->x, new_pos);
     }
     if (pos->x + m->p->body->hitbox->w > m->current_room->bg_rect->x + m->current_room->bg_rect->w) {
-        change_room(m, m->map_x + 1, m->map_y);
-        set_entity_position(
-            m->p->body, 
-            m->current_room->bg_rect->x, 
-            pos->y
-        );
+        int nb_rooms = 1 + abs(pos->x / 640);
+        change_room(m, m->map_x + nb_rooms, m->map_y);
+        
+        int new_pos = (int) pos->x % 640;
+        if(new_pos < 640 + m->current_room->bg_rect->x) {
+            new_pos = m->current_room->bg_rect->x;
+        }
+        
+        set_entity_position(m->p->body, new_pos, pos->y);
     }
     if (pos->y + m->p->body->hitbox->h > m->current_room->bg_rect->y + m->current_room->bg_rect->h) {
-        change_room(m, m->map_x, m->map_y + 1);
-        set_entity_position(
-            m->p->body, 
-            pos->x, 
-            m->current_room->bg_rect->y
-        );
+        int nb_rooms = 1 + abs(pos->y / 640);
+        change_room(m, m->map_x, m->map_y + nb_rooms);
+
+        int new_pos = (int) pos->y % 640;
+        if(new_pos < 640 + m->current_room->bg_rect->y) {
+            new_pos = m->current_room->bg_rect->y;
+        }
+        set_entity_position(m->p->body, pos->x, new_pos);
     }
 
     update_room(m->p, m->current_room);

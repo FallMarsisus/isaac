@@ -57,17 +57,19 @@ void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* ti
             float overlapX = (e->hitbox->x + e->hitbox->w / 2) - (tile->hitbox->x + tile->hitbox->w / 2);
             float overlapY = (e->hitbox->y + e->hitbox->h / 2) - (tile->hitbox->y + tile->hitbox->h / 2);
 
-            if (fabs(overlapX) > fabs(overlapY)) {
-                if (overlapX > 0) {
-                    set_entity_position(e, tile->hitbox->x + tile->hitbox->w, e->pos->y);
+            if(fmax(fabs(overlapX), fabs(overlapY)) > 0.1) {
+                if (fabs(overlapX) > fabs(overlapY)) {
+                    if (overlapX > 0) {
+                        set_entity_position(e, tile->hitbox->x + tile->hitbox->w, e->pos->y);
+                    } else {
+                        set_entity_position(e, tile->hitbox->x - e->hitbox->w, e->pos->y);
+                    }
                 } else {
-                    set_entity_position(e, tile->hitbox->x - e->hitbox->w, e->pos->y);
-                }
-            } else {
-                if (overlapY > 0) {
-                    set_entity_position(e, e->pos->x, tile->hitbox->y + tile->hitbox->h);
-                } else {
-                    set_entity_position(e, e->pos->x, tile->hitbox->y - e->hitbox->h);
+                    if (overlapY > 0) {
+                        set_entity_position(e, e->pos->x, tile->hitbox->y + tile->hitbox->h);
+                    } else {
+                        set_entity_position(e, e->pos->x, tile->hitbox->y - e->hitbox->h);
+                    }
                 }
             }
         }

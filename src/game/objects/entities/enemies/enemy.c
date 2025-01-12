@@ -35,13 +35,15 @@ void update_enemy_sprite(Entity* e) {
 
 void update_enemy(Entity* e, void* cc, chained_list* entities, chained_list* tiles) {
     player* pl = (player*) cc;
-    e->vel->x = pl->body->pos->x - e->pos->x;
-    e->vel->y = pl->body->pos->y - e->pos->y;
+    float distanceX = pl->body->pos->x - e->pos->x;
+    float distanceY = pl->body->pos->y - e->pos->y;
 
-    if(fabs(e->vel->x) < 0.1 && fabs(e->vel->y) < 0.1) {
+    if(sqrt(pow(distanceX, 2) + pow(distanceY, 2)) < 5) {
         e->vel->x = 0;
         e->vel->y = 0;
     } else {
+        e->vel->x = distanceX;
+        e->vel->y = distanceY;
         normalize(e->vel);
     }
 

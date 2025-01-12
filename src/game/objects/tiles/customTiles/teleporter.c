@@ -8,9 +8,8 @@ void on_teleport(Tile* tile, void* cc) {
         int dy = ((int*) get_elt(get_interact_core(tile)->other_var, 0))[1];
         if(dx != 0 || dy != 0) {
             move_entity(p->body, dx, dy);
-            printf("%d, %d\n", dx, dy);
             p->can_teleport = false;
-            play_timer(p->teleport_timer);
+            play_timer(p->teleport_timer, .5);
         }
     }
 }

@@ -1,9 +1,13 @@
 #include "player.h"
 
-void set_teleport(void* cc) {
-    player* p = (player*) cc;
-    p->can_teleport = true;
+void set_teleport(void* cc) {((player*) cc)->can_teleport = true;}
+void stop_dash(void* cc) {
+    ((player*) cc)->is_dashing = false;
+    ((player*) cc)->body->speed = 2;
+    ((player*) cc)->can_dash = false;
+    play_timer(((player*) cc)->dash_cooldown, 1);
 }
+void set_dashable(void* cc) {((player*) cc)->can_dash = true;}
 
 player* create_player(int x, int y, sprite_list* sprites) {
     player* p = malloc(sizeof(player));
@@ -17,7 +21,14 @@ player* create_player(int x, int y, sprite_list* sprites) {
     }
 
     p->can_teleport = true;
-    p->teleport_timer = create_timer(1., set_teleport, p);
+    p->teleport_timer = create_timer(set_teleport, p);
+
+    p->running = false;
+
+    p->is_dashing = false;
+    p->dash_timer = create_timer(stop_dash, p);
+    p->can_dash = true;
+    p->dash_cooldown = create_timer(set_dashable, p);
     return p;
 }
 void load_player_textures(player* p, SDL_Renderer* ren) {
@@ -44,6 +55,21 @@ void get_inputs(player* p) {
     p->keys[1] = state[SDL_SCANCODE_S];
     p->keys[2] = state[SDL_SCANCODE_A];
     p->keys[3] = state[SDL_SCANCODE_D];
+
+    if(state[SDL_SCANCODE_LCTRL] && !p->running && !p->is_dashing) {
+        p->body->speed = 3.5;
+        p->running = true;
+    }
+    else if (!state[SDL_SCANCODE_LCTRL] && p->running) {
+        p->body->speed = 2;
+        p->running = false;
+    }
+
+    if(state[SDL_SCANCODE_LSHIFT] && !p->is_dashing && p->can_dash) {
+        p->is_dashing = true;
+        p->body->speed = 20;
+        play_timer(p->dash_timer, 0.1);
+    }
 }
 
 //Moves the player
@@ -77,6 +103,8 @@ void update_player(player* p, chained_list* entities, chained_list* tiles) {
     update_entity(p->body, NULL, entities, tiles);
 
     update_timer(p->teleport_timer);
+    update_timer(p->dash_timer);
+    update_timer(p->dash_cooldown);
 
     update_player_sprite(p);
 }

@@ -12,9 +12,9 @@ map* create_map(sprite_list* sprites) {
     
     m->p = create_player(320, 180, m->sprites);
 
-    for(int i = 0; i < 5; i++) {
-        int m1_x = i, m1_y = i;
-        int m2_x = -i, m2_y = -i;
+    for(int i = 1; i < 11; i++) {
+        int m1_x = random_int(-i, i), m1_y = random_int(-i, i);
+        int m2_x = random_int(-i, i), m2_y = random_int(-i, i);
 
         room* r1 = get_room(m, m1_x, m1_y);
         if(r1 == NULL) {

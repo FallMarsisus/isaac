@@ -6,7 +6,7 @@
 
 typedef struct {
     bool running;
-    float maxTime;
+    float time;
 
     void* elt;
 
@@ -14,10 +14,10 @@ typedef struct {
     void (*on_end)(void* elt);
 } Timer;
 
-Timer* create_timer(float time, void (*on_end)(void* elt), void* elt);
+Timer* create_timer(void (*on_end)(void* elt), void* elt);
 void free_timer(Timer* timer);
 
 float get_current_time(Timer* timer);
 
-void play_timer(Timer* timer);
+void play_timer(Timer* timer, float time);
 void update_timer(Timer* timer);

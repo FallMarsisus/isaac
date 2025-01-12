@@ -9,7 +9,7 @@ room* create_room(int posx, int posy, sprite_list* sprites) {
     r->x = posx;
     r->y = posy;
 
-    int offsetX = random_int(20, 50);
+    int offsetX = 50;//random_int(50, 100);
     int offsetY = offsetX;
     r->bg_rect = malloc(sizeof(SDL_Rect));
     *(r->bg_rect) = (SDL_Rect) {offsetX, offsetY, 640 - 2 * offsetX, 360 - 2 * offsetY};

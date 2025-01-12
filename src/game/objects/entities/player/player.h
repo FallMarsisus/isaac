@@ -14,6 +14,12 @@ typedef struct {
     bool can_teleport;
     Timer* teleport_timer;
 
+    bool is_dashing;
+    bool can_dash;
+    Timer* dash_timer;
+    Timer* dash_cooldown;
+
+    bool running;
     Entity* body;
 } player;
 

@@ -7,9 +7,15 @@ void on_teleport(Tile* tile, void* cc) {
         int dx = ((int*) get_elt(get_interact_core(tile)->other_var, 0))[0];
         int dy = ((int*) get_elt(get_interact_core(tile)->other_var, 0))[1];
         if(dx != 0 || dy != 0) {
-            move_entity(p->body, dx, dy);
+            set_entity_position(
+                p->body, 
+                tile->hitbox->x + tile->hitbox->w/4 + dx, 
+                tile->hitbox->y + tile->hitbox->h/4 + dy
+            );
             p->can_teleport = false;
             play_timer(p->teleport_timer, .5);
+
+            set_active_anim(p->body->core, 0);
         }
     }
 }

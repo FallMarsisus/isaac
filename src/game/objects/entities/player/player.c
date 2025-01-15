@@ -15,7 +15,7 @@ player* create_player(int x, int y, sprite_list* sprites) {
     p->body->sprites = sprites;
     p->body->speed = 2;
     p->inv = create_inventory(10);
-    item* new_item = create_item("New Item", 1);
+    item* new_item = create_item("pomme", 10);
     add_item(p->inv, new_item);
 
     p->keys = malloc(sizeof(bool) * 4);

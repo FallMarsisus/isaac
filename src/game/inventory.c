@@ -61,8 +61,21 @@ void display_inventory(inv *inventory, SDL_Renderer *ren) {
 
     const SDL_Rect pos = (SDL_Rect) { (win_width - 388) / 2, (win_height - 196) / 2, 388, 196 };
     SDL_Rect rect = (SDL_Rect) { 0, 0, 388, 196 };
+    SDL_Rect rect2 = (SDL_Rect) { 0, 0, 20, 20 };
     SDL_SetRenderDrawColor(ren, 255, 255, 255, 128);
     SDL_RenderFillRect(ren, &pos);
     SDL_RenderCopy(ren, load_sprites(ren)->inv_texture, &rect, &pos);
+
+
+    for (int i = 0; i < inventory->size; i++) {
+        if (strcmp(inventory->items[i].name, "pomme") == 0) {
+            // printf("Pomme found in inventory: %d\n", inventory->items[i].quantity);
+            for (int j = 0; j < inventory->items[i].quantity; j++) {
+                SDL_Rect item_pos = { pos.x + 4+ 24*j, pos.y  + 4+ i * 24, 20, 20 };
+                
+                SDL_RenderCopy(ren, load_sprites(ren)->apple_item_texture, &rect2, &item_pos);
+            }
+        }
+    }
     
 }

@@ -10,6 +10,8 @@ typedef struct {
 
     SDL_Texture* goblin_texture;
 
+    SDL_Texture* apple_item_texture;
+
     SDL_Texture* sword_slash;
 
     SDL_Texture* cobble_texture;

@@ -79,7 +79,7 @@ void update_room(player* p, room* r) {
 }
 
 void draw_room(SDL_Renderer* ren, room* r) {
-    draw_rect(r->bg_rect, ren, 34, 35, 35, 255);
+    draw_rect(r->bg_rect, ren, 20, 20, 20, 255);
 
     for(cell* c = get_first(r->tiles); c != NULL; c = get_next(c)) {
         if((Tile*) get_data(c) != NULL) {

@@ -9,7 +9,7 @@ Tile* create_interactible_tile(int posx, int posy, int width, int height, sprite
     tile->collide = false;
 
     tile->other_variables = malloc(sizeof(interactible_core));
-    get_interact_core(tile)->key = SDL_SCANCODE_E;
+    get_interact_core(tile)->key = SDL_SCANCODE_F;
     get_interact_core(tile)->hovered = false;
     get_interact_core(tile)->on_interact = NULL;
     get_interact_core(tile)->free_other_var = NULL;

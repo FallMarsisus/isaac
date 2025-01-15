@@ -1,7 +1,7 @@
 #include "enemy.h"
 
 void load_enemy_textures(Entity* e, SDL_Renderer* ren) {
-    e->core = create_core(ren, e->sprites->alien_texture, 16, 16);
+    e->core = create_core(ren, e->sprites->goblin_texture, 16, 16);
     if (e->core == NULL) {
         fprintf(stderr, "Failed to load enemy texture\n");
         return;

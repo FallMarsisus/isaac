@@ -4,6 +4,7 @@
 #include "objects/entities/player/player.h"
 #include "../utils/dict.h"
 #include "../display.h"
+#include "inventory.h"
 
 typedef struct {
     player* p;

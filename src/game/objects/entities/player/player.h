@@ -2,6 +2,7 @@
 
 #include "../entity.h"
 #include "../../../../utils/dyn_arrays.h"
+#include "../../../inventory.h"
 #include "../../../../utils/timer.h"
 
 #include <stdio.h>
@@ -16,6 +17,9 @@ typedef struct {
 
     bool is_dashing;
     bool can_dash;
+    bool open_inv;
+
+    inv* inv;
     Timer* dash_timer;
     Timer* dash_cooldown;
 

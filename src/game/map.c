@@ -170,4 +170,7 @@ void draw_map(map* m, SDL_Renderer* ren) {
     
     draw_room(ren, m->current_room);
     draw_player(ren, m->p);
+    if(m->p->open_inv) {
+        display_inventory(m->p->inv, ren);
+    }
 }

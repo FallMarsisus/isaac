@@ -21,6 +21,7 @@ SDL_Texture* load_sprite(char* path, SDL_Renderer* ren) {
 sprite_list* load_sprites(SDL_Renderer* ren) {
     sprite_list* sl = malloc(sizeof(sprite_list));
     sl->player_texture = load_sprite("assets/player/sprite_sheet.bmp", ren);
+    sl->inv_texture = load_sprite("assets/inventory/inv_grid.bmp", ren);
     sl->alien_texture = load_sprite("assets/alien/sprite_sheet.bmp", ren);
     sl->goblin_texture = load_sprite("assets/goblin/sprite_sheet.bmp", ren);
     sl->sword_slash = load_sprite("assets/player/sword.bmp", ren);

@@ -1,4 +1,4 @@
-OTHERS = 
+
 
 #CC specifies which compiler we're using
 CC = gcc
@@ -12,7 +12,7 @@ LINKER_FLAGS = -lSDL2 -lSDL2_ttf -LSDL2_image
 #This is the target that compiles our executable
 
 build:
-	find ./src/. -name "*.c" -exec gcc $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game {} +
+	gcc $(shell find src -type f -name '*.c') $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game
 
 update_run:
 	find ./src/. -name "*.c" -exec gcc $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game {} + && ./bins/game

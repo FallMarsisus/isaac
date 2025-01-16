@@ -18,6 +18,8 @@ player* create_player(int x, int y, sprite_list* sprites) {
     item* new_item = create_item("pomme", 10);
     add_item(p->inv, new_item);
 
+    p->orientation = malloc(sizeof(Vector)); p->orientation->x = 1; p->orientation->y = 0;
+
     p->keys = malloc(sizeof(bool) * 4);
     for(int i = 0; i < 4; i ++) {
         p->keys[i] = false;
@@ -25,10 +27,10 @@ player* create_player(int x, int y, sprite_list* sprites) {
     p->open_inv = false;
 
     p->equippedWeapon = createWeapon(sword, NULL);
-    setWeaponCooldown(p->equippedWeapon, 2);
-    setWeaponDamages(p->equippedWeapon, 10);
-    setWeaponRange(p->equippedWeapon, 50);
-    setWeaponHitAngleDegrees(p->equippedWeapon, 50);
+    setWeaponCooldown(p->equippedWeapon, 0.5);
+    setWeaponDamages(p->equippedWeapon, 25);
+    setWeaponRange(p->equippedWeapon, 60);
+    setWeaponHitAngleDegrees(p->equippedWeapon, 360);
 
     p->can_teleport = true;
     p->teleport_timer = create_timer(set_teleport, p);
@@ -108,9 +110,7 @@ void get_inputs(player* p) {
 void playerAttack(player* p, chained_list* entities) {
     if (p->equippedWeapon == NULL) return;
 
-    printf("attacking\n");
-
-    attack(p->equippedWeapon, entities, p->body->pos, p->body->vel);
+    attack(p->equippedWeapon, entities, p->body->pos, p->orientation);
 }
 
 //Moves the player
@@ -153,14 +153,26 @@ void update_attack_state(player* p, chained_list* entities) {
         p->isAttacking = false;
     }
 }
+void update_orientation(player* p) {
+    if (p->body->vel->x != 0 || p->body->vel->y != 0) {
+        p->orientation->x = p->body->vel->x;
+        p->orientation->y = p->body->vel->y;
+    }
+}
 
 //Do the whole shit
+
 void update_player(player* p, chained_list* entities, chained_list* tiles) {
     move(p);
 
     update_attack_state(p, entities);
+    update_orientation(p);
 
     update_entity(p->body, NULL, entities, tiles);
+
+    if (p->equippedWeapon != NULL) {
+        update_timer(p->equippedWeapon->weaponTimer);
+    }
 
     update_timer(p->teleport_timer);
     update_timer(p->dash_timer);

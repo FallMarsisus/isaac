@@ -49,11 +49,9 @@ void remove_elt(chained_list* l, void* element) {
     if(element == NULL) return;
     if(l == NULL || l->len == 0) return;
 
-    cell* temp = l->first->next;
+    cell* temp = l->first;
     cell* last = NULL;
-
     while (temp != NULL) {
-
         if (temp->data == element) {
             cell* next = temp->next;
             if (last == NULL) {

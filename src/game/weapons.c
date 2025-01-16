@@ -1,21 +1,36 @@
 #include "weapons.h"
 #include "../utils/pi.h"
 
+void reenableWeapon(void* arme) {((weapon*)arme)->weaponWasUsed = false;}
+
 bool isEnnemyHit(weapon* arme, Entity* entity, Vector* playerPosition, Vector* playerOrientation) {
 	float distance = vectorDistance(entity->pos, playerPosition);
 	if (distance > arme->range) {return false;}
 
 	Vector toEnemy;
+	printf("Entity position: (%f, %f)\n", entity->pos->x, entity->pos->y);
+	printf("Player position: (%f, %f) ; orientation: (%f, %f)\n", playerPosition->x, playerPosition->y, playerOrientation->x, playerOrientation->y);
+	printf("Distance to enemy: %f\n", distance);
 	toEnemy.x = entity->pos->x - playerPosition->x;
 	toEnemy.y = entity->pos->y - playerPosition->y;
-	normalize(&toEnemy);
+
+	if (vectorSize(&toEnemy) != 0) {
+		normalize(&toEnemy);
+	}
 
 	Vector direction = *playerOrientation;
-	normalize(&direction);
+	if (vectorSize(&direction) != 0) {
+		normalize(&direction);
+	}
 
 	float produitScalaire = scalaire(&toEnemy, &direction);
 	float angleToEnemy = acos(produitScalaire);
-	
+
+
+
+	printf("Angle to enemy: %f radians\n", angleToEnemy);
+	printf("Maximum damage angle: %f radians\n", (arme->damageAngleRad) / 2.);
+
 	return angleToEnemy <= arme->damageAngleRad/2;
 }
 
@@ -39,9 +54,7 @@ bool isDistanceType(enum weaponTypes type) {
 	return type==bow || type==magicWand;
 }
 
-
 weapon* createWeapon(enum weaponTypes type, Entity* projectile) {
-
 
 	weapon* arme = malloc(sizeof(weapon));
 	arme->weaponType = type;
@@ -58,9 +71,11 @@ weapon* createWeapon(enum weaponTypes type, Entity* projectile) {
 	}
 
 	arme->damages = 0;
-	arme->cooldownSec = 5;
 	arme->damageAngleRad = 2;
-	gettimeofday(&arme->lastTimeUsed, NULL);
+
+	arme->weaponWasUsed = false;
+	arme->cooldownSec = 5.;
+	arme->weaponTimer = create_timer(reenableWeapon, arme);
 
 	return arme;
 }
@@ -76,6 +91,7 @@ void setWeaponHitAngleRad(weapon* arme, int angleInRad) {
 }
 void setWeaponHitAngleDegrees(weapon* arme, int angleInDegrees) {
 	arme->damageAngleRad = angleInDegrees * (PI / 180);
+	printf("Weapon hit angle set to: %f radians\n", arme->damageAngleRad);
 }
 void setWeaponCooldown(weapon* arme, float cooldownSec) {
 	arme->cooldownSec = cooldownSec;
@@ -86,9 +102,7 @@ void attack(weapon* arme, chained_list* entities, Vector* playerPosition, Vector
 	struct timeval current;
 	gettimeofday(&current, NULL);
 
-	if (current.tv_sec - arme->lastTimeUsed.tv_sec < arme->cooldownSec) {
-		return;
-	}
+	if (arme->weaponWasUsed) {return;}
 
 	switch (arme->weaponType)
 	{
@@ -108,4 +122,7 @@ void attack(weapon* arme, chained_list* entities, Vector* playerPosition, Vector
 	default:
 		break;
 	}
+
+	play_timer(arme->weaponTimer, arme->cooldownSec);
+	arme->weaponWasUsed = true;
 }

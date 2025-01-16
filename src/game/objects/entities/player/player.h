@@ -28,6 +28,7 @@ typedef struct {
 
     bool running;
     Entity* body;
+    Vector* orientation;
 } player;
 
 player* create_player(int x, int y, sprite_list* sprites);

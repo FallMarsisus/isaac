@@ -5,6 +5,7 @@
 #include "../utils/vector.h"
 #include "./objects/entities/entity.h"
 #include "../utils/chained_list.h"	
+#include "../utils/timer.h"
 
 enum weaponTypes {bow, magicWand, sword, axe};
 
@@ -12,9 +13,10 @@ enum weaponTypes {bow, magicWand, sword, axe};
 typedef struct {
     int damages;
 	int range;
-	int damageAngleRad;
+	float damageAngleRad;
+	bool weaponWasUsed;
 	float cooldownSec;
-	struct timeval lastTimeUsed;
+	Timer* weaponTimer;
     enum weaponTypes weaponType;
 	Entity* projectile; //NULL if close range weapon (ex: sword)
 } weapon;

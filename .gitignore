@@ -1,2 +1,6 @@
 .vscode
 bins
+src/rooms.h.gch
+src/buttons.h.gch
+src/dict.h.gch
+src/text.h.gch

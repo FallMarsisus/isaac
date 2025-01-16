@@ -24,7 +24,7 @@ typedef struct entity_s {
     sprite_list* sprites;
     anim_core* core;
 
-    int maxhealth; int health;
+    int maxhealth; int health; int damagable;
     int damage;
 
     void* other_variables;
@@ -41,6 +41,8 @@ void free_entity(Entity* e);
 void set_entity_position(Entity* e, float x, float y);
 void move_entity(Entity* e, float dx, float dy);
 
-void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* tiles, float delta);
+void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* tiles);
+bool damageEntity(Entity* e, int damages);
+
 
 void draw_entity(Entity* e, SDL_Renderer* ren);

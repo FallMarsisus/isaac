@@ -66,6 +66,9 @@ Entity* create_enemy(float x, float y, sprite_list* sprites) {
     e->free_entity_other = free_enemy;
     e->update = update_enemy;
     e->draw = draw_enemy;
+    e->maxhealth = 50;
+    e->health = 50;
+    e->damagable = true;
 
     e->speed = 1;
     return e;

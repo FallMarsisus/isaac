@@ -9,6 +9,7 @@
 #include <string.h>
 #include <SDL2/SDL.h>
 
+
 typedef struct {
     int id;
     char name[50];

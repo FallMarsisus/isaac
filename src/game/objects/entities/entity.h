@@ -41,7 +41,7 @@ void free_entity(Entity* e);
 void set_entity_position(Entity* e, float x, float y);
 void move_entity(Entity* e, float dx, float dy);
 
-void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* tiles);
+void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* tiles, float delta);
 bool damageEntity(Entity* e, int damages);
 
 

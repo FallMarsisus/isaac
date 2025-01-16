@@ -165,6 +165,10 @@ void update_orientation(player* p) {
 void update_player(player* p, chained_list* entities, chained_list* tiles, float delta) {
     move(p);
 
+      update_attack_state(p, entities);
+    update_orientation(p);
+
+
     update_entity(p->body, NULL, entities, tiles, delta);
 
     if (p->equippedWeapon != NULL) {

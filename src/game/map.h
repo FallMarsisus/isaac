@@ -28,6 +28,6 @@ void destroy_room(map* m, int x, int y);
 
 void change_room(map* m, int x, int y);
 
-void update_map(map* m, int win_width, int win_height);
+void update_map(map* m, int win_width, int win_height, float delta);
 
 void draw_map(map* m, SDL_Renderer* ren);

@@ -44,19 +44,37 @@ int main(int argc, char* argv[]) {
     
     int running = 1;
 
+    double t = 0.;
+    double dt = 1/60.;
+
+    double current_time = SDL_GetTicks() / 1000.;
+    double accumulator = 0.;
+
     map* m = create_map(sprites);
     load_textures(m, ren);
 
     while (running) {
-        // On vérifie qu'on quitte pas et on attend un appui de touche 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = 0;
             }
         }
-        
-        update_map(m, win_width, win_height);
-        
+
+        double new_time = SDL_GetTicks() / 1000.;
+        double frame_time = new_time - current_time;
+        if(frame_time > 0.25) frame_time = 0.25;
+        current_time = new_time;
+
+        accumulator += frame_time;
+
+        while(accumulator >= dt) {
+            update_map(m, win_width, win_height, dt);
+            t += dt;
+            accumulator -= dt;
+        }
+
+        printf("FPS : %f\n", 1 / frame_time);
+
         //Draw bg
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
@@ -64,7 +82,7 @@ int main(int argc, char* argv[]) {
         draw_map(m, ren);
                 
         SDL_RenderPresent(ren);
-        SDL_Delay(16); // Approximately 60 frames per second
+        //SDL_Delay(16); // Approximately 60 frames per second
     }
 
     //Free all the shit

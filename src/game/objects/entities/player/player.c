@@ -170,6 +170,7 @@ void update_player(player* p, chained_list* entities, chained_list* tiles) {
 
     update_entity(p->body, NULL, entities, tiles);
 
+
     if (p->equippedWeapon != NULL) {
         update_timer(p->equippedWeapon->weaponTimer);
     }

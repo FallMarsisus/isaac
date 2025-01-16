@@ -113,10 +113,10 @@ void update_player_sprite(player* p) {
 }
 
 //Do the whole shit
-void update_player(player* p, chained_list* entities, chained_list* tiles) {
+void update_player(player* p, chained_list* entities, chained_list* tiles, float delta) {
     move(p);
 
-    update_entity(p->body, NULL, entities, tiles);
+    update_entity(p->body, NULL, entities, tiles, delta);
 
     update_timer(p->teleport_timer);
     update_timer(p->dash_timer);

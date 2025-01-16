@@ -34,7 +34,7 @@ void add_entity_to_room(room* r, Entity* e);
 void add_tile_to_room(room* r, Tile* tile);
 void free_room(room* r);
 
-void update_room(player* p, room* r);
+void update_room(player* p, room* r, float delta);
 
 void draw_room(SDL_Renderer* ren, room* r);
 

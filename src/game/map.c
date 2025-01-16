@@ -106,11 +106,11 @@ void change_room(map* m, int x, int y) {
 }
 
 //Changes the room if the player is at the edge of the screen
-void update_map(map* m, int win_width, int win_height) {
+void update_map(map* m, int win_width, int win_height, float delta) {
     if(m->current_room == NULL) return;
     get_inputs(m->p);
 
-    update_player(m->p, m->current_room->entities, m->current_room->tiles);
+    update_player(m->p, m->current_room->entities, m->current_room->tiles, delta);
 
     Vector* pos = m->p->body->pos;
 
@@ -162,7 +162,7 @@ void update_map(map* m, int win_width, int win_height) {
         set_entity_position(m->p->body, pos->x, new_pos);
     }
 
-    update_room(m->p, m->current_room);
+    update_room(m->p, m->current_room, delta);
 }
 
 void draw_map(map* m, SDL_Renderer* ren) {

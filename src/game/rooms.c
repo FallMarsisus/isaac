@@ -63,7 +63,7 @@ void free_room(room* r) {
     free_list(r->tiles);
     free(r);
 }
-void update_room(player* p, room* r) {
+void update_room(player* p, room* r, float delta) {
     for(cell* c = get_first(r->tiles); c != NULL; c = get_next(c)) {
         if((Tile*) get_data(c) != NULL) {
             Tile* tile = get_data(c);
@@ -73,7 +73,7 @@ void update_room(player* p, room* r) {
     for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
         if((Entity*) get_data(c) != NULL) {
             Entity* e = get_data(c);
-            update_entity(e, p, r->entities, r->tiles);
+            update_entity(e, p, r->entities, r->tiles, delta);
         }
     }
 }

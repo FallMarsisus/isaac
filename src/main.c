@@ -44,27 +44,47 @@ int main(int argc, char* argv[]) {
     
     int running = 1;
 
+    struct timeval* prev_update = malloc(sizeof(struct timeval));
+    gettimeofday(prev_update, NULL);
+    struct timeval* prev_draw = malloc(sizeof(struct timeval));
+    gettimeofday(prev_draw, NULL);
+
     map* m = create_map(sprites);
     load_textures(m, ren);
 
     while (running) {
-        // On vérifie qu'on quitte pas et on attend un appui de touche 
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = 0;
-            }
-        }
+        struct timeval now;
+        gettimeofday(&now, NULL);
+        float last_update = (now.tv_sec - prev_update->tv_sec) + (now.tv_usec - prev_update->tv_usec) * 1e-6;
+        float last_frame = (now.tv_sec - prev_draw->tv_sec) + (now.tv_usec - prev_draw->tv_usec) * 1e-6;
         
-        update_map(m, win_width, win_height);
-        
-        //Draw bg
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-        SDL_RenderClear(ren);
 
-        draw_map(m, ren);
-                
-        SDL_RenderPresent(ren);
-        SDL_Delay(16); // Approximately 60 frames per second
+        /* Updating the game */
+        // On vérifie qu'on quitte pas et on attend un appui de touche 
+        if(last_update > 1 / 30) {
+            gettimeofday(prev_update, NULL);
+
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    running = 0;
+                }
+            }
+            
+            update_map(m, win_width, win_height, last_update);
+        }
+
+        if(last_frame > 1/10) {
+            gettimeofday(prev_draw, NULL);
+
+            //Draw bg
+            SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+            SDL_RenderClear(ren);
+
+            draw_map(m, ren);
+                    
+            SDL_RenderPresent(ren);
+        }
+        //SDL_Delay(16); // Approximately 60 frames per second
     }
 
     //Free all the shit

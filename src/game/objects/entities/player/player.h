@@ -33,6 +33,6 @@ void free_player(player* p);
 
 void get_inputs(player* p);
 
-void update_player(player* p, chained_list* entities, chained_list* tiles);
+void update_player(player* p, chained_list* entities, chained_list* tiles, float delta);
 
 void draw_player(SDL_Renderer* ren, player* p);

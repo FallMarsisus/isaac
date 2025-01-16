@@ -90,3 +90,13 @@ void draw_entity(Entity* e, SDL_Renderer* ren) {
     }
 }
 
+bool damageEntity(Entity* e, int damages) {
+    if (!e->damagable) {return false;}
+
+    e->health -= damages;
+    if (e->health <= 0) {
+        free_entity(e);
+        return true;
+    }
+    return false;
+}

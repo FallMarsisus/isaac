@@ -24,6 +24,12 @@ player* create_player(int x, int y, sprite_list* sprites) {
     }
     p->open_inv = false;
 
+    p->equippedWeapon = createWeapon(sword, NULL);
+    setWeaponCooldown(p->equippedWeapon, 2);
+    setWeaponDamages(p->equippedWeapon, 10);
+    setWeaponRange(p->equippedWeapon, 50);
+    setWeaponHitAngleDegrees(p->equippedWeapon, 50);
+
     p->can_teleport = true;
     p->teleport_timer = create_timer(set_teleport, p);
 
@@ -45,6 +51,7 @@ void load_player_textures(player* p, SDL_Renderer* ren) {
     
     set_active_anim(p->body->core, 0);
 }
+
 void free_player(player* p) {
     free_entity(p->body);
     free_timer(p->teleport_timer);
@@ -61,6 +68,7 @@ void get_inputs(player* p) {
     p->keys[3] = state[SDL_SCANCODE_D];
 
     static bool e_was_pressed = false;
+    static bool space_was_pressed = false;
 
     if(state[SDL_SCANCODE_E]) {
         if(!e_was_pressed && p->can_teleport && !p->is_dashing) {
@@ -86,6 +94,23 @@ void get_inputs(player* p) {
         p->body->speed = 20;
         play_timer(p->dash_timer, 0.1);
     }
+
+    if (state[SDL_SCANCODE_SPACE]) {
+        if(!space_was_pressed && p->can_teleport) {
+            p->isAttacking = true;
+        }
+            space_was_pressed = true;
+    } else {
+        space_was_pressed = false;
+    }
+}
+
+void playerAttack(player* p, chained_list* entities) {
+    if (p->equippedWeapon == NULL) return;
+
+    printf("attacking\n");
+
+    attack(p->equippedWeapon, entities, p->body->pos, p->body->vel);
 }
 
 //Moves the player
@@ -112,9 +137,28 @@ void update_player_sprite(player* p) {
     if(anim) play_anim(p->body->core);
 }
 
+bool unequipWeapon(player* p) {
+    if (p->equippedWeapon == NULL) return false;
+    p->equippedWeapon = NULL;
+    return true;
+}
+
+void equipWeapon(player* p, weapon* arme) {
+    p->equippedWeapon = arme;
+}
+
+void update_attack_state(player* p, chained_list* entities) {
+    if (p->isAttacking) {
+        playerAttack(p, entities);
+        p->isAttacking = false;
+    }
+}
+
 //Do the whole shit
 void update_player(player* p, chained_list* entities, chained_list* tiles) {
     move(p);
+
+    update_attack_state(p, entities);
 
     update_entity(p->body, NULL, entities, tiles);
 

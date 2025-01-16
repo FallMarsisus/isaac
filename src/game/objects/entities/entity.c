@@ -27,15 +27,8 @@ void free_entity(Entity* e) {
     free(e->pos);
     free(e->hitbox);
     free(e->vel);
-
-    if(e->core != NULL) {
-        free_core(e->core);
-    }
-
-    if(e->free_entity_other != NULL) {
-        e->free_entity_other(e);
-    }
-
+    if(e->core != NULL) free_core(e->core);
+    if(e->free_entity_other != NULL) e->free_entity_other(e);
     free(e);
 }
 
@@ -97,13 +90,3 @@ void draw_entity(Entity* e, SDL_Renderer* ren) {
     }
 }
 
-bool damageEntity(Entity* e, int damages) {
-    if (!e->damagable) {return false;}
-
-    e->health -= damages;
-    if (e->health <= 0) {
-        free_entity(e);
-        return true;
-    }
-    return false;
-}

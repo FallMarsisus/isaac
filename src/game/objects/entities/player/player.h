@@ -4,7 +4,6 @@
 #include "../../../../utils/dyn_arrays.h"
 #include "../../../inventory.h"
 #include "../../../../utils/timer.h"
-#include "../../../weapons.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -19,21 +18,16 @@ typedef struct {
     bool is_dashing;
     bool can_dash;
     bool open_inv;
-    bool isAttacking;
 
-    weapon* equippedWeapon;
     inv* inv;
     Timer* dash_timer;
     Timer* dash_cooldown;
 
     bool running;
     Entity* body;
-    Vector* orientation;
 } player;
 
 player* create_player(int x, int y, sprite_list* sprites);
-
-
 void load_player_textures(player* p, SDL_Renderer* ren);
 void free_player(player* p);
 

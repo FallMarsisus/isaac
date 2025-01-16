@@ -28,7 +28,6 @@ void play_timer(Timer* timer, float time) {
     gettimeofday(timer->start, NULL);
     timer->running = true;
 }
-
 void update_timer(Timer* timer) {
     if(!timer->running) return;
     if(get_current_time(timer) >= timer->time) {

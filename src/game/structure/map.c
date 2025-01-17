@@ -1,7 +1,16 @@
 #include "map.h"
 
-map* create_map(sprite_list* sprites) {
-    map* m = malloc(sizeof(map));
+typedef struct map_s {
+    dict dict_rooms;
+
+    room* current_room;
+    int map_x; int map_y;
+
+    sprite_list* sprites;
+} Map;
+
+Map* create_map(sprite_list* sprites) {
+    Map* m = malloc(sizeof(Map));
     m->dict_rooms = create_dict();
     m->map_x = 0;
     m->map_y = 0;
@@ -35,7 +44,7 @@ map* create_map(sprite_list* sprites) {
     return m;
 }
 
-void load_textures(map* m, SDL_Renderer* ren) {
+void load_textures(Map* m, SDL_Renderer* ren) {
     assert(m != NULL);
     
     load_player_textures(m->p, ren);
@@ -44,7 +53,7 @@ void load_textures(map* m, SDL_Renderer* ren) {
 void free_room_modif(int x, int y, void* data) {
     free_room((room*) data);
 }
-void free_map(map* m) {
+void free_map(Map* m) {
     assert(m != NULL && m->dict_rooms != NULL);
     iter_dict(free_room_modif, m->dict_rooms);
     free_dict(m->dict_rooms, false);
@@ -52,7 +61,7 @@ void free_map(map* m) {
     free(m);
 }
 
-room* get_room(map* m, int posx, int posy) {
+room* get_room(Map* m, int posx, int posy) {
     assert(m != NULL);
     if(!mem(posx, posy, m->dict_rooms)) {
         return NULL;
@@ -60,7 +69,7 @@ room* get_room(map* m, int posx, int posy) {
     return (room*) getValue(posx, posy, m->dict_rooms);
 }
 
-void add_room(map* m, room* r) {
+void add_room(Map* m, room* r) {
     assert(m != NULL && r != NULL && m->dict_rooms != NULL);
     int x = r->x;
     int y = r->y;
@@ -75,7 +84,7 @@ void add_room(map* m, room* r) {
     room* right = get_room(m, x + 1, y);
     if(right != NULL) setRight(r, right);
 }
-void destroy_room(map* m, int x, int y) {
+void destroy_room(Map* m, int x, int y) {
     assert(m != NULL);
     room* r = get_room(m, x, y);
     if(r == NULL) return;
@@ -93,7 +102,7 @@ void destroy_room(map* m, int x, int y) {
     removeValue(x, y, m->dict_rooms);
 }
 
-void change_room(map* m, int x, int y) {
+void change_room(Map* m, int x, int y) {
     assert(m != NULL);
     room* r = get_room(m, x, y);
     if(r == NULL) {
@@ -106,7 +115,7 @@ void change_room(map* m, int x, int y) {
 }
 
 //Changes the room if the player is at the edge of the screen
-void update_map(map* m, int win_width, int win_height, float delta) {
+void update_map(Map* m, int win_width, int win_height, float delta) {
     if(m->current_room == NULL) return;
     get_inputs(m->p);
 
@@ -165,7 +174,7 @@ void update_map(map* m, int win_width, int win_height, float delta) {
     update_room(m->p, m->current_room, delta);
 }
 
-void draw_map(map* m, SDL_Renderer* ren) {
+void draw_map(Map* m, SDL_Renderer* ren) {
     assert(ren != NULL && m != NULL);
     
     draw_room(ren, m->current_room);

@@ -59,11 +59,6 @@ void draw_interactive_tile(Tile* tile, SDL_Renderer* ren) {
     }
     draw_tile(tile, ren);
     if(tile->core != NULL && get_interact_core(tile)->hovered) {
-        SDL_RenderCopy(
-            ren, 
-            get_interact_core(tile)->core->sprite_sheet, 
-            NULL, 
-            get_interact_core(tile)->icon_draw_box
-        );
+        draw_core(ren, get_interact_core(tile)->icon_draw_box, get_interact_core(tile)->core);
     }
 }

@@ -3,7 +3,7 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "game/map.h"
+#include "game/game.h"
 
 #include <time.h>
 
@@ -50,8 +50,7 @@ int main(int argc, char* argv[]) {
     double current_time = SDL_GetTicks() / 1000.;
     double accumulator = 0.;
 
-    map* m = create_map(sprites);
-    load_textures(m, ren);
+    game* 
 
     while (running) {
         while (SDL_PollEvent(&event)) {

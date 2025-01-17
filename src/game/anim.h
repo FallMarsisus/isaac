@@ -9,30 +9,7 @@
 
 #include "../display.h"
 
-typedef struct {
-    float interval;
-    int amount;
-    int line;
-} anim;
-
-typedef struct anim_core_s {
-    SDL_Texture* sprite_sheet;
-    SDL_Rect* current_img;
-    
-    float angle; // set the angle.
-    SDL_Point* center; // the center where the texture will be rotated.
-    SDL_RendererFlip flip; // the flip of the texture.
-
-    int sprite_width; int sprite_height;
-
-    dyn_array* animations;
-    int anim_index;
-    int current;
-    bool playing;
-
-    struct timeval* prev;
-    struct timeval* now;
-} anim_core;
+typedef struct anim_core_s anim_core;
 
 anim_core* create_core(SDL_Renderer* ren, SDL_Texture* tex, int sprite_width, int sprite_height);
 void free_core(anim_core* core);

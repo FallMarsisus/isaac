@@ -6,19 +6,33 @@ anim_core* create_core(SDL_Renderer* ren, SDL_Texture* tex, int sprite_width, in
         fprintf(stderr, "Failed to allocate memory for anim_core\n");
         return NULL;
     }
+    core->sprite_sheet = tex;
+    core->current_img = malloc(sizeof(SDL_Rect));
+
+    core->angle = 0.; // set the angle.
+    core->center = malloc(sizeof(SDL_Point)); // the center where the texture will be rotated.
+    core->center->x = 0; core->center->y = 0;
+    core->flip = SDL_FLIP_NONE; // the flip of the texture.
+
     core->animations = create_array();
     core->playing = false;
     core->anim_index = 0;
     core->current = 0;
-    core->prev = malloc(sizeof(struct timeval));
-    core->now = malloc(sizeof(struct timeval));
-    gettimeofday(core->prev, NULL);
-    gettimeofday(core->now, NULL);
 
     core->sprite_width = sprite_width;
     core->sprite_height = sprite_height;
 
-    core->sprite_sheet = tex;
+    *core->current_img = (SDL_Rect) {
+        core->current * core->sprite_width,
+        core->anim_index * core->sprite_height,
+        core->sprite_width,
+        core->sprite_height
+    };
+
+    core->prev = malloc(sizeof(struct timeval));
+    core->now = malloc(sizeof(struct timeval));
+    gettimeofday(core->prev, NULL);
+    gettimeofday(core->now, NULL);
 
     return core;
 }
@@ -27,6 +41,11 @@ void free_core(anim_core* core) {
         free((anim*) get_elt(core->animations, i));
     }
     free_array(core->animations);
+
+    free(core->current_img);
+    free(core->center);
+    free(core->prev);
+    free(core->now);
     free(core);
 }
 
@@ -76,14 +95,10 @@ void draw_core(SDL_Renderer* ren, SDL_Rect* pos, anim_core* core) {
             if (core->current >= curren_anim->amount) core->current = 0;
             gettimeofday(core->prev, NULL);
         }
+
+        core->current_img->x = core->current * core->sprite_width;
+        core->current_img->y = core->anim_index * core->sprite_height;
     }
 
-    SDL_Rect rect = {
-        core->current * core->sprite_width,
-        core->anim_index * core->sprite_height,
-        core->sprite_width,
-        core->sprite_height
-    };
-
-    SDL_RenderCopy(ren, core->sprite_sheet, &rect, pos);
+    SDL_RenderCopyEx(ren, core->sprite_sheet, core->current_img, pos, core->angle, core->center, core->flip);
 }

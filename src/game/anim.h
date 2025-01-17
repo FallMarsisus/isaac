@@ -17,6 +17,11 @@ typedef struct {
 
 typedef struct anim_core_s {
     SDL_Texture* sprite_sheet;
+    SDL_Rect* current_img;
+    
+    float angle; // set the angle.
+    SDL_Point* center; // the center where the texture will be rotated.
+    SDL_RendererFlip flip; // the flip of the texture.
 
     int sprite_width; int sprite_height;
 

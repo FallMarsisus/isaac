@@ -47,13 +47,13 @@ void move_entity(Entity* e, float dx, float dy) {
     set_entity_position(e, e->pos->x + dx, e->pos->y + dy);
 }
 
-void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* tiles) {
+void update_entity(Entity* e, void* pl, chained_list* entities, chained_list* tiles, float delta) {
     if(e == NULL) return;
     if(e->update != NULL) e->update(e, pl, entities, tiles);
 
     if(e->can_move && (fabs(e->vel->x) > 0.1 || fabs(e->vel->y) > 0.1)) {
         normalize(e->vel);
-        move_entity(e, e->vel->x * e->speed, e->vel->y * e->speed);
+        move_entity(e, e->vel->x * e->speed * (delta * 60), e->vel->y * e->speed * (delta * 60));
         if(tiles == NULL) return;
         for(cell* c = get_first(tiles); c != NULL; c = get_next(c)) {
             Tile* tile = get_data(c);

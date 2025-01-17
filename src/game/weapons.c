@@ -8,9 +8,6 @@ bool isEnnemyHit(weapon* arme, Entity* entity, Vector* playerPosition, Vector* p
 	if (distance > arme->range) {return false;}
 
 	Vector toEnemy;
-	printf("Entity position: (%f, %f)\n", entity->pos->x, entity->pos->y);
-	printf("Player position: (%f, %f) ; orientation: (%f, %f)\n", playerPosition->x, playerPosition->y, playerOrientation->x, playerOrientation->y);
-	printf("Distance to enemy: %f\n", distance);
 	toEnemy.x = entity->pos->x - playerPosition->x;
 	toEnemy.y = entity->pos->y - playerPosition->y;
 
@@ -25,11 +22,6 @@ bool isEnnemyHit(weapon* arme, Entity* entity, Vector* playerPosition, Vector* p
 
 	float produitScalaire = scalaire(&toEnemy, &direction);
 	float angleToEnemy = acos(produitScalaire);
-
-
-
-	printf("Angle to enemy: %f radians\n", angleToEnemy);
-	printf("Maximum damage angle: %f radians\n", (arme->damageAngleRad) / 2.);
 
 	return angleToEnemy <= arme->damageAngleRad/2;
 }

@@ -29,8 +29,8 @@ player* create_player(int x, int y, sprite_list* sprites) {
     p->equippedWeapon = createWeapon(sword, NULL);
     setWeaponCooldown(p->equippedWeapon, 0.5);
     setWeaponDamages(p->equippedWeapon, 25);
-    setWeaponRange(p->equippedWeapon, 60);
-    setWeaponHitAngleDegrees(p->equippedWeapon, 360);
+    setWeaponRange(p->equippedWeapon, 100);
+    setWeaponHitAngleDegrees(p->equippedWeapon, 20);
 
     p->can_teleport = true;
     p->teleport_timer = create_timer(set_teleport, p);
@@ -109,8 +109,17 @@ void get_inputs(player* p) {
 
 void playerAttack(player* p, chained_list* entities) {
     if (p->equippedWeapon == NULL) return;
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+    Vector orientation = {x - p->body->pos->x, y - p->body->pos->y};
+    if (orientation.x == 0 && orientation.y == 0) {orientation.x = 1;}
+    
 
-    attack(p->equippedWeapon, entities, p->body->pos, p->orientation);
+    printf("Player position: (%d, %d)\n", (int)p->body->pos->x, (int)p->body->pos->y);
+    printf("Mouse position: (%d, %d)\n", x, y);
+    printf("Orientation: (%f, %f)\n\n", orientation.x, orientation.y);
+
+    attack(p->equippedWeapon, entities, p->body->pos, &orientation);
 }
 
 //Moves the player

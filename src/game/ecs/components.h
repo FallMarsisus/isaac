@@ -1,7 +1,14 @@
-#ifndef COMPONENTS_H
-#define COMPONENTS_H
+#pragma once
 
 #include <SDL2/SDL.h>
+
+typedef enum {
+    POSITION,
+    RENDER,
+    SPRITE,
+    PLAYER,
+    TARGET
+} ComponentType;
 
 // Position and velocity component
 typedef struct {
@@ -24,4 +31,8 @@ typedef struct {
     float speed;  // Movement speed of the player
 } PlayerMovementComponent;
 
-#endif
+// Player movement component
+typedef struct {
+    uint32_t entity;
+    float speed;
+} TargetMovementComponent;

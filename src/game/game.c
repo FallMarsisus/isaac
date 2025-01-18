@@ -17,7 +17,7 @@ Game* create_game() {
     game->coord_x = 0; game->coord_y = 0;
     change_room(game, game->coord_x, game->coord_y);
 
-    game->ecs = ECS_CreateManager();
+    game->ecs = ECS_CreateManager(10);
     initialize_game(game->ecs);
 
     return game;

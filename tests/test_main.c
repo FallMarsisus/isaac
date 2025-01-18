@@ -6,7 +6,7 @@
 #include "../src/game/map.h"
 
 void print_node(int x, int y, void* data) {
-    print_room((room*) data);
+    print_room((Room*) data);
 }
 
 int main() {
@@ -33,7 +33,7 @@ int main() {
 
     for(int i = 0; i < 2; i++) {
         for(int j = 0; j < 3; j++) {
-            room* r = create_room(i, j);
+            Room* r = create_room(i, j);
             add_room(m, r);
         }
     }

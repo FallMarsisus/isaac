@@ -35,10 +35,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    int win_width = 640, win_height = 360;
-    SDL_RenderSetLogicalSize(ren, win_width, win_height);
+    int win_width = 1280, win_height = 720;
+    //SDL_RenderSetLogicalSize(ren, win_width, win_height);
 
-    sprite_list* sprites = load_sprites(ren);
+    load_sprites(ren);
 
     SDL_Event event;
     
@@ -50,13 +50,16 @@ int main(int argc, char* argv[]) {
     double current_time = SDL_GetTicks() / 1000.;
     double accumulator = 0.;
 
-    game* 
+    Game* game = create_game();
+
+    load_assets(game);
 
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = 0;
             }
+            get_keys(game, &event);
         }
 
         double new_time = SDL_GetTicks() / 1000.;
@@ -67,26 +70,16 @@ int main(int argc, char* argv[]) {
         accumulator += frame_time;
 
         while(accumulator >= dt) {
-            update_map(m, win_width, win_height, dt);
+            update_game(game, win_width, win_height, dt);
             t += dt;
             accumulator -= dt;
         }
-
-        printf("FPS : %f\n", 1 / frame_time);
-
-        //Draw bg
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-        SDL_RenderClear(ren);
-
-        draw_map(m, ren);
-                
-        SDL_RenderPresent(ren);
-        //SDL_Delay(16); // Approximately 60 frames per second
+        
+        draw_game(ren, game);
     }
 
-    //Free all the shit
-    free_map(m);
-
+    free_game(game);
+    
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     SDL_Quit();

@@ -11,7 +11,7 @@ typedef struct cell_s cell;
 typedef struct chained_list_s chained_list;
 
 chained_list* create_list();
-void free_list(chained_list* l);
+void free_list(chained_list* l, bool freeElts);
 
 void append_elt(chained_list* l, void* element);
 void remove_elt(chained_list* l, void* element);

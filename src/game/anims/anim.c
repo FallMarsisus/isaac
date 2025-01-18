@@ -25,7 +25,7 @@ typedef struct anim_core_s {
     struct timeval* now;
 } anim_core;
 
-anim_core* create_core(SDL_Renderer* ren, SDL_Texture* tex, int sprite_width, int sprite_height) {
+anim_core* create_core(SDL_Texture* tex, int sprite_width, int sprite_height) {
     anim_core* core = malloc(sizeof(anim_core));
     if (core == NULL) {
         fprintf(stderr, "Failed to allocate memory for anim_core\n");
@@ -103,7 +103,7 @@ void stop_anim(anim_core* core) {
     core->current = 0;
 }
 
-void draw_core(SDL_Renderer* ren, SDL_Rect* pos, anim_core* core) {
+void draw_core(SDL_Renderer* ren, SDL_Rect pos, anim_core* core) {
     if(core == NULL) return;
     if(core->sprite_sheet == NULL) return;
     
@@ -125,5 +125,5 @@ void draw_core(SDL_Renderer* ren, SDL_Rect* pos, anim_core* core) {
         core->current_img->y = core->anim_index * core->sprite_height;
     }
 
-    SDL_RenderCopyEx(ren, core->sprite_sheet, core->current_img, pos, core->angle, core->center, core->flip);
+    SDL_RenderCopyEx(ren, core->sprite_sheet, core->current_img, &pos, core->angle, core->center, core->flip);
 }

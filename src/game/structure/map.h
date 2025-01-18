@@ -1,24 +1,14 @@
 #pragma once
 
 #include "rooms.h"
-#include "objects/entities/player/player.h"
-#include "../utils/dict.h"
-#include "../display.h"
-#include "inventory.h"
+#include "../../utils/dict.h"
 
 typedef struct map_s Map;
 
-Map* create_map(sprite_list* sprites);
-void load_textures(Map* m, SDL_Renderer* ren);
+Map* create_map();
 void free_map(Map* m);
 
-room* get_room(Map* m, int posx, int posy);
+Room* get_room(Map* m, int coord_x, int coord_y);
 
-void add_room(Map* m, room* r);
-void destroy_room(Map* m, int x, int y);
-
-void change_room(Map* m, int x, int y);
-
-void update_map(Map* m, int win_width, int win_height, float delta);
-
-void draw_map(Map* m, SDL_Renderer* ren);
+void add_room(Map* m, Room* r);
+void destroy_room(Map* m, int coord_x, int coord_y);

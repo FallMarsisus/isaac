@@ -4,46 +4,22 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "../utils/utils.h"
-#include "../utils/chained_list.h"
-#include "../display.h"
+#include "../../utils/chained_list.h"
 
-#include "objects/entities/player/player.h"
-#include "objects/entities/enemies/enemy.h"
-#include "objects/entities/entity.h"
+typedef struct room_s Room;
 
-#include "objects/tiles/tile.h"
-#include "objects/tiles/customTiles/teleporter.h"
+Room* create_room(int posx, int posy);
+void free_room(Room* r);
 
-typedef struct room_s {
-    int x; int y;
-    
-    SDL_Rect* bg_rect;
+int get_x(Room* room); int get_y(Room* room);
+chained_list* get_entities(Room* room);
 
-    struct room_s* up;
-    struct room_s* down;
-    struct room_s* left;
-    struct room_s* right;
+void setUp(Room* r, Room* up);
+void setDown(Room* r, Room* down);
+void setLeft(Room* r, Room* left);
+void setRight(Room* r, Room* right);
 
-    chained_list* entities;
-    chained_list* tiles;
-} room;
-
-room* create_room(int posx, int posy, sprite_list* sprites);
-void add_entity_to_room(room* r, Entity* e);
-void add_tile_to_room(room* r, Tile* tile);
-void free_room(room* r);
-
-void update_room(player* p, room* r, float delta);
-
-void draw_room(SDL_Renderer* ren, room* r);
-
-void setUp(room* r, room* up);
-void setDown(room* r, room* down);
-void setLeft(room* r, room* left);
-void setRight(room* r, room* right);
-
-void clearUp(room* r, room* up);
-void clearDown(room* r, room* down);
-void clearLeft(room* r, room* left);
-void clearRight(room* r, room* right);
+void clearUp(Room* r, Room* up);
+void clearDown(Room* r, Room* down);
+void clearLeft(Room* r, Room* left);
+void clearRight(Room* r, Room* right);

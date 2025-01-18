@@ -69,13 +69,13 @@ void remove_elt(chained_list* l, void* element) {
     }
 }
 
-void free_list(chained_list* l) {
+void free_list(chained_list* l, bool freeElt) {
     if(l == NULL) return;
 
     cell* temp = l->first;
     while(temp != NULL) {
         cell* next = temp->next;
-        if(temp->data != NULL) free(temp->data);
+        if(temp->data != NULL && freeElt) free(temp->data);
         free(temp);
         temp = next;
     }

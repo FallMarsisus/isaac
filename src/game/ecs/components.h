@@ -4,7 +4,6 @@
 
 typedef enum {
     POSITION,
-    RENDER,
     SPRITE,
     PLAYER,
     TARGET
@@ -16,13 +15,9 @@ typedef struct {
     float vx, vy;    // Velocity
 } PositionComponent;
 
-// Rendering size component
-typedef struct {
-    int width, height; // Dimensions of the entity
-} RenderComponent;
-
 // Sprite component (for rendering a texture)
 typedef struct {
+    int width, height; // Dimensions of the entity
     SDL_Texture* texture;  // Texture for the sprite
 } SpriteComponent;
 

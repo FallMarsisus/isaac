@@ -55,12 +55,12 @@ int main(int argc, char* argv[]) {
     load_assets(game);
 
     while (running) {
-        while (SDL_PollEvent(&event)) {
+        if (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = 0;
             }
-            get_keys(game, &event);
         }
+        get_keys(game, &event);
 
         double new_time = SDL_GetTicks() / 1000.;
         double frame_time = new_time - current_time;

@@ -2,10 +2,15 @@
 
 #include "../../display.h"
 
+#include "render/renderSystems.h"
+
+#include "components.h"
 #include "ecs.h"
+
 #include <SDL2/SDL.h>
 
 void initialize_game(ECS_Manager* ecs);
+void free_components(ECS_Manager* ecs);
 
 uint32_t add_player(ECS_Manager* ecs);
 uint32_t add_enemy(ECS_Manager* ecs, uint32_t player);

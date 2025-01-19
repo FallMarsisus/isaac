@@ -24,7 +24,8 @@ Game* create_game() {
 }
 void free_game(Game* game) {
     free_map(game->map);
-
+    
+    free_components(game->ecs);
     ECS_DestroyManager(game->ecs);
 
     free(game);

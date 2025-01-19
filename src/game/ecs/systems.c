@@ -6,25 +6,36 @@ void initialize_game(ECS_Manager* ecs) {
     add_enemy(ecs, player);
 }
 
+void free_components(ECS_Manager* ecs) {
+    for (size_t i = 0; i < ecs->count; ++i) {
+        free_all_render_components(ecs, ecs->entity_ids[i]);
+    }
+}
+
 uint32_t add_player(ECS_Manager* ecs) {
     // Create a player entity
     uint32_t player = ECS_CreateEntity(ecs);
     PositionComponent* position = ECS_AddComponent(ecs, player, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(ecs, player, SPRITE, sizeof(SpriteComponent));
     PlayerMovementComponent* movement = ECS_AddComponent(ecs, player, PLAYER, sizeof(PlayerMovementComponent));
+    AnimationComponent* animation = ECS_AddComponent(ecs, player, ANIMATION, sizeof(AnimationComponent));
 
     // Initialize components
     position->x = 100; position->y = 100;
     position->vx = 0; position->vy = 0;
 
-    sprite->width = 50; sprite->height = 50;
-    sprite->texture = get_sprites()->player_texture;
-    if (!sprite->texture) {
-        fprintf(stderr, "Failed to load player texture.\n");
-        exit(1);
-    }
+    init_sprite_component(sprite, 64, 64, get_sprites()->player_texture);
+    init_anim_component(animation, 16, 16);
 
-    movement->speed = 2; // Pixels per second
+    add_anim(animation, 0.1, 4);
+    add_anim(animation, 0.1, 4);
+    add_anim(animation, 0.1, 2);
+    add_anim(animation, 0.1, 2);
+
+    set_active_anim(animation, 0);
+    play_anim(animation);
+
+    movement->speed = 5;
 
     return player;
 }
@@ -34,19 +45,25 @@ uint32_t add_enemy(ECS_Manager* ecs, uint32_t player) {
     PositionComponent* position = ECS_AddComponent(ecs, enemy, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(ecs, enemy, SPRITE, sizeof(SpriteComponent));
     TargetMovementComponent* target = ECS_AddComponent(ecs, enemy, TARGET, sizeof(TargetMovementComponent));
+    AnimationComponent* animation = ECS_AddComponent(ecs, enemy, ANIMATION, sizeof(AnimationComponent));
 
     // Initialize components
-    target->entity = player; target->speed = 1;
+    target->entity = player; target->speed = 2;
 
     position->x = 200; position->y = 200;
     position->vx = 0; position->vy = 0;
 
-    sprite->width = 50; sprite->height = 50;
-    sprite->texture = get_sprites()->goblin_texture;
-    if (!sprite->texture) {
-        fprintf(stderr, "Failed to load player texture.\n");
-        exit(1);
-    }
+    init_sprite_component(sprite, 64, 64, get_sprites()->goblin_texture);
+    init_anim_component(animation, 16, 16);
+
+    add_anim(animation, 0.1, 4);
+    add_anim(animation, 0.1, 4);
+    add_anim(animation, 0.1, 2);
+    add_anim(animation, 0.1, 2);
+
+    set_active_anim(animation, 0);
+    play_anim(animation);
+
     return enemy;
 }
 
@@ -54,21 +71,33 @@ uint32_t add_enemy(ECS_Manager* ecs, uint32_t player) {
 void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     for (size_t i = 0; i < ecs->count; ++i) {
-
-        PlayerMovementComponent* movement = ECS_GetComponent(ecs, ecs->entity_ids[i], 3);
-        PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], 0);
+        PlayerMovementComponent* movement = ECS_GetComponent(ecs, ecs->entity_ids[i], PLAYER);
+        PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
+        AnimationComponent* anim = ECS_GetComponent(ecs, ecs->entity_ids[i], ANIMATION);
 
         if (movement && position) {
-            position->vy = 0; position->vx = 0;
-            if(state[SDL_SCANCODE_W]) position->vy -= 1;
-            if(state[SDL_SCANCODE_S]) position->vy += 1;
-            if(state[SDL_SCANCODE_A]) position->vx -= 1;
-            if(state[SDL_SCANCODE_D]) position->vx += 1;
+            int dx = 0, dy = 0;
+            if(state[SDL_SCANCODE_W]) dy -= 1;
+            if(state[SDL_SCANCODE_S]) dy += 1;
+            if(state[SDL_SCANCODE_A]) dx -= 1;
+            if(state[SDL_SCANCODE_D]) dx += 1;
 
-            float distance = sqrt(pow(position->vx, 2) + pow(position->vy, 2));
+            float distance = sqrt(pow(dx, 2) + pow(dy, 2));
             if(distance > 0.01) {
-                position->vx = (position->vx / distance) * movement->speed;
-                position->vy = (position->vy / distance) * movement->speed;
+                position->vx = (dx / distance) * movement->speed;
+                position->vy = (dy / distance) * movement->speed;
+                if(anim) {
+                    if(dy < 0) set_active_anim(anim, 1); 
+                    else if(dy > 0) set_active_anim(anim, 0); 
+                    else if(dx < 0) set_active_anim(anim, 2); 
+                    else if(dx > 0) set_active_anim(anim, 3); 
+                }
+            }
+            else {
+                position->vx = 0; position->vy = 0;
+                if(anim) {
+                    stop_anim(anim);
+                }
             }
         }
     }
@@ -104,18 +133,7 @@ void render_systems(ECS_Manager* ecs, SDL_Renderer* renderer) {
     SDL_RenderClear(renderer);
 
     for (size_t i = 0; i < ecs->count; ++i) {
-        PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], 0);
-        SpriteComponent* sprite = ECS_GetComponent(ecs, ecs->entity_ids[i], 2);
-
-        if (position && sprite && sprite->texture) {
-            SDL_Rect dest = {
-                (int)position->x,
-                (int)position->y,
-                sprite->width,
-                sprite->height
-            };
-            SDL_RenderCopy(renderer, sprite->texture, NULL, &dest);
-        }
+        render_component(ecs->entity_ids[i], ecs, renderer);
     }
 
     SDL_RenderPresent(renderer);

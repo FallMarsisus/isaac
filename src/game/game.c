@@ -18,7 +18,7 @@ Game* create_game() {
 
     change_room(game, 0, 0);
 
-    game->ecs = ECS_CreateManager(10);
+    game->ecs = ECS_CreateManager(20);
     game->player = initialize_game(game->ecs);
 
     return game;
@@ -66,6 +66,11 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
     }
 }
 
-void draw_game(SDL_Renderer* ren, Game* game) {
-    render_systems(game->ecs, cam, ren);
+void draw_game(SDL_Renderer* renderer, Game* game) {
+    SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
+    SDL_RenderClear(renderer);
+
+    render_systems(game->ecs, cam, renderer);
+
+    SDL_RenderPresent(renderer);
 }

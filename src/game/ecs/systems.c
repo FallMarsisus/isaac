@@ -6,6 +6,13 @@ uint32_t initialize_game(ECS_Manager* ecs) {
     add_enemy(ecs, 800, 300, player);
     add_block(ecs, 500, 300);
 
+    for(int i = 0; i < 10; i++) {
+        float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
+              x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
+        add_teleporter(ecs, x1, y1, x2, y2);
+        add_teleporter(ecs, x2, y2, x1, y1);
+    }
+
     return player;
 }
 
@@ -94,6 +101,23 @@ uint32_t add_block(ECS_Manager* ecs, float x, float y) {
     return block;
 }
 
+uint32_t add_teleporter(ECS_Manager* ecs, float x, float y, float xTarget, float yTarget) {
+    uint32_t obj = ECS_CreateEntity(ecs);
+    PositionComponent* position = ECS_AddComponent(ecs, obj, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(ecs, obj, SPRITE, sizeof(SpriteComponent));
+    TeleporterComponent* teleport = ECS_AddComponent(ecs, obj, TELEPORT, sizeof(TeleporterComponent));
+    ScriptComponent* script = ECS_AddComponent(ecs, obj, SCRIPT, sizeof(ScriptComponent));
+
+    position->x = x; position->y = y;
+    position->vx = 0; position->vy = 0;
+    init_sprite_component(sprite, 64, 64, get_sprites()->teleporter_texture);
+    init_script_component(script, update_teleporter);
+
+    teleport->posX = xTarget; teleport->posY = yTarget;
+
+    return obj;
+}
+
 // Handle input for player movement
 void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -136,39 +160,20 @@ void update_systems(ECS_Manager* ecs, SDL_Rect cam) {
     for (size_t i = 0; i < ecs->count; ++i) {
         PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
         SpriteComponent* sprite = ECS_GetComponent(ecs, ecs->entity_ids[i], SPRITE);
-        TargetMovementComponent* targetComp = ECS_GetComponent(ecs, ecs->entity_ids[i], TARGET);
+
         if(position && sprite) {
             if(!(cam.x + cam.w > position->x && cam.x < position->x + sprite->width && 
-               cam.y + cam.h > position->y && cam.y < position->y + sprite->height
-            )) continue; 
+                cam.y + cam.h > position->y && cam.y < position->y + sprite->height
+            )) continue;
         }
-
-        if (position && targetComp) {
-            PositionComponent* target_pos = ECS_GetComponent(ecs, targetComp->entity, POSITION);
-            if(target_pos) {
-                float dx = target_pos->x - position->x;
-                float dy = target_pos->y - position->y;
-                float distance = sqrt(pow(dx, 2) + pow(dy, 2));
-
-                if(distance > 0.1) {
-                    position->vx = (dx / distance) * targetComp->speed;
-                    position->vy = (dy / distance) * targetComp->speed;
-                }
-                else {
-                    position->vx = 0; position->vy = 0;
-                }
-            }
-        }
-
+        
+        update_others(ecs->entity_ids[i], ecs);
         update_physics(ecs->entity_ids[i], ecs);
     }
 }
 
 // Render all entities
 void render_systems(ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
     for (size_t i = 0; i < ecs->count; ++i) {
         PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
         SpriteComponent* sprite = ECS_GetComponent(ecs, ecs->entity_ids[i], SPRITE);
@@ -179,6 +184,4 @@ void render_systems(ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer* renderer) {
             ) render_component(ecs->entity_ids[i], ecs, cam, renderer);
         }
     }
-
-    SDL_RenderPresent(renderer);
 }

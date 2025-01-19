@@ -2,8 +2,11 @@
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "../../utils/dyn_arrays.h"
+
+typedef struct ecs_manager_s ECS_Manager;
 
 typedef enum {
     POSITION,
@@ -11,7 +14,10 @@ typedef enum {
     SPRITE,
     ANIMATION,
     PLAYER,
-    TARGET
+    TARGET,
+    TIMER,
+    SCRIPT,
+    TELEPORT
 } ComponentType;
 
 // Position and velocity component
@@ -65,3 +71,17 @@ typedef struct {
     uint32_t entity;
     float speed;
 } TargetMovementComponent;
+
+typedef struct {
+    int last;
+    float time;
+    bool playing;
+} TimerComponent;
+
+typedef struct {
+    void (*update)(uint32_t entity, ECS_Manager* ecs);
+} ScriptComponent;
+
+typedef struct {
+    int posX; int posY;
+} TeleporterComponent;

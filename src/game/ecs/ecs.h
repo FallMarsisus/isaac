@@ -12,7 +12,7 @@ typedef struct {
     uint8_t* entity_mask;    // Array of flags indicating component presence
 } ComponentArray;
 
-typedef struct {
+typedef struct ecs_manager_s {
     uint32_t* entity_ids;    // Array of entity IDs
     size_t capacity;         // Total capacity of entities
     size_t count;            // Current number of entities

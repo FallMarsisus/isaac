@@ -43,7 +43,10 @@ void change_room(Game* game, int x, int y) {
 
         for(int i = 0; i < game->ecs->count; i++) {
             if(game->ecs->entity_ids[i] == game->player) continue;
-            add_entity(r, &game->ecs->entity_ids[i]);
+            PositionComponent* position = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], POSITION);
+            if((int) (position->x / cam.w) == x && (int) (position->y / cam.h) == y) {
+                add_entity(r, &game->ecs->entity_ids[i]);
+            }
         }
     }
     game->current_room = r;

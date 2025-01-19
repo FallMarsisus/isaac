@@ -1,10 +1,12 @@
 #include "systems.h"
 
 // Initialize the game with entities and components
-void initialize_game(ECS_Manager* ecs) {
+uint32_t initialize_game(ECS_Manager* ecs) {
     uint32_t player = add_player(ecs, 100, 200);
     add_enemy(ecs, 800, 300, player);
     add_block(ecs, 500, 300);
+
+    return player;
 }
 
 void free_components(ECS_Manager* ecs) {
@@ -129,10 +131,17 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
 }
 
 // Update all systems
-void update_systems(ECS_Manager* ecs) {
+void update_systems(ECS_Manager* ecs, SDL_Rect cam) {
     for (size_t i = 0; i < ecs->count; ++i) {
         PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
+        SpriteComponent* sprite = ECS_GetComponent(ecs, ecs->entity_ids[i], SPRITE);
         TargetMovementComponent* targetComp = ECS_GetComponent(ecs, ecs->entity_ids[i], TARGET);
+        if(position && sprite) {
+            if(!(cam.x + cam.w > position->x && cam.x < position->x + sprite->width && 
+               cam.y + cam.h > position->y && cam.y < position->y + sprite->height
+            )) continue; 
+        }
+
         if (position && targetComp) {
             PositionComponent* target_pos = ECS_GetComponent(ecs, targetComp->entity, POSITION);
             if(target_pos) {
@@ -149,20 +158,25 @@ void update_systems(ECS_Manager* ecs) {
                 }
             }
         }
-    //}
-        
-    //for (size_t i = 0; i < ecs->count; ++i) {
+
         update_physics(ecs->entity_ids[i], ecs);
     }
 }
 
 // Render all entities
-void render_systems(ECS_Manager* ecs, SDL_Renderer* renderer) {
+void render_systems(ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer* renderer) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     for (size_t i = 0; i < ecs->count; ++i) {
-        render_component(ecs->entity_ids[i], ecs, renderer);
+        PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
+        SpriteComponent* sprite = ECS_GetComponent(ecs, ecs->entity_ids[i], SPRITE);
+
+        if(position && sprite) {
+            if(cam.x + cam.w > position->x && cam.x < position->x + sprite->width && 
+               cam.y + cam.h > position->y && cam.y < position->y + sprite->height
+            ) render_component(ecs->entity_ids[i], ecs, cam, renderer);
+        }
     }
 
     SDL_RenderPresent(renderer);

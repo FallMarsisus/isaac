@@ -7,8 +7,6 @@ typedef struct room_s {
     struct room_s* down;
     struct room_s* left;
     struct room_s* right;
-
-    chained_list* entities;
 } Room;
 
 Room* create_room(int posx, int posy) {
@@ -18,8 +16,6 @@ Room* create_room(int posx, int posy) {
         return NULL;
     }
     r->coord_x = posx; r->coord_y = posy;
-    
-    r->entities = create_list();
 
     r->up = NULL;
     r->down = NULL;
@@ -29,23 +25,8 @@ Room* create_room(int posx, int posy) {
     return r;
 }
 
-/*
-void add_entity_to_room(Room* r, Entity* e) {
-    if (r == NULL || e == NULL) return;
-    append_elt(r->entities, e);
-}
-*/
-
 void free_room(Room* r) {
     if (r == NULL) return;
-
-    for(cell* c = get_first(r->entities); c != NULL; c = get_next(c)) {
-        if(get_data(c) != NULL) {
-
-        }
-    }
-    free_list(r->entities, false);
-
     free(r);
 }
 
@@ -54,9 +35,6 @@ int get_x(Room* room) {
 }
 int get_y(Room* room) {
     return room->coord_y;
-}
-chained_list* get_entities(Room* room) {
-    return room->entities;
 }
 
 void setUp(Room* r, Room* up) {

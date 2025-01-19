@@ -68,7 +68,7 @@ void stop_anim(AnimationComponent* anim) {
     anim->counter = 0;
 }
 
-void render_component(uint32_t id, ECS_Manager* ecs, SDL_Renderer* renderer) {
+void render_component(uint32_t id, ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer* renderer) {
     PositionComponent* position = ECS_GetComponent(ecs, id, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(ecs, id, SPRITE);
 
@@ -96,8 +96,8 @@ void render_component(uint32_t id, ECS_Manager* ecs, SDL_Renderer* renderer) {
         }
 
         SDL_Rect dest = {
-            (int)position->x,
-            (int)position->y,
+            (int)position->x - cam.x,
+            (int)position->y - cam.y,
             sprite->width,
             sprite->height
         };

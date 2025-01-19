@@ -17,4 +17,4 @@ void play_anim(AnimationComponent* anim);
 void pause_anim(AnimationComponent* anim);
 void stop_anim(AnimationComponent* anim);
 
-void render_component(uint32_t id, ECS_Manager* ecs, SDL_Renderer* renderer);
+void render_component(uint32_t id, ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer* renderer);

@@ -115,6 +115,8 @@ void update_physics(uint32_t id, ECS_Manager* ecs) {
 
         // Handle collisions for X-axis first
         if (body) {
+            if(!body->is_dynamic) return;
+
             for (int i = 0; i < ecs->count; i++) {
                 if (ecs->entity_ids[i] == id) continue;
 
@@ -136,7 +138,7 @@ void update_physics(uint32_t id, ECS_Manager* ecs) {
                         continue;
                     } else if (body->is_dynamic && otherBody->is_dynamic) {
                         // Dynamic vs. Dynamic: Apply elastic collision resolution
-                        resolveDynamicCollision(position, body, otherPos, otherBody);
+                        //resolveDynamicCollision(position, body, otherPos, otherBody);
                     }
                 }
             }
@@ -168,7 +170,7 @@ void update_physics(uint32_t id, ECS_Manager* ecs) {
                         continue;
                     } else if (body->is_dynamic && otherBody->is_dynamic) {
                         // Dynamic vs. Dynamic: Apply elastic collision resolution
-                        resolveDynamicCollision(position, body, otherPos, otherBody);
+                        //resolveDynamicCollision(position, body, otherPos, otherBody);
                     }
                 }
             }

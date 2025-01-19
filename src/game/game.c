@@ -1,24 +1,25 @@
 #include "game.h"
 
+SDL_Rect cam = {
+    0, 0, 640, 360
+};
+
 typedef struct game_s {
     Map* map;
     Room* current_room;
-    int coord_x; int coord_y;
 
     ECS_Manager* ecs;
-
-    chained_list* current_entities;
+    uint32_t player;
 } Game;
 
 Game* create_game() {
     Game* game = malloc(sizeof(Game));
     game->map = create_map();
 
-    game->coord_x = 0; game->coord_y = 0;
-    change_room(game, game->coord_x, game->coord_y);
+    change_room(game, 0, 0);
 
     game->ecs = ECS_CreateManager(10);
-    initialize_game(game->ecs);
+    game->player = initialize_game(game->ecs);
 
     return game;
 }
@@ -39,11 +40,10 @@ void change_room(Game* game, int x, int y) {
     if(r == NULL) {
         r = create_room(x, y);
         add_room(game->map, r);
+
+        
     }
     game->current_room = r;
-    game->current_entities = get_entities(r);
-    game->coord_x = x;
-    game->coord_y = y;
 }
 
 void get_keys(Game* game, SDL_Event* event) {
@@ -51,9 +51,21 @@ void get_keys(Game* game, SDL_Event* event) {
 }
 
 void update_game(Game* game, int win_width, int win_height, float delta) {
-    update_systems(game->ecs);
+    update_systems(game->ecs, cam);
+
+    PositionComponent* pos = ECS_GetComponent(game->ecs, game->player, POSITION);
+    if(pos) {
+        int changeX = floor(pos->x / cam.w);
+        int changeY = floor(pos->y / cam.h);
+        if(changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {
+            change_room(game, changeX, changeY);
+            cam.x = changeX * cam.w;
+            cam.y = changeY * cam.h;
+            printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, cam.w, pos->y, cam.h, changeX, changeY);
+        }
+    }
 }
 
 void draw_game(SDL_Renderer* ren, Game* game) {
-    render_systems(game->ecs, ren);
+    render_systems(game->ecs, cam, ren);
 }

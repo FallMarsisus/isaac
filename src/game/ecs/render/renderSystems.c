@@ -40,8 +40,8 @@ void free_all_render_components(ECS_Manager* ecs, uint32_t id) {
     AnimationComponent* anim = ECS_GetComponent(ecs, id, ANIMATION);
     if(anim) free_anim_component(anim);
 }
-
 int add_anim(AnimationComponent* animation, float interval, int amount) {
+
     Anim* a = malloc(sizeof(Anim));
     a->amount = amount;
     a->interval = interval;

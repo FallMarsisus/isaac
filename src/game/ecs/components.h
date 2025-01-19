@@ -7,6 +7,7 @@
 
 typedef enum {
     POSITION,
+    BODY,
     SPRITE,
     ANIMATION,
     PLAYER,
@@ -18,6 +19,14 @@ typedef struct {
     float x, y;      // Position
     float vx, vy;    // Velocity
 } PositionComponent;
+
+typedef struct {
+    bool is_dynamic;       // True if the object is dynamic; false if static
+    float mass;            // Mass of the object
+    SDL_Rect hitbox;       // Collision boundary
+    float restitution;     // Bounciness (0.0 - 1.0)
+    float friction;        // Friction coefficient
+} RigidbodyComponent;
 
 // Sprite component (for rendering a texture)
 typedef struct {
@@ -56,9 +65,3 @@ typedef struct {
     uint32_t entity;
     float speed;
 } TargetMovementComponent;
-
-typedef struct {
-    bool is_rigid;
-
-    SDL_FRect* hitbox;
-} RigidbodyComponent;

@@ -2,8 +2,9 @@
 
 // Initialize the game with entities and components
 void initialize_game(ECS_Manager* ecs) {
-    uint32_t player = add_player(ecs);
-    add_enemy(ecs, player);
+    uint32_t player = add_player(ecs, 100, 200);
+    add_enemy(ecs, 800, 300, player);
+    add_block(ecs, 500, 300);
 }
 
 void free_components(ECS_Manager* ecs) {
@@ -12,17 +13,21 @@ void free_components(ECS_Manager* ecs) {
     }
 }
 
-uint32_t add_player(ECS_Manager* ecs) {
+uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     // Create a player entity
     uint32_t player = ECS_CreateEntity(ecs);
     PositionComponent* position = ECS_AddComponent(ecs, player, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(ecs, player, SPRITE, sizeof(SpriteComponent));
     PlayerMovementComponent* movement = ECS_AddComponent(ecs, player, PLAYER, sizeof(PlayerMovementComponent));
     AnimationComponent* animation = ECS_AddComponent(ecs, player, ANIMATION, sizeof(AnimationComponent));
+    RigidbodyComponent* body = ECS_AddComponent(ecs, player, BODY, sizeof(RigidbodyComponent));
 
     // Initialize components
-    position->x = 100; position->y = 100;
+    position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
+
+    init_rigidbody_component(body, 64, 64);
+    body->is_dynamic = true;
 
     init_sprite_component(sprite, 64, 64, get_sprites()->player_texture);
     init_anim_component(animation, 16, 16);
@@ -40,18 +45,22 @@ uint32_t add_player(ECS_Manager* ecs) {
     return player;
 }
 
-uint32_t add_enemy(ECS_Manager* ecs, uint32_t player) {
+uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t pl) {
     uint32_t enemy = ECS_CreateEntity(ecs);
     PositionComponent* position = ECS_AddComponent(ecs, enemy, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(ecs, enemy, SPRITE, sizeof(SpriteComponent));
     TargetMovementComponent* target = ECS_AddComponent(ecs, enemy, TARGET, sizeof(TargetMovementComponent));
     AnimationComponent* animation = ECS_AddComponent(ecs, enemy, ANIMATION, sizeof(AnimationComponent));
+    RigidbodyComponent* body = ECS_AddComponent(ecs, enemy, BODY, sizeof(RigidbodyComponent));
 
     // Initialize components
-    target->entity = player; target->speed = 2;
-
-    position->x = 200; position->y = 200;
+    position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
+
+    init_rigidbody_component(body, 64, 64);
+    body->is_dynamic = true;
+
+    target->entity = pl; target->speed = 2;
 
     init_sprite_component(sprite, 64, 64, get_sprites()->goblin_texture);
     init_anim_component(animation, 16, 16);
@@ -65,6 +74,22 @@ uint32_t add_enemy(ECS_Manager* ecs, uint32_t player) {
     play_anim(animation);
 
     return enemy;
+}
+
+uint32_t add_block(ECS_Manager* ecs, float x, float y) {
+    uint32_t block = ECS_CreateEntity(ecs);
+    PositionComponent* position = ECS_AddComponent(ecs, block, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(ecs, block, SPRITE, sizeof(SpriteComponent));
+    RigidbodyComponent* body = ECS_AddComponent(ecs, block, BODY, sizeof(RigidbodyComponent));
+
+    position->x = x; position->y = y;
+    position->vx = 0; position->vy = 0;
+
+    init_rigidbody_component(body, 64, 64);
+
+    init_sprite_component(sprite, 64, 64, get_sprites()->cobble_texture);
+
+    return block;
 }
 
 // Handle input for player movement
@@ -107,23 +132,19 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
 void update_systems(ECS_Manager* ecs) {
     for (size_t i = 0; i < ecs->count; ++i) {
         PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
-        if (position) {
-
-            TargetMovementComponent* targetComp = ECS_GetComponent(ecs, ecs->entity_ids[i], TARGET);
-            if(targetComp) {
-                PositionComponent* target_pos = ECS_GetComponent(ecs, targetComp->entity, POSITION);
-                if(target_pos) {
-                    float dx = target_pos->x - position->x;
-                    float dy = target_pos->y - position->y;
-                    float distance = sqrt(pow(dx, 2) + pow(dy, 2));
-                    position->vx = (dx / distance) * targetComp->speed;
-                    position->vy = (dy / distance) * targetComp->speed;
-                }
+        TargetMovementComponent* targetComp = ECS_GetComponent(ecs, ecs->entity_ids[i], TARGET);
+        if (position && targetComp) {
+            PositionComponent* target_pos = ECS_GetComponent(ecs, targetComp->entity, POSITION);
+            if(target_pos) {
+                float dx = target_pos->x - position->x;
+                float dy = target_pos->y - position->y;
+                float distance = sqrt(pow(dx, 2) + pow(dy, 2));
+                position->vx = (dx / distance) * targetComp->speed;
+                position->vy = (dy / distance) * targetComp->speed;
             }
-            
-            position->x += position->vx;
-            position->y += position->vy;
         }
+        
+        update_physics(ecs->entity_ids[i], ecs);
     }
 }
 

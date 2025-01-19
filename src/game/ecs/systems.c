@@ -114,10 +114,11 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
                 position->vx = (dx / distance) * movement->speed;
                 position->vy = (dy / distance) * movement->speed;
                 if(anim) {
-                    if(dy < 0) set_active_anim(anim, 1); 
-                    else if(dy > 0) set_active_anim(anim, 0); 
-                    else if(dx < 0) set_active_anim(anim, 2); 
-                    else if(dx > 0) set_active_anim(anim, 3); 
+                    if(dy < 0) set_active_anim(anim, 1);
+                    else if(dy > 0) set_active_anim(anim, 0);
+                    else if(dx < 0) set_active_anim(anim, 2);
+                    else if(dx > 0) set_active_anim(anim, 3);
+                    play_anim(anim);
                 }
             }
             else {

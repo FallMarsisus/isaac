@@ -83,15 +83,14 @@ void render_component(uint32_t id, ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer*
             Anim* curren_anim = get_elt(anim->animations, anim->anim_index);
             if (curren_anim == NULL) return;
             
-            if (interval >= curren_anim->interval) {
+            if (interval >= curren_anim->interval && anim->playing) {
                 anim->counter++;
                 if (anim->counter >= curren_anim->amount) anim->counter = 0;
                 anim->last_change = SDL_GetTicks();
-
-                anim->current_img->x = anim->counter * anim->current_img->w;
-                anim->current_img->y = anim->anim_index * anim->current_img->h;
             }
-
+            
+            anim->current_img->x = anim->counter * anim->current_img->w;
+            anim->current_img->y = anim->anim_index * anim->current_img->h;
             srcRect = anim->current_img;
         }
 

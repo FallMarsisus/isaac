@@ -1,7 +1,7 @@
 #include "game.h"
 
 SDL_Rect cam = {
-    0, 0, 640, 360
+    0, 0, 1280, 720
 };
 
 typedef struct game_s {

@@ -121,19 +121,20 @@ uint32_t add_teleporter(ECS_Manager* ecs, float x, float y, float xTarget, float
 // Handle input for player movement
 void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+    int dx = 0, dy = 0;
+    if(state[SDL_SCANCODE_W]) dy -= 1;
+    if(state[SDL_SCANCODE_S]) dy += 1;
+    if(state[SDL_SCANCODE_A]) dx -= 1;
+    if(state[SDL_SCANCODE_D]) dx += 1;
+
+    float distance = sqrt(pow(dx, 2) + pow(dy, 2));
     for (size_t i = 0; i < ecs->count; ++i) {
         PlayerMovementComponent* movement = ECS_GetComponent(ecs, ecs->entity_ids[i], PLAYER);
         PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
         AnimationComponent* anim = ECS_GetComponent(ecs, ecs->entity_ids[i], ANIMATION);
 
         if (movement && position) {
-            int dx = 0, dy = 0;
-            if(state[SDL_SCANCODE_W]) dy -= 1;
-            if(state[SDL_SCANCODE_S]) dy += 1;
-            if(state[SDL_SCANCODE_A]) dx -= 1;
-            if(state[SDL_SCANCODE_D]) dx += 1;
-
-            float distance = sqrt(pow(dx, 2) + pow(dy, 2));
             if(distance > 0.01) {
                 position->vx = (dx / distance) * movement->speed;
                 position->vy = (dy / distance) * movement->speed;

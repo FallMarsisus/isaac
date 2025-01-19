@@ -5,11 +5,16 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "../../utils/dyn_arrays.h"
+
 typedef struct room_s Room;
 
 Room* create_room(int posx, int posy);
 void free_room(Room* r);
 
+void add_entity(Room* r, u_int32_t* id);
+
+dyn_array* get_entities(Room* r);
 int get_x(Room* room); int get_y(Room* room);
 
 void setUp(Room* r, Room* up);

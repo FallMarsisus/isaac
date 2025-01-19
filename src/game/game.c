@@ -14,12 +14,11 @@ typedef struct game_s {
 
 Game* create_game() {
     Game* game = malloc(sizeof(Game));
-    game->map = create_map();
-
-    change_room(game, 0, 0);
-
     game->ecs = ECS_CreateManager(20);
     game->player = initialize_game(game->ecs);
+
+    game->map = create_map();
+    change_room(game, 0, 0);
 
     return game;
 }
@@ -40,8 +39,12 @@ void change_room(Game* game, int x, int y) {
     if(r == NULL) {
         r = create_room(x, y);
         add_room(game->map, r);
+        add_entity(r, &game->ecs->entity_ids[game->player]);
 
-        
+        for(int i = 0; i < game->ecs->count; i++) {
+            if(game->ecs->entity_ids[i] == game->player) continue;
+            add_entity(r, &game->ecs->entity_ids[i]);
+        }
     }
     game->current_room = r;
 }
@@ -51,7 +54,7 @@ void get_keys(Game* game, SDL_Event* event) {
 }
 
 void update_game(Game* game, int win_width, int win_height, float delta) {
-    update_systems(game->ecs, cam);
+    update_systems(game->ecs, get_entities(game->current_room), cam);
 
     PositionComponent* pos = ECS_GetComponent(game->ecs, game->player, POSITION);
     if(pos) {
@@ -70,7 +73,7 @@ void draw_game(SDL_Renderer* renderer, Game* game) {
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
 
-    render_systems(game->ecs, cam, renderer);
+    render_systems(game->ecs, get_entities(game->current_room), cam, renderer);
 
     SDL_RenderPresent(renderer);
 }

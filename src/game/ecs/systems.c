@@ -156,32 +156,20 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
 }
 
 // Update all systems
-void update_systems(ECS_Manager* ecs, SDL_Rect cam) {
-    for (size_t i = 0; i < ecs->count; ++i) {
-        PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
-        SpriteComponent* sprite = ECS_GetComponent(ecs, ecs->entity_ids[i], SPRITE);
-
-        if(position && sprite) {
-            if(!(cam.x + cam.w > position->x && cam.x < position->x + sprite->width && 
-                cam.y + cam.h > position->y && cam.y < position->y + sprite->height
-            )) continue;
-        }
+void update_systems(ECS_Manager* ecs, dyn_array* entities, SDL_Rect cam) {
+    for(int i = 0; i < get_len(entities); i++) {
+        u_int32_t id = *((uint32_t*) get_elt(entities, i));
         
-        update_others(ecs->entity_ids[i], ecs);
-        update_physics(ecs->entity_ids[i], ecs);
+        update_others(id, ecs);
+        update_physics(id, ecs);
     }
 }
 
 // Render all entities
-void render_systems(ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer* renderer) {
-    for (size_t i = 0; i < ecs->count; ++i) {
-        PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
-        SpriteComponent* sprite = ECS_GetComponent(ecs, ecs->entity_ids[i], SPRITE);
-
-        if(position && sprite) {
-            if(cam.x + cam.w > position->x && cam.x < position->x + sprite->width && 
-               cam.y + cam.h > position->y && cam.y < position->y + sprite->height
-            ) render_component(ecs->entity_ids[i], ecs, cam, renderer);
-        }
+void render_systems(ECS_Manager* ecs, dyn_array* entities, SDL_Rect cam, SDL_Renderer* renderer) {
+    for(int i = 0; i < get_len(entities); i++) {
+        u_int32_t id = *((uint32_t*) get_elt(entities, i));
+        
+        render_component(id, ecs, cam, renderer);
     }
 }

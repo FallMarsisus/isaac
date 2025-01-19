@@ -7,6 +7,8 @@ typedef struct room_s {
     struct room_s* down;
     struct room_s* left;
     struct room_s* right;
+
+    dyn_array* entity_ids;
 } Room;
 
 Room* create_room(int posx, int posy) {
@@ -21,15 +23,24 @@ Room* create_room(int posx, int posy) {
     r->down = NULL;
     r->left = NULL;
     r->right = NULL;
-
+    
+    r->entity_ids = create_array();
     return r;
 }
 
 void free_room(Room* r) {
     if (r == NULL) return;
+    free_array(r->entity_ids);
     free(r);
 }
 
+void add_entity(Room* r, uint32_t* id) {
+    append(r->entity_ids, id);
+}
+
+dyn_array* get_entities(Room* r) {
+    return r->entity_ids;
+}
 int get_x(Room* room) {
     return room->coord_x;
 }

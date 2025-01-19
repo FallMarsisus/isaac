@@ -17,7 +17,8 @@ typedef enum {
     TARGET,
     TIMER,
     SCRIPT,
-    TELEPORT
+    TELEPORT,
+    INVENT
 } ComponentType;
 
 // Position and velocity component

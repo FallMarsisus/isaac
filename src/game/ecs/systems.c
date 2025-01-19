@@ -1,4 +1,5 @@
 #include "systems.h"
+#include "invertoryComponent.h"
 
 // Initialize the game with entities and components
 uint32_t initialize_game(ECS_Manager* ecs) {
@@ -12,6 +13,7 @@ uint32_t initialize_game(ECS_Manager* ecs) {
         add_teleporter(ecs, x1, y1, x2, y2);
         add_teleporter(ecs, x2, y2, x1, y1);
     }
+
 
     return player;
 }
@@ -30,10 +32,15 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     PlayerMovementComponent* movement = ECS_AddComponent(ecs, player, PLAYER, sizeof(PlayerMovementComponent));
     AnimationComponent* animation = ECS_AddComponent(ecs, player, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(ecs, player, BODY, sizeof(RigidbodyComponent));
+    InventoryComponent* inv = ECS_AddComponent(ecs, player, INVENT, sizeof(InventoryComponent));
 
     // Initialize components
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
+    inv->max_nb_items = 50;
+    inv->items = 0;
+    inv->items = malloc(sizeof(int) * inv->max_nb_items);
+
 
     init_rigidbody_component(body, 64, 64);
     body->is_dynamic = true;

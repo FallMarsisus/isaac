@@ -7,6 +7,7 @@
 #include "render/renderSystems.h"
 #include "physics/physicsSystems.h"
 #include "other/otherSystems.h"
+#include "inventory/inventorySystem.h"
 
 #include "../scripts/teleporters/teleport.h"
 

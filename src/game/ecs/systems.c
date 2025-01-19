@@ -139,11 +139,19 @@ void update_systems(ECS_Manager* ecs) {
                 float dx = target_pos->x - position->x;
                 float dy = target_pos->y - position->y;
                 float distance = sqrt(pow(dx, 2) + pow(dy, 2));
-                position->vx = (dx / distance) * targetComp->speed;
-                position->vy = (dy / distance) * targetComp->speed;
+
+                if(distance > 0.1) {
+                    position->vx = (dx / distance) * targetComp->speed;
+                    position->vy = (dy / distance) * targetComp->speed;
+                }
+                else {
+                    position->vx = 0; position->vy = 0;
+                }
             }
         }
+    //}
         
+    //for (size_t i = 0; i < ecs->count; ++i) {
         update_physics(ecs->entity_ids[i], ecs);
     }
 }

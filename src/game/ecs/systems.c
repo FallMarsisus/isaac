@@ -31,6 +31,7 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     PlayerMovementComponent* movement = ECS_AddComponent(ecs, player, PLAYER, sizeof(PlayerMovementComponent));
     AnimationComponent* animation = ECS_AddComponent(ecs, player, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(ecs, player, BODY, sizeof(RigidbodyComponent));
+    ParentComponent* parent = ECS_AddComponent(ecs, player, PARENT, sizeof(ParentComponent));
 
     // Initialize components
     position->x = x; position->y = y;
@@ -41,6 +42,12 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
 
     init_sprite_component(sprite, 64, 64, get_sprites()->player_texture);
     init_anim_component(animation, 16, 16);
+
+    init_parent_component(parent);
+
+    uint32_t child_test = add_enemy(ecs, position->x, position->y, player);
+
+    add_child(parent, &ecs->entity_ids[child_test]);
 
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);

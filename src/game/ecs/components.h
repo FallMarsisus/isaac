@@ -17,7 +17,8 @@ typedef enum {
     TARGET,
     TIMER,
     SCRIPT,
-    TELEPORT
+    TELEPORT,
+    PARENT
 } ComponentType;
 
 // Position and velocity component
@@ -85,3 +86,7 @@ typedef struct {
 typedef struct {
     int posX; int posY;
 } TeleporterComponent;
+
+typedef struct {
+    dyn_array* children;
+} ParentComponent;

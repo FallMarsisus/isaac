@@ -35,18 +35,33 @@ void free_game(Game* game) {
 void load_assets(Game* game) {
 }
 
+void add_children_to_room(Game* game, Room* r, uint32_t elt) {
+    ParentComponent* parent = ECS_GetComponent(game->ecs, elt, PARENT);
+    if(parent) {
+        for(int i = 0; i < get_len(parent->children); i++) {
+            uint32_t id = *((u_int32_t*) get_elt(parent->children, i));
+            add_entity(r, &game->ecs->entity_ids[id]);
+
+            add_children_to_room(game, r, id);
+        }
+    }
+}
+
 void change_room(Game* game, int x, int y) {
     Room* r = get_room(game->map, x, y);
     if(r == NULL) {
         r = create_room(x, y);
         add_room(game->map, r);
         add_entity(r, &game->ecs->entity_ids[game->player]);
+        add_children_to_room(game, r, game->player);
 
         for(int i = 0; i < game->ecs->count; i++) {
             if(game->ecs->entity_ids[i] == game->player) continue;
             PositionComponent* position = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], POSITION);
             if((int) floor(position->x / cam.w) == x && (int) floor(position->y / cam.h) == y) {
                 add_entity(r, &game->ecs->entity_ids[i]);
+                add_children_to_room(game, r, game->ecs->entity_ids[i]);
+                
                 printf("%f - %f\n", position->x, position->y);
             }
         }

@@ -100,6 +100,10 @@ void render_component(uint32_t id, ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer*
             sprite->width,
             sprite->height
         };
+        if(position->camFixed) {
+            dest.x = position->x;
+            dest.y = position->y;
+        }
         SDL_RenderCopyEx(renderer, sprite->texture, srcRect, &dest, sprite->angle, sprite->center, sprite->flip);
     }
 }

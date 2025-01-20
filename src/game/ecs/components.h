@@ -25,6 +25,7 @@ typedef enum {
 typedef struct {
     float x, y;      // Position
     float vx, vy;    // Velocity
+    bool camFixed;
 } PositionComponent;
 
 typedef struct {

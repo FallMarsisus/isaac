@@ -1,5 +1,4 @@
 #include "systems.h"
-#include "invertoryComponent.h"
 
 // Initialize the game with entities and components
 uint32_t initialize_game(ECS_Manager* ecs) {
@@ -38,8 +37,11 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
     inv->max_nb_items = 50;
-    inv->items = 0;
     inv->items = malloc(sizeof(int) * inv->max_nb_items);
+    add_item_to_inventory(ecs, player, 5);
+    add_item_to_inventory(ecs, player, 2);
+    add_item_to_inventory(ecs, player, 2187);
+    add_item_to_inventory(ecs, player, 159274187498);
 
 
     init_rigidbody_component(body, 64, 64);
@@ -130,6 +132,7 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     for (size_t i = 0; i < ecs->count; ++i) {
         PlayerMovementComponent* movement = ECS_GetComponent(ecs, ecs->entity_ids[i], PLAYER);
+        InventoryComponent* inv = ECS_GetComponent(ecs, ecs->entity_ids[i], INVENT);
         PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
         AnimationComponent* anim = ECS_GetComponent(ecs, ecs->entity_ids[i], ANIMATION);
 
@@ -139,6 +142,8 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
             if(state[SDL_SCANCODE_S]) dy += 1;
             if(state[SDL_SCANCODE_A]) dx -= 1;
             if(state[SDL_SCANCODE_D]) dx += 1;
+
+            inv->isDisplayed = state[SDL_SCANCODE_E];
 
             float distance = sqrt(pow(dx, 2) + pow(dy, 2));
             if(distance > 0.01) {

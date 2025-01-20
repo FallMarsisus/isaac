@@ -33,6 +33,7 @@ void free_game(Game* game) {
 }
 
 void load_assets(Game* game) {
+
 }
 
 void change_room(Game* game, int x, int y) {
@@ -69,6 +70,8 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
 void draw_game(SDL_Renderer* renderer, Game* game) {
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
+
+    draw_inventory(game->ecs, game->player, renderer);
 
     render_systems(game->ecs, cam, renderer);
 

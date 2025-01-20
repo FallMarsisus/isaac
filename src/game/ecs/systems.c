@@ -3,10 +3,11 @@
 // Initialize the game with entities and components
 uint32_t initialize_game(ECS_Manager* ecs) {
     uint32_t player = add_player(ecs, 100, 200);
-    add_enemy(ecs, 800, 300, player);
-    add_block(ecs, 500, 300);
 
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < 20; i++) {
+        add_enemy(ecs, random_int(-5000, 5000), random_int(-5000, 5000), player);
+        add_block(ecs, random_int(-5000, 5000), random_int(-5000, 5000));
+        
         float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
               x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
         add_teleporter(ecs, x1, y1, x2, y2);
@@ -69,7 +70,7 @@ uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t pl) {
     init_rigidbody_component(body, 64, 64);
     body->is_dynamic = true;
 
-    target->entity = pl; target->speed = 2;
+    init_target_component(target, pl);
 
     init_sprite_component(sprite, 64, 64, get_sprites()->goblin_texture);
     init_anim_component(animation, 16, 16);

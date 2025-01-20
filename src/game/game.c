@@ -1,5 +1,6 @@
 #include "game.h"
 
+bool static_cam = true;
 SDL_Rect cam = {
     0, 0, 1280, 720
 };
@@ -44,8 +45,9 @@ void change_room(Game* game, int x, int y) {
         for(int i = 0; i < game->ecs->count; i++) {
             if(game->ecs->entity_ids[i] == game->player) continue;
             PositionComponent* position = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], POSITION);
-            if((int) (position->x / cam.w) == x && (int) (position->y / cam.h) == y) {
+            if((int) floor(position->x / cam.w) == x && (int) floor(position->y / cam.h) == y) {
                 add_entity(r, &game->ecs->entity_ids[i]);
+                printf("%f - %f\n", position->x, position->y);
             }
         }
     }
@@ -63,10 +65,16 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
     if(pos) {
         int changeX = floor(pos->x / cam.w);
         int changeY = floor(pos->y / cam.h);
+        if(!static_cam) {
+            cam.x = pos->x - cam.w / 2;
+            cam.y = pos->y - cam.h / 2;
+        }
         if(changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {
             change_room(game, changeX, changeY);
-            cam.x = changeX * cam.w;
-            cam.y = changeY * cam.h;
+            if(static_cam) {
+                cam.x = changeX * cam.w;
+                cam.y = changeY * cam.h;
+            }
             printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, cam.w, pos->y, cam.h, changeX, changeY);
         }
     }

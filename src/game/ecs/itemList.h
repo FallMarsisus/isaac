@@ -14,10 +14,10 @@ extern int itemCount;
 extern const int max_items;
 
 
-extern ItemComponent potion;
-extern ItemComponent apple;
-extern ItemComponent sword;
-extern ItemComponent key;
-extern ItemComponent shield;
+extern ItemData potion;
+extern ItemData apple;
+extern ItemData sword;
+extern ItemData key;
+extern ItemData shield;
 
-extern ItemComponent* itemList[];
+extern ItemData* itemList[];

@@ -4,10 +4,10 @@ int itemCount = 5;
 const int max_items = 5;
 
 
-ItemComponent potion = {POTION, "Potion", "A healing potion", 25};
-ItemComponent apple = {APPLE, "Apple", "A delicious apple", 10};
-ItemComponent sword = {SWORD, "Sword", "A sharp sword", 50};
-ItemComponent key = {KEY, "Key", "A key to open doors", 5};
-ItemComponent shield = {SHIELD, "Shield", "A shield to protect you", 20};
+ItemData potion = {POTION, "Potion", "A healing potion", 25};
+ItemData apple = {APPLE, "Apple", "A delicious apple", 10};
+ItemData sword = {SWORD, "Sword", "A sharp sword", 50};
+ItemData key = {KEY, "Key", "A key to open doors", 5};
+ItemData shield = {SHIELD, "Shield", "A shield to protect you", 20};
 
-ItemComponent* itemList[] = {&potion, &apple, &sword, &key, &shield};
+ItemData* itemList[] = {&potion, &apple, &sword, &key, &shield};

@@ -7,12 +7,13 @@ uint32_t initialize_game(ECS_Manager* ecs) {
     for(int i = 0; i < 20; i++) {
         add_enemy(ecs, random_int(-5000, 5000), random_int(-5000, 5000), player);
         add_block(ecs, random_int(-5000, 5000), random_int(-5000, 5000));
-        
+
         float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
               x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
         add_teleporter(ecs, x1, y1, x2, y2);
         add_teleporter(ecs, x2, y2, x1, y1);
     }
+
 
 
     return player;
@@ -34,12 +35,14 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     RigidbodyComponent* body = ECS_AddComponent(ecs, player, BODY, sizeof(RigidbodyComponent));
     ParentComponent* parent = ECS_AddComponent(ecs, player, PARENT, sizeof(ParentComponent));
     InventoryComponent* inv = ECS_AddComponent(ecs, player, INVENT, sizeof(InventoryComponent));
+    ItemComponent* item = ECS_AddComponent(ecs, player, ITEM, sizeof(ItemComponent));
+    
 
     // Initialize components
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
     inv->max_nb_items = 50;
-    inv->items = malloc(sizeof(int) * inv->max_nb_items);
+    inv->item_ids = malloc(sizeof(int) * inv->max_nb_items);
     add_item_to_inventory(ecs, player, 5);
     add_item_to_inventory(ecs, player, 2);
     add_item_to_inventory(ecs, player, 2187);
@@ -54,10 +57,14 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
 
     init_parent_component(parent);
 
+
+    for (int j  = 0; j < itemCount - 1; j++) {
+        create_item(ecs, player, *itemList[j]);
+    }
+
     uint32_t child_test = add_enemy(ecs, position->x, position->y, player);
     ChildComponent* childComp = ECS_AddComponent(ecs, child_test, CHILD, sizeof(ChildComponent));
     init_child_component(childComp, player);
-
     add_child(parent, &ecs->entity_ids[child_test]);
 
     add_anim(animation, 0.1, 4);

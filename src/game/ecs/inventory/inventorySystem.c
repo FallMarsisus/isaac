@@ -6,7 +6,7 @@
 bool add_item_to_inventory(ECS_Manager* manager, uint32_t entity, int item) {
 	InventoryComponent* inventory = ECS_GetComponent(manager, entity , INVENT);
 	if (inventory && inventory->nb_items < inventory->max_nb_items) {
-		inventory->items[inventory->nb_items] = item;
+		inventory->item_ids[inventory->nb_items] = item;
 		inventory->nb_items++;	
 		return true;
 	}
@@ -21,9 +21,9 @@ bool remove_item_from_inventory(ECS_Manager* manager, uint32_t entity, int item)
 
 	// Remove the element from the array
 	for (int i = 0; i < invertory->nb_items; i++) {
-		if (invertory->items[i] == item) {
+		if (invertory->item_ids[i] == item) {
 			for (int j = i; j < invertory->nb_items-1; j++) {
-				invertory->items[j] = invertory->items[j+1];
+				invertory->item_ids[j] = invertory->item_ids[j+1];
 			}
 			invertory->nb_items--;
 			return true;

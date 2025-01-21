@@ -8,5 +8,7 @@ typedef struct {
 	bool isDisplayed;
 	int max_nb_items;
 	int nb_items;
-	int* items;
+	int* item_ids;
 } InventoryComponent;
+
+const int max_items = 50;

@@ -10,15 +10,17 @@
 #include "other/otherSystems.h"
 #include "inventory/inventorySystem.h"
 #include "health/healthSystem.h"
-
+#include "items/itemSystem.h"
 #include "../scripts/teleporters/teleport.h"
 
 #include "components.h"
+#include "itemList.h"
 #include "ecs.h"
 
 #include <SDL2/SDL.h>
 
 uint32_t initialize_game(ECS_Manager* ecs);
+
 void free_components(ECS_Manager* ecs);
 
 uint32_t add_player(ECS_Manager* ecs, float x, float y);

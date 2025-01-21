@@ -14,6 +14,7 @@ uint32_t initialize_game(ECS_Manager* ecs) {
         add_teleporter(ecs, x2, y2, x1, y1);
     }
 
+
     return player;
 }
 
@@ -32,10 +33,18 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     AnimationComponent* animation = ECS_AddComponent(ecs, player, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(ecs, player, BODY, sizeof(RigidbodyComponent));
     ParentComponent* parent = ECS_AddComponent(ecs, player, PARENT, sizeof(ParentComponent));
+    InventoryComponent* inv = ECS_AddComponent(ecs, player, INVENT, sizeof(InventoryComponent));
 
     // Initialize components
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
+    inv->max_nb_items = 50;
+    inv->items = malloc(sizeof(int) * inv->max_nb_items);
+    add_item_to_inventory(ecs, player, 5);
+    add_item_to_inventory(ecs, player, 2);
+    add_item_to_inventory(ecs, player, 2187);
+    add_item_to_inventory(ecs, player, 159274187498);
+
 
     init_rigidbody_component(body, 64, 64);
     body->is_dynamic = true;
@@ -141,10 +150,27 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
     float distance = sqrt(pow(dx, 2) + pow(dy, 2));
     for (size_t i = 0; i < ecs->count; ++i) {
         PlayerMovementComponent* movement = ECS_GetComponent(ecs, ecs->entity_ids[i], PLAYER);
+        InventoryComponent* inv = ECS_GetComponent(ecs, ecs->entity_ids[i], INVENT);
         PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
         AnimationComponent* anim = ECS_GetComponent(ecs, ecs->entity_ids[i], ANIMATION);
 
         if (movement && position) {
+            int dx = 0, dy = 0;
+            if(state[SDL_SCANCODE_W]) dy -= 1;
+            if(state[SDL_SCANCODE_S]) dy += 1;
+            if(state[SDL_SCANCODE_A]) dx -= 1;
+            if(state[SDL_SCANCODE_D]) dx += 1;
+
+            static bool is_it_wanting_to_display = false;
+            if (state[SDL_SCANCODE_E] && !is_it_wanting_to_display) {
+                is_it_wanting_to_display = true;
+                inv->isDisplayed = !inv->isDisplayed;
+            }
+            else if (!state[SDL_SCANCODE_E]) {
+                is_it_wanting_to_display = false;
+            }
+
+            float distance = sqrt(pow(dx, 2) + pow(dy, 2));
             if(distance > 0.01) {
                 position->vx = (dx / distance) * movement->speed;
                 position->vy = (dy / distance) * movement->speed;

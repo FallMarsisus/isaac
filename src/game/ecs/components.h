@@ -19,7 +19,9 @@ typedef enum {
     SCRIPT,
     TELEPORT,
     PARENT,
-    CHILD
+    CHILD,
+    INVENT,
+    HEALTH
 } ComponentType;
 
 // Position and velocity component

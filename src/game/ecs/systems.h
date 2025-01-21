@@ -8,6 +8,8 @@
 #include "render/renderSystems.h"
 #include "physics/physicsSystems.h"
 #include "other/otherSystems.h"
+#include "inventory/inventorySystem.h"
+#include "health/healthSystem.h"
 
 #include "../scripts/teleporters/teleport.h"
 

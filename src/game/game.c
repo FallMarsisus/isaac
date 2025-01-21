@@ -33,6 +33,7 @@ void free_game(Game* game) {
 }
 
 void load_assets(Game* game) {
+
 }
 
 void add_children_to_room(Game* game, Room* r, uint32_t elt) {
@@ -104,6 +105,9 @@ void draw_game(SDL_Renderer* renderer, Game* game) {
     SDL_RenderClear(renderer);
 
     render_systems(game->ecs, get_entities(game->current_room), cam, renderer);
+
+    draw_inventory(game->ecs, game->player, renderer);
+
 
     SDL_RenderPresent(renderer);
 }

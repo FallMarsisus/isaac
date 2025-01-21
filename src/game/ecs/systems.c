@@ -35,7 +35,6 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     RigidbodyComponent* body = ECS_AddComponent(ecs, player, BODY, sizeof(RigidbodyComponent));
     ParentComponent* parent = ECS_AddComponent(ecs, player, PARENT, sizeof(ParentComponent));
     InventoryComponent* inv = ECS_AddComponent(ecs, player, INVENT, sizeof(InventoryComponent));
-    ItemComponent* item = ECS_AddComponent(ecs, player, ITEM, sizeof(ItemComponent));
     
 
     // Initialize components
@@ -46,7 +45,7 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     add_item_to_inventory(ecs, player, 5);
     add_item_to_inventory(ecs, player, 2);
     add_item_to_inventory(ecs, player, 2187);
-    add_item_to_inventory(ecs, player, 159274187498);
+    add_item_to_inventory(ecs, player, 87498);
 
 
     init_rigidbody_component(body, 64, 64);

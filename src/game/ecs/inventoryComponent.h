@@ -10,5 +10,3 @@ typedef struct {
 	int nb_items;
 	int* item_ids;
 } InventoryComponent;
-
-const int max_items = 50;

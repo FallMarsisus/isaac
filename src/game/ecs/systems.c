@@ -143,7 +143,14 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
             if(state[SDL_SCANCODE_A]) dx -= 1;
             if(state[SDL_SCANCODE_D]) dx += 1;
 
-            inv->isDisplayed = state[SDL_SCANCODE_E];
+            static bool is_it_wanting_to_display = false;
+            if (state[SDL_SCANCODE_E] && !is_it_wanting_to_display) {
+                is_it_wanting_to_display = true;
+                inv->isDisplayed = !inv->isDisplayed;
+            }
+            else if (!state[SDL_SCANCODE_E]) {
+                is_it_wanting_to_display = false;
+            }
 
             float distance = sqrt(pow(dx, 2) + pow(dy, 2));
             if(distance > 0.01) {

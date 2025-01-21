@@ -58,9 +58,13 @@ void change_room(Game* game, int x, int y) {
         for(int i = 0; i < game->ecs->count; i++) {
             if(game->ecs->entity_ids[i] == game->player) continue;
             PositionComponent* position = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], POSITION);
+            ChildComponent* child = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], CHILD);
+            if(child) continue;
+
             if(position->camFixed || 
                ((int) floor(position->x / cam.w) == x && (int) floor(position->y / cam.h) == y)) {
                 add_entity(r, &game->ecs->entity_ids[i]);
+                add_children_to_room(game, r, game->ecs->entity_ids[i]);
                 
                 printf("%f - %f\n", position->x, position->y);
             }

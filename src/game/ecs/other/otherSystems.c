@@ -14,6 +14,9 @@ void init_script_component(ScriptComponent* script, void (*update)(uint32_t enti
 void init_parent_component(ParentComponent* parent) {
     parent->children = create_array();
 }
+void init_child_component(ChildComponent* child, uint32_t parent) {
+    child->parent = parent;
+}
 
 void add_child(ParentComponent* parent, uint32_t* id) {
     if(id) append(parent->children, id);

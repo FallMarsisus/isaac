@@ -14,7 +14,7 @@
 #include "../scripts/teleporters/teleport.h"
 
 #include "components.h"
-#include "itemList.h"
+#include "items/itemList.h"
 #include "ecs.h"
 
 #include <SDL2/SDL.h>

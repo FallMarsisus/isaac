@@ -3,10 +3,11 @@
 // Initialize the game with entities and components
 uint32_t initialize_game(ECS_Manager* ecs) {
     uint32_t player = add_player(ecs, 100, 200);
-    add_enemy(ecs, 800, 300, player);
-    add_block(ecs, 500, 300);
 
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < 20; i++) {
+        add_enemy(ecs, random_int(-5000, 5000), random_int(-5000, 5000), player);
+        add_block(ecs, random_int(-5000, 5000), random_int(-5000, 5000));
+        
         float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
               x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
         add_teleporter(ecs, x1, y1, x2, y2);
@@ -31,6 +32,7 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     PlayerMovementComponent* movement = ECS_AddComponent(ecs, player, PLAYER, sizeof(PlayerMovementComponent));
     AnimationComponent* animation = ECS_AddComponent(ecs, player, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(ecs, player, BODY, sizeof(RigidbodyComponent));
+    ParentComponent* parent = ECS_AddComponent(ecs, player, PARENT, sizeof(ParentComponent));
     InventoryComponent* inv = ECS_AddComponent(ecs, player, INVENT, sizeof(InventoryComponent));
 
     // Initialize components
@@ -49,6 +51,14 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
 
     init_sprite_component(sprite, 64, 64, get_sprites()->player_texture);
     init_anim_component(animation, 16, 16);
+
+    init_parent_component(parent);
+
+    uint32_t child_test = add_enemy(ecs, position->x, position->y, player);
+    ChildComponent* childComp = ECS_AddComponent(ecs, child_test, CHILD, sizeof(ChildComponent));
+    init_child_component(childComp, player);
+
+    add_child(parent, &ecs->entity_ids[child_test]);
 
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);
@@ -78,7 +88,7 @@ uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t pl) {
     init_rigidbody_component(body, 64, 64);
     body->is_dynamic = true;
 
-    target->entity = pl; target->speed = 2;
+    init_target_component(target, pl);
 
     init_sprite_component(sprite, 64, 64, get_sprites()->goblin_texture);
     init_anim_component(animation, 16, 16);
@@ -130,6 +140,14 @@ uint32_t add_teleporter(ECS_Manager* ecs, float x, float y, float xTarget, float
 // Handle input for player movement
 void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+    int dx = 0, dy = 0;
+    if(state[SDL_SCANCODE_W]) dy -= 1;
+    if(state[SDL_SCANCODE_S]) dy += 1;
+    if(state[SDL_SCANCODE_A]) dx -= 1;
+    if(state[SDL_SCANCODE_D]) dx += 1;
+
+    float distance = sqrt(pow(dx, 2) + pow(dy, 2));
     for (size_t i = 0; i < ecs->count; ++i) {
         PlayerMovementComponent* movement = ECS_GetComponent(ecs, ecs->entity_ids[i], PLAYER);
         InventoryComponent* inv = ECS_GetComponent(ecs, ecs->entity_ids[i], INVENT);
@@ -175,32 +193,20 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
 }
 
 // Update all systems
-void update_systems(ECS_Manager* ecs, SDL_Rect cam) {
-    for (size_t i = 0; i < ecs->count; ++i) {
-        PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
-        SpriteComponent* sprite = ECS_GetComponent(ecs, ecs->entity_ids[i], SPRITE);
-
-        if(position && sprite) {
-            if(!(cam.x + cam.w > position->x && cam.x < position->x + sprite->width && 
-                cam.y + cam.h > position->y && cam.y < position->y + sprite->height
-            )) continue;
-        }
+void update_systems(ECS_Manager* ecs, dyn_array* entities, SDL_Rect cam) {
+    for(int i = 0; i < get_len(entities); i++) {
+        u_int32_t id = *((uint32_t*) get_elt(entities, i));
         
-        update_others(ecs->entity_ids[i], ecs);
-        update_physics(ecs->entity_ids[i], ecs);
+        update_others(id, ecs);
+        update_physics(id, ecs);
     }
 }
 
 // Render all entities
-void render_systems(ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer* renderer) {
-    for (size_t i = 0; i < ecs->count; ++i) {
-        PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
-        SpriteComponent* sprite = ECS_GetComponent(ecs, ecs->entity_ids[i], SPRITE);
-
-        if(position && sprite) {
-            if(cam.x + cam.w > position->x && cam.x < position->x + sprite->width && 
-               cam.y + cam.h > position->y && cam.y < position->y + sprite->height
-            ) render_component(ecs->entity_ids[i], ecs, cam, renderer);
-        }
+void render_systems(ECS_Manager* ecs, dyn_array* entities, SDL_Rect cam, SDL_Renderer* renderer) {
+    for(int i = 0; i < get_len(entities); i++) {
+        u_int32_t id = *((uint32_t*) get_elt(entities, i));
+        
+        render_component(id, ecs, cam, renderer);
     }
 }

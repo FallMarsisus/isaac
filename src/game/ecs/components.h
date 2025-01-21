@@ -18,6 +18,8 @@ typedef enum {
     TIMER,
     SCRIPT,
     TELEPORT,
+    PARENT,
+    CHILD,
     INVENT,
     HEALTH
 } ComponentType;
@@ -26,6 +28,7 @@ typedef enum {
 typedef struct {
     float x, y;      // Position
     float vx, vy;    // Velocity
+    bool camFixed;
 } PositionComponent;
 
 typedef struct {
@@ -87,3 +90,11 @@ typedef struct {
 typedef struct {
     int posX; int posY;
 } TeleporterComponent;
+
+typedef struct {
+    dyn_array* children;
+} ParentComponent;
+
+typedef struct {
+    uint32_t parent;
+} ChildComponent;

@@ -3,6 +3,7 @@
 #include "../../display.h"
 
 #include "../../utils/utils.h"
+#include "../../utils/dyn_arrays.h"
 
 #include "render/renderSystems.h"
 #include "physics/physicsSystems.h"
@@ -26,5 +27,5 @@ uint32_t add_block(ECS_Manager* ecs, float x, float y);
 uint32_t add_teleporter(ECS_Manager* ecs, float x, float y, float xTarget, float yTarget);
 
 void handle_input_system(ECS_Manager* ecs, SDL_Event* event);
-void update_systems(ECS_Manager* ecs, SDL_Rect cam);
-void render_systems(ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer* renderer);
+void update_systems(ECS_Manager* ecs, dyn_array* entities, SDL_Rect cam);
+void render_systems(ECS_Manager* ecs, dyn_array* entities, SDL_Rect cam, SDL_Renderer* renderer);

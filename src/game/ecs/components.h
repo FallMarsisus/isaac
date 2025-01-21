@@ -94,5 +94,8 @@ typedef struct {
 } ParentComponent;
 
 typedef struct {
+    int posX; int posY;
+    bool is_relative;
+    
     uint32_t parent;
 } ChildComponent;

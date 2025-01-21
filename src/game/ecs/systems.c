@@ -45,9 +45,9 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
 
     init_parent_component(parent);
 
-    uint32_t child_test = add_enemy(ecs, position->x, position->y, player);
+    uint32_t child_test = add_block(ecs, position->x, position->y);
     ChildComponent* childComp = ECS_AddComponent(ecs, child_test, CHILD, sizeof(ChildComponent));
-    init_child_component(childComp, player);
+    init_child_component(childComp, -100, 0, true, player);
 
     add_child(parent, &ecs->entity_ids[child_test]);
 

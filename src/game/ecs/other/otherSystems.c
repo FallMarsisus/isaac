@@ -14,8 +14,12 @@ void init_script_component(ScriptComponent* script, void (*update)(uint32_t enti
 void init_parent_component(ParentComponent* parent) {
     parent->children = create_array();
 }
-void init_child_component(ChildComponent* child, uint32_t parent) {
+void init_child_component(ChildComponent* child, float x, float y, bool relative, uint32_t parent) {
+    child->posX = x;
+    child->posY = y;
+    child->is_relative = relative;
     child->parent = parent;
+
 }
 
 void add_child(ParentComponent* parent, uint32_t* id) {
@@ -34,6 +38,16 @@ void update_others(uint32_t id, ECS_Manager* ecs) {
     PositionComponent* position = ECS_GetComponent(ecs, id, POSITION);
     TargetMovementComponent* targetComp = ECS_GetComponent(ecs, id, TARGET);
     ScriptComponent* script = ECS_GetComponent(ecs, id, SCRIPT);
+
+    ChildComponent* childComp = ECS_GetComponent(ecs, id, CHILD);
+
+    if(childComp && position) {
+        PositionComponent* posParent = ECS_GetComponent(ecs, childComp->parent, POSITION);
+        if(posParent && childComp->is_relative) {
+            position->x = posParent->x + childComp->posX;
+            position->y = posParent->y + childComp->posY;
+        }
+    }
 
     if(script) {
         script->update(id, ecs);

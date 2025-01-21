@@ -8,4 +8,4 @@ typedef struct {
     char* name;
     char* description;
     int value;
-} ItemComponent;
+} ItemData;

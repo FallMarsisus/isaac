@@ -5,7 +5,7 @@
 #include "../ecs.h"
 #include "../itemComponent.h"
 
-bool create_item(ECS_Manager* manager, uint32_t entity, ItemComponent itemC);
-bool destroy_item(ECS_Manager* manager, uint32_t entity, ItemComponent item);
+bool create_item(ECS_Manager* manager, uint32_t entity, ItemData itemC);
+bool destroy_item(ECS_Manager* manager, uint32_t entity, ItemData item);
 
-ItemComponent get_item_by_id(ECS_Manager* manager, uint32_t entity, int id);
+ItemData get_item_by_id(ECS_Manager* manager, uint32_t entity, int id);

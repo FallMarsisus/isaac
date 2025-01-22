@@ -11,6 +11,7 @@
 #include "inventory/inventorySystem.h"
 #include "health/healthSystem.h"
 #include "items/itemSystem.h"
+#include "damager/damagerSystem.h"
 #include "../scripts/teleporters/teleport.h"
 
 #include "components.h"
@@ -22,6 +23,9 @@
 uint32_t initialize_game(ECS_Manager* ecs);
 
 void free_components(ECS_Manager* ecs);
+
+int distance_to_nearest_enemy(ECS_Manager* ecs, uint32_t entity);
+uint32_t get_nearest_enemy(ECS_Manager* ecs, uint32_t entity);
 
 uint32_t add_player(ECS_Manager* ecs, float x, float y);
 uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t player);

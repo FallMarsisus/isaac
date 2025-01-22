@@ -22,7 +22,8 @@ typedef enum {
     CHILD,
     INVENT,
     HEALTH,
-    ITEM
+    ITEM,
+    DAMAGER
 } ComponentType;
 
 // Position and velocity component

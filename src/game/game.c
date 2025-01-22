@@ -78,8 +78,28 @@ void get_keys(Game* game, SDL_Event* event) {
     handle_input_system(game->ecs, event);
 }
 
+void test_damage(Game* game) {
+    uint32_t nearest_enemy = get_nearest_enemy(game->ecs, game->player);
+    static bool attacked = false;
+    if(nearest_enemy != -1 && distance_to_nearest_enemy(game->ecs, game->player) < 12 && attacked == false) {
+        attacked = true;
+        if(apply_damage(game->ecs, nearest_enemy, game->player) == false) {
+            printf("ERROR : Player not found\n");
+        }
+        printf("Player is taking damage from entity %d\n", nearest_enemy);
+
+    }
+    else if (distance_to_nearest_enemy(game->ecs, game->player) > 8) {
+        attacked = false;
+    }
+
+}
 void update_game(Game* game, int win_width, int win_height, float delta) {
     update_systems(game->ecs, get_entities(game->current_room), cam);
+
+    
+
+    test_damage(game);
 
     PositionComponent* pos = ECS_GetComponent(game->ecs, game->player, POSITION);
     if(pos) {

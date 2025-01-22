@@ -80,6 +80,39 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     return player;
 }
 
+int distance_to_nearest_enemy(ECS_Manager* ecs, uint32_t entity) {
+    PositionComponent* pos = ECS_GetComponent(ecs, entity, POSITION);
+    int min_dist = 1000;
+    for (size_t i = 0; i < ecs->count; ++i) {
+        if (ecs->entity_ids[i] == entity) continue;
+        PositionComponent* enemy_pos = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
+        if (enemy_pos) {
+            int dist = sqrt(pow(pos->x - enemy_pos->x, 2) + pow(pos->y - enemy_pos->y, 2));
+            if (dist < min_dist) min_dist = dist;
+        }
+    }
+    return min_dist;
+}
+
+uint32_t get_nearest_enemy(ECS_Manager *ecs, uint32_t entity)
+{
+    PositionComponent* pos = ECS_GetComponent(ecs, entity, POSITION);
+    int min_dist = 1000;
+    int nearest_enemy = -1;
+    for (size_t i = 0; i < ecs->count; ++i) {
+        if (ecs->entity_ids[i] == entity) continue;
+        PositionComponent* enemy_pos = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
+        if (enemy_pos) {
+            int dist = sqrt(pow(pos->x - enemy_pos->x, 2) + pow(pos->y - enemy_pos->y, 2));
+            if (dist < min_dist) {
+                min_dist = dist;
+                nearest_enemy = ecs->entity_ids[i];
+            }
+        }
+    }
+    return nearest_enemy;
+}
+
 uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t pl) {
     uint32_t enemy = ECS_CreateEntity(ecs);
     PositionComponent* position = ECS_AddComponent(ecs, enemy, POSITION, sizeof(PositionComponent));
@@ -87,7 +120,9 @@ uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t pl) {
     TargetMovementComponent* target = ECS_AddComponent(ecs, enemy, TARGET, sizeof(TargetMovementComponent));
     AnimationComponent* animation = ECS_AddComponent(ecs, enemy, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(ecs, enemy, BODY, sizeof(RigidbodyComponent));
+    DamagerComponent* damager = ECS_AddComponent(ecs, enemy, DAMAGER, sizeof(DamagerComponent));
 
+    create_damager(ecs, enemy, (DamagerComponent) {1, 0, false, 0});
     // Initialize components
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;

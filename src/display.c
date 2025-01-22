@@ -25,6 +25,9 @@ void load_sprites(SDL_Renderer* ren) {
     sl->cobble_texture = load_texture("assets/tilemap/cobble.bmp", ren);
     sl->iconE_texture = load_texture("assets/tilemap/iconE.bmp", ren);
     sl->teleporter_texture = load_texture("assets/tilemap/teleporter.bmp", ren);
+    sl->red_heart_full_texture = load_texture("assets/health/red_heart_full.bmp", ren);
+    sl->red_heart_half_texture = load_texture("assets/health/red_heart_half.bmp", ren);
+    sl->heart_empty_texture = load_texture("assets/health/heart_empty.bmp", ren);
 }
 
 sprite_list* get_sprites() {

@@ -35,7 +35,7 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     RigidbodyComponent* body = ECS_AddComponent(ecs, player, BODY, sizeof(RigidbodyComponent));
     ParentComponent* parent = ECS_AddComponent(ecs, player, PARENT, sizeof(ParentComponent));
     InventoryComponent* inv = ECS_AddComponent(ecs, player, INVENT, sizeof(InventoryComponent));
-    
+    HealthComponent* health = ECS_AddComponent(ecs, player, HEALTH, sizeof(HealthComponent));
 
     // Initialize components
     position->x = x; position->y = y;
@@ -51,6 +51,7 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     init_rigidbody_component(body, 64, 64);
     body->is_dynamic = true;
 
+    init_health_component(ecs, player, 11, 100, 0);
     init_sprite_component(sprite, 64, 64, get_sprites()->player_texture);
     init_anim_component(animation, 16, 16);
 

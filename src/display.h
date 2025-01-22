@@ -13,6 +13,9 @@ typedef struct {
     SDL_Texture* iconE_texture;
     SDL_Texture* teleporter_texture;
     SDL_Texture* inv_texture;
+    SDL_Texture* red_heart_full_texture;
+    SDL_Texture* red_heart_half_texture;
+    SDL_Texture* heart_empty_texture;
 
 } sprite_list;
 

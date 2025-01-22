@@ -107,6 +107,7 @@ void draw_game(SDL_Renderer* renderer, Game* game) {
     render_systems(game->ecs, get_entities(game->current_room), cam, renderer);
 
     draw_inventory(game->ecs, game->player, renderer);
+    display_health(game->ecs, game->player, renderer);
 
 
     SDL_RenderPresent(renderer);

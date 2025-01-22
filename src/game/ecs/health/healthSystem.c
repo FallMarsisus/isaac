@@ -1,7 +1,19 @@
 #include "healthSystem.h"
 
-bool damage_bypass_shield(ECS_Manager *manager, uint32_t entity, int damage) {
-	HealthComponent* health = ECS_GetComponent(manager, entity, HEALTH);
+bool init_health_component(ECS_Manager *manager, uint32_t entity, int max_health, int max_mana, int shield)
+{
+    HealthComponent* health = ECS_AddComponent(manager, entity, HEALTH, sizeof(HealthComponent));
+	health->health = max_health;
+	health->mana = 0;
+	health->max_health = max_health;
+	health->max_mana = max_mana;
+
+	return true;
+}
+
+bool damage_bypass_shield(ECS_Manager *manager, uint32_t entity, int damage)
+{
+    HealthComponent* health = ECS_GetComponent(manager, entity, HEALTH);
 
 	if (health == NULL || damage < 0) {
 		return false;
@@ -69,4 +81,27 @@ bool isDead(ECS_Manager* manager, uint32_t entity) {
 	HealthComponent* health = ECS_GetComponent(manager, entity, HEALTH);
 
 	return health != NULL && health->health <= 0; 
+}
+
+bool display_health(ECS_Manager *manager, uint32_t entity, SDL_Renderer *renderer)
+{
+	HealthComponent* health = ECS_GetComponent(manager, entity, HEALTH);
+	int screenWidth;
+	SDL_GetRendererOutputSize(renderer, &screenWidth, NULL);
+
+	for (int i = (health->max_health / 2 + health->max_health % 2) - 1; i >= 0; i--) {
+		SDL_Rect heartRect = { screenWidth - 50 - ((health->max_health / 2 + health->max_health % 2) - 1 - i) * 50, 10, 40, 40 }; // Position and size of each heart
+		SDL_Texture* heartTexture;
+
+		if (i < health->health / 2) {
+			heartTexture = get_sprites()->red_heart_full_texture;
+		} else if (i == health->health / 2 && health->health % 2 != 0) {
+			heartTexture = get_sprites()->red_heart_half_texture;
+		} else {
+			heartTexture = get_sprites()->heart_empty_texture;
+		}
+
+		SDL_RenderCopy(renderer, heartTexture, NULL, &heartRect);
+	}
+	return true;
 }

@@ -34,8 +34,8 @@ Room* create_room(int posx, int posy) {
         return NULL;
     }
 
-    r->grid_width = (int) ceil(1280 / 64);
-    r->grid_height = (int) ceil(720 / 64);
+    r->grid_width = (int) ceil(1280 / 64) + 1;
+    r->grid_height = (int) ceil(720 / 64) + 1;
 
     r->grid = malloc(sizeof(int*) * r->grid_height);
     for(int y = 0; y < r->grid_height; y++) {

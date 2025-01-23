@@ -4,7 +4,7 @@
 CC = gcc
 
 #COMPILER_FLAGS specifies the additional compilation options we're using
-COMPILER_FLAGS = -Wall -lm
+COMPILER_FLAGS = -Wall -g -lm
 
 #LINKER_FLAGS specifies the libraries we're linking against
 LINKER_FLAGS = -lSDL2 -lSDL2_ttf -LSDL2_image

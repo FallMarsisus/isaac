@@ -5,6 +5,9 @@ SDL_Rect cam = {
     0, 0, 1280, 720
 };
 
+int grid_width = (int) ceil(1280 / 64);
+int grid_height = (int) ceil(720 / 64);
+
 typedef struct game_s {
     Map* map;
     Room* current_room;
@@ -15,7 +18,7 @@ typedef struct game_s {
 
 Game* create_game() {
     Game* game = malloc(sizeof(Game));
-    game->ecs = ECS_CreateManager(20);
+    game->ecs = ECS_CreateManager(30);
     game->player = initialize_game(game->ecs);
 
     game->map = create_map();
@@ -38,9 +41,9 @@ void load_assets(Game* game) {
 void add_children_to_room(Game* game, Room* r, uint32_t elt) {
     ParentComponent* parent = ECS_GetComponent(game->ecs, elt, PARENT);
     if(parent) {
-        for(int i = 0; i < get_len(parent->children); i++) {
-            uint32_t id = *((u_int32_t*) get_elt(parent->children, i));
-            add_entity(r, &game->ecs->entity_ids[id]);
+        for(int i = 0; i < get_ids_len(parent->children); i++) {
+            uint32_t id = get_ids(parent->children)[i];
+            add_entity(r, game->ecs->entity_ids[id]);
 
             add_children_to_room(game, r, id);
         }
@@ -52,22 +55,40 @@ void change_room(Game* game, int x, int y) {
     if(r == NULL) {
         r = create_room(x, y);
         add_room(game->map, r);
-        add_entity(r, &game->ecs->entity_ids[game->player]);
+        add_entity(r, game->player);
         add_children_to_room(game, r, game->player);
 
         for(int i = 0; i < game->ecs->count; i++) {
             if(game->ecs->entity_ids[i] == game->player) continue;
             PositionComponent* position = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], POSITION);
             ChildComponent* child = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], CHILD);
+            RigidbodyComponent* body = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], BODY);
             if(child) continue;
 
             if(position->camFixed || 
                ((int) floor(position->x / cam.w) == x && (int) floor(position->y / cam.h) == y)) {
-                add_entity(r, &game->ecs->entity_ids[i]);
+                add_entity(r, game->ecs->entity_ids[i]);
                 add_children_to_room(game, r, game->ecs->entity_ids[i]);
-                
-                printf("%f - %f\n", position->x, position->y);
+
+                int pos_x = (int) (position->x - cam.x) / 64;
+                int pos_y = (int) (position->y - cam.y) / 64;
+                printf("PosX : %d/%f\n", cam.x, position->x);
+                if(pos_x < 0) pos_x = 0;
+                if(pos_y < 0) pos_y = 0;
+                if(pos_x >= get_grid_width(r)) pos_x = get_grid_width(r) - 1;
+                if(pos_y >= get_grid_height(r)) pos_y = get_grid_height(r) - 1;
+
+                if(body && !body->is_dynamic) {
+                    get_grid(r)[pos_y][pos_x] = 1;
+                }
             }
+        }
+
+        for(int y = 0; y < get_grid_height(r); y++) {
+            for(int x = 0; x < get_grid_width(r); x++) {
+                printf("%d ", get_grid(r)[y][x]);
+            }
+            printf("\n");
         }
     }
     game->current_room = r;
@@ -78,7 +99,13 @@ void get_keys(Game* game, SDL_Event* event) {
 }
 
 void update_game(Game* game, int win_width, int win_height, float delta) {
-    update_systems(game->ecs, get_entities(game->current_room), cam);
+    update_systems(
+        game->ecs, 
+        get_entities(game->current_room), 
+        get_entity_amount(game->current_room), 
+        get_grid(game->current_room),
+        cam
+    );
 
     PositionComponent* pos = ECS_GetComponent(game->ecs, game->player, POSITION);
     if(pos) {
@@ -89,11 +116,11 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
             cam.y = pos->y - cam.h / 2;
         }
         if(changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {
-            change_room(game, changeX, changeY);
             if(static_cam) {
                 cam.x = changeX * cam.w;
                 cam.y = changeY * cam.h;
             }
+            change_room(game, changeX, changeY);
             printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, cam.w, pos->y, cam.h, changeX, changeY);
         }
     }
@@ -103,7 +130,7 @@ void draw_game(SDL_Renderer* renderer, Game* game) {
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
 
-    render_systems(game->ecs, get_entities(game->current_room), cam, renderer);
+    render_systems(game->ecs, get_entities(game->current_room), get_entity_amount(game->current_room), cam, renderer);
 
     SDL_RenderPresent(renderer);
 }

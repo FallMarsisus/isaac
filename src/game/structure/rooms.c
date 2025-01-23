@@ -8,7 +8,11 @@ typedef struct room_s {
     struct room_s* left;
     struct room_s* right;
 
-    dyn_array* entity_ids;
+    ID_array* entity_ids;
+
+    int grid_width;
+    int grid_height;
+    int** grid;
 } Room;
 
 Room* create_room(int posx, int posy) {
@@ -24,23 +28,58 @@ Room* create_room(int posx, int posy) {
     r->left = NULL;
     r->right = NULL;
     
-    r->entity_ids = create_array();
+    r->entity_ids = create_id_array();
+    if (r->entity_ids == NULL) {
+        free(r);
+        return NULL;
+    }
+
+    r->grid_width = (int) ceil(1280 / 64);
+    r->grid_height = (int) ceil(720 / 64);
+
+    r->grid = malloc(sizeof(int*) * r->grid_height);
+    for(int y = 0; y < r->grid_height; y++) {
+        r->grid[y] = malloc(sizeof(int) * r->grid_width);
+        for(int x = 0; x < r->grid_width; x++) {
+            r->grid[y][x] = 0;
+        }
+    }
+
     return r;
 }
 
 void free_room(Room* r) {
     if (r == NULL) return;
-    free_array(r->entity_ids);
+    free_id_array(r->entity_ids);
+    for(int i = 0; i < r->grid_height; i++) {
+        free(r->grid[i]);
+    }
+    free(r->grid);
+
     free(r);
 }
 
-void add_entity(Room* r, uint32_t* id) {
-    append(r->entity_ids, id);
+void add_entity(Room* r, uint32_t id) {
+    assert(r != NULL);
+    add_id(r->entity_ids, id);
 }
 
-dyn_array* get_entities(Room* r) {
-    return r->entity_ids;
+int** get_grid(Room* r) {
+    return r->grid;
 }
+int get_grid_width(Room* r) {
+    return r->grid_width;
+}
+int get_grid_height(Room* r) {
+    return r->grid_height;
+}
+uint32_t* get_entities(Room* r) {
+    return get_ids(r->entity_ids);
+}
+int get_entity_amount(Room* r) {
+    return get_ids_len(r->entity_ids);
+}
+
 int get_x(Room* room) {
     return room->coord_x;
 }

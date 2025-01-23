@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "../../utils/id_array.h"
 #include "../../utils/dyn_arrays.h"
 
 typedef struct ecs_manager_s ECS_Manager;
@@ -14,7 +15,7 @@ typedef enum {
     SPRITE,
     ANIMATION,
     PLAYER,
-    TARGET,
+    PATHFINDING,
     TIMER,
     SCRIPT,
     TELEPORT,
@@ -69,11 +70,15 @@ typedef struct {
     float speed;  // Movement speed of the player
 } PlayerMovementComponent;
 
-// Player movement component
 typedef struct {
-    uint32_t entity;
-    float speed;
-} TargetMovementComponent;
+    int* path;          // Dynamic array to store the path (x, y pairs)
+    int path_length;    // Number of steps in the path
+    int current_step;   // Current step in the path
+    uint32_t target;
+
+    int speed;
+    int last_update;
+} PathfindingComponent;
 
 typedef struct {
     int last;
@@ -90,12 +95,12 @@ typedef struct {
 } TeleporterComponent;
 
 typedef struct {
-    dyn_array* children;
+    ID_array* children;
 } ParentComponent;
 
 typedef struct {
-    int posX; int posY;
+    int offsetX; int offsetY;
     bool is_relative;
-    
+
     uint32_t parent;
 } ChildComponent;

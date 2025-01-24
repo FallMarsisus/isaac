@@ -145,7 +145,7 @@ void update_physics(uint32_t id, ECS_Manager* ecs) {
         }
 
         // Update Y-axis position next
-        position->y += position->vy;
+        position->y += position->vy;    
 
         // Handle collisions for Y-axis
         if (body) {

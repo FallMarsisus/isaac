@@ -8,6 +8,7 @@
 #include "render/renderSystems.h"
 #include "physics/physicsSystems.h"
 #include "other/otherSystems.h"
+#include "pathFinding/pathfindingSystems.h"
 #include "inventory/inventorySystem.h"
 #include "health/healthSystem.h"
 #include "items/itemSystem.h"
@@ -30,8 +31,9 @@ uint32_t get_nearest_enemy(ECS_Manager* ecs, uint32_t entity);
 uint32_t add_player(ECS_Manager* ecs, float x, float y);
 uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t player);
 uint32_t add_block(ECS_Manager* ecs, float x, float y);
+uint32_t add_blocks(ECS_Manager* ecs, int rX, int rY);
 uint32_t add_teleporter(ECS_Manager* ecs, float x, float y, float xTarget, float yTarget);
 
 void handle_input_system(ECS_Manager* ecs, SDL_Event* event);
-void update_systems(ECS_Manager* ecs, dyn_array* entities, SDL_Rect cam);
-void render_systems(ECS_Manager* ecs, dyn_array* entities, SDL_Rect cam, SDL_Renderer* renderer);
+void update_systems(ECS_Manager* ecs, uint32_t* entities, int amount, int** grid, SDL_Rect cam);
+void render_systems(ECS_Manager* ecs, uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* renderer);

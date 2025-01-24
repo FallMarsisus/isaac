@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../utils/id_array.h"
+
 #include "structure/map.h"
 
 #include "ecs/ecs.h"

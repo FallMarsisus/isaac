@@ -3,8 +3,13 @@
 // Initialize the game with entities and components
 uint32_t initialize_game(ECS_Manager* ecs) {
     uint32_t player = add_player(ecs, 100, 200);
+    add_enemy(ecs, 500, 200, player);
+    add_blocks(ecs, 0, 0);
+    add_enemy(ecs, -200, 300, player);
+    add_blocks(ecs, -1, 0);
 
     for(int i = 0; i < 20; i++) {
+        add_blocks(ecs, random_int(-5, 5), random_int(-5, 5));
         add_enemy(ecs, random_int(-5000, 5000), random_int(-5000, 5000), player);
         add_block(ecs, random_int(-5000, 5000), random_int(-5000, 5000));
 
@@ -21,6 +26,8 @@ uint32_t initialize_game(ECS_Manager* ecs) {
 
 void free_components(ECS_Manager* ecs) {
     for (size_t i = 0; i < ecs->count; ++i) {
+        free_pathfinding_component(ECS_GetComponent(ecs, ecs->entity_ids[i], PATHFINDING));
+        free_all_other_components(ecs, ecs->entity_ids[i]);
         free_all_render_components(ecs, ecs->entity_ids[i]);
     }
 }
@@ -40,6 +47,7 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     // Initialize components
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
+    position->camFixed = false;
     inv->max_nb_items = 50;
     inv->item_ids = malloc(sizeof(int) * inv->max_nb_items);
     add_item_to_inventory(ecs, player, 5);
@@ -62,11 +70,14 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
         create_item(ecs, player, *itemList[j]);
     }
 
+    /*
+
     uint32_t child_test = add_enemy(ecs, position->x, position->y, player);
     ChildComponent* childComp = ECS_AddComponent(ecs, child_test, CHILD, sizeof(ChildComponent));
     init_child_component(childComp, player);
-    add_child(parent, &ecs->entity_ids[child_test]);
 
+    add_child(parent, &ecs->entity_ids[child_test]);
+    */
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 2);
@@ -75,7 +86,7 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     set_active_anim(animation, 0);
     play_anim(animation);
 
-    movement->speed = 5;
+    movement->speed = 10;
 
     return player;
 }
@@ -117,7 +128,7 @@ uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t pl) {
     uint32_t enemy = ECS_CreateEntity(ecs);
     PositionComponent* position = ECS_AddComponent(ecs, enemy, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(ecs, enemy, SPRITE, sizeof(SpriteComponent));
-    TargetMovementComponent* target = ECS_AddComponent(ecs, enemy, TARGET, sizeof(TargetMovementComponent));
+    PathfindingComponent* target = ECS_AddComponent(ecs, enemy, PATHFINDING, sizeof(PathfindingComponent));
     AnimationComponent* animation = ECS_AddComponent(ecs, enemy, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(ecs, enemy, BODY, sizeof(RigidbodyComponent));
     DamagerComponent* damager = ECS_AddComponent(ecs, enemy, DAMAGER, sizeof(DamagerComponent));
@@ -126,11 +137,12 @@ uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t pl) {
     // Initialize components
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
+    position->camFixed = false;
 
     init_rigidbody_component(body, 64, 64);
     body->is_dynamic = true;
 
-    init_target_component(target, pl);
+    init_pathfinding_component(target, pl);
 
     init_sprite_component(sprite, 64, 64, get_sprites()->goblin_texture);
     init_anim_component(animation, 16, 16);
@@ -154,12 +166,23 @@ uint32_t add_block(ECS_Manager* ecs, float x, float y) {
 
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
+    position->camFixed = false;
 
     init_rigidbody_component(body, 64, 64);
 
     init_sprite_component(sprite, 64, 64, get_sprites()->cobble_texture);
 
     return block;
+}
+
+uint32_t add_blocks(ECS_Manager* ecs, int rX, int rY) {
+    for(int x = rX * 1280; x < (rX + 1) * 1280; x += 64) {
+        for(int y = rY * 720; y < (rY + 1) * 720; y += 64) {
+            if(rand() % 10 == 0) {
+                add_block(ecs, x, y);
+            }
+        }
+    }
 }
 
 uint32_t add_teleporter(ECS_Manager* ecs, float x, float y, float xTarget, float yTarget) {
@@ -171,6 +194,7 @@ uint32_t add_teleporter(ECS_Manager* ecs, float x, float y, float xTarget, float
 
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
+    position->camFixed = false;
     init_sprite_component(sprite, 64, 64, get_sprites()->teleporter_texture);
     init_script_component(script, update_teleporter);
 
@@ -235,19 +259,38 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
 }
 
 // Update all systems
-void update_systems(ECS_Manager* ecs, dyn_array* entities, SDL_Rect cam) {
-    for(int i = 0; i < get_len(entities); i++) {
-        u_int32_t id = *((uint32_t*) get_elt(entities, i));
+void update_systems(ECS_Manager* ecs, uint32_t* entities, int amount, 
+                    int** grid, SDL_Rect cam) {
+    for(int i = 0; i < amount; i++) {
+        u_int32_t id = entities[i];
         
         update_others(id, ecs);
+        update_pathfinding_system(id, ecs, grid, cam);
+        
         update_physics(id, ecs);
     }
 }
 
 // Render all entities
-void render_systems(ECS_Manager* ecs, dyn_array* entities, SDL_Rect cam, SDL_Renderer* renderer) {
-    for(int i = 0; i < get_len(entities); i++) {
-        u_int32_t id = *((uint32_t*) get_elt(entities, i));
+void render_systems(ECS_Manager* ecs, uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* renderer) {
+    for(int i = 0; i < amount; i++) {
+        u_int32_t id = entities[i];
+        PathfindingComponent* targetComp = ECS_GetComponent(ecs, id, PATHFINDING);
+
+        if(targetComp) {
+            PositionComponent* targetPos = ECS_GetComponent(ecs, targetComp->target, POSITION);
+            if(targetPos) {
+                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+                for(int j = 0; j < targetComp->path_length - 1; j++) {
+                    SDL_RenderDrawRect(renderer, &(SDL_Rect) {
+                        64 * targetComp->path[2 * j] + 16, 
+                        64 * targetComp->path[2 * j + 1] + 16, 
+                        32, 
+                        32
+                    });
+                }
+            }
+        }
         
         render_component(id, ecs, cam, renderer);
     }

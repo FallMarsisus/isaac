@@ -53,25 +53,25 @@ void update_pathfinding_system(uint32_t id, ECS_Manager* ecs, int** grid, SDL_Re
 
         // Compute new path using A* algorithm
         a_star(pos_x, pos_y, target_x, target_y, &pathfinding->path, &pathfinding->path_length, grid);
-        pathfinding->current_step = 0;
+        pathfinding->current_step = 1;
     }
 
     // Follow the path
     if (pathfinding->path_length > 0 && pathfinding->current_step < pathfinding->path_length) {
-        if(pathfinding->current_step == pathfinding->path_length - 1) {
-            // Reached the target
-            position->vx = 0;
-            position->vy = 0;
-            return;
-        }
         //if Reached the next step, increment the step
-        if (staticPosX + 4 >= pathfinding->path[pathfinding->current_step * 2] * 64 &&
-            staticPosX + sprite->width - 4 <= pathfinding->path[pathfinding->current_step * 2] * 64 + 32 &&
-            staticPosY + 4 >= pathfinding->path[pathfinding->current_step * 2 + 1] * 64 &&
-            staticPosY + sprite->height - 4 <= pathfinding->path[pathfinding->current_step * 2 + 1] * 64 + 32) {
-            
-            position->x = cam.x + pathfinding->path[pathfinding->current_step * 2] * 64;
-            position->y = cam.y + pathfinding->path[pathfinding->current_step * 2 + 1] * 64;
+        SDL_Rect blockHitbox = {
+            pathfinding->path[pathfinding->current_step * 2] * 64 + 32 - 4, 
+            pathfinding->path[pathfinding->current_step * 2 + 1] * 64 + 32 - 4, 
+            8, 8
+        };
+        SDL_Rect hitbox = {
+            staticPosX + sprite->width / 2 - 4,
+            staticPosY + sprite->height / 2 - 4,
+            8, 8
+        };
+        if(SDL_HasIntersection(&blockHitbox, &hitbox)) {
+            //position->x = cam.x + pathfinding->path[pathfinding->current_step * 2] * 64;
+            //position->y = cam.y + pathfinding->path[pathfinding->current_step * 2 + 1] * 64;
             pathfinding->current_step++;
         }
 

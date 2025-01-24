@@ -73,7 +73,6 @@ void change_room(Game* game, int x, int y) {
 
                 int pos_x = (int) (position->x - cam.x) / 64;
                 int pos_y = (int) (position->y - cam.y) / 64;
-                printf("PosX : %d/%f\n", cam.x, position->x);
                 if(pos_x < 0) pos_x = 0;
                 if(pos_y < 0) pos_y = 0;
                 if(pos_x >= get_grid_width(r)) pos_x = get_grid_width(r) - 1;
@@ -83,13 +82,6 @@ void change_room(Game* game, int x, int y) {
                     get_grid(r)[pos_y][pos_x] = 1;
                 }
             }
-        }
-
-        for(int y = 0; y < get_grid_height(r); y++) {
-            for(int x = 0; x < get_grid_width(r); x++) {
-                printf("%d ", get_grid(r)[y][x]);
-            }
-            printf("\n");
         }
     }
     game->current_room = r;

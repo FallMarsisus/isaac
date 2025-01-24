@@ -56,7 +56,7 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     add_item_to_inventory(ecs, player, 87498);
 
 
-    init_rigidbody_component(body, 64, 64);
+    init_rigidbody_component(body, 2, 2,  60, 60);
     body->is_dynamic = true;
 
     init_health_component(ecs, player, 11, 100, 0);
@@ -139,7 +139,7 @@ uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t pl) {
     position->vx = 0; position->vy = 0;
     position->camFixed = false;
 
-    init_rigidbody_component(body, 64, 64);
+    init_rigidbody_component(body, 2, 2, 60, 60);
     body->is_dynamic = true;
 
     init_pathfinding_component(target, pl);
@@ -168,7 +168,7 @@ uint32_t add_block(ECS_Manager* ecs, float x, float y) {
     position->vx = 0; position->vy = 0;
     position->camFixed = false;
 
-    init_rigidbody_component(body, 64, 64);
+    init_rigidbody_component(body, 2, 2, 60, 60);
 
     init_sprite_component(sprite, 64, 64, get_sprites()->cobble_texture);
 

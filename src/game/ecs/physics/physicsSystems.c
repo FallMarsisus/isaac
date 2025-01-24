@@ -1,8 +1,8 @@
 #include "physicsSystems.h"
 
-void init_rigidbody_component(RigidbodyComponent* body, int width, int height) {
+void init_rigidbody_component(RigidbodyComponent* body,int offsetX, int offsetY, int width, int height) {
     body->is_dynamic = false;
-    body->hitbox = (SDL_Rect){0, 0, width, height};
+    body->hitbox = (SDL_Rect){offsetX, offsetY, width, height};
     body->friction = 0;
     body->restitution = 0;
     body->mass = 50;
@@ -10,10 +10,10 @@ void init_rigidbody_component(RigidbodyComponent* body, int width, int height) {
 
 bool isColliding(PositionComponent* p1, RigidbodyComponent* r1, 
                  PositionComponent* p2, RigidbodyComponent* r2) {
-    return (p1->x < p2->x + r2->hitbox.w &&
-            p1->x + r1->hitbox.w > p2->x &&
-            p1->y < p2->y + r2->hitbox.h &&
-            p1->y + r1->hitbox.h > p2->y);
+    return (p1->x + r1->hitbox.x < p2->x + r2->hitbox.x + r2->hitbox.w &&
+            p1->x + r1->hitbox.x + r1->hitbox.w > p2->x + r2->hitbox.x&&
+            p1->y + r1->hitbox.y < p2->y + r2->hitbox.y + r2->hitbox.h &&
+            p1->y + r1->hitbox.y + r1->hitbox.h > p2->y + r2->hitbox.y);
 }
 
 void resolveAxis(PositionComponent* position, RigidbodyComponent* body, 
@@ -145,7 +145,7 @@ void update_physics(uint32_t id, ECS_Manager* ecs) {
         }
 
         // Update Y-axis position next
-        position->y += position->vy;    
+        position->y += position->vy;
 
         // Handle collisions for Y-axis
         if (body) {

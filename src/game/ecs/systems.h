@@ -7,6 +7,7 @@
 
 #include "../event/eventSystem.h"
 #include "../event/events/playerListeners.h"
+#include "../event/events/chestListeners.h"
 
 #include "render/renderSystems.h"
 #include "physics/physicsSystems.h"

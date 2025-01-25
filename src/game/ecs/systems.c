@@ -21,6 +21,7 @@ uint32_t initialize_game(ECS_Manager* ecs) {
     }
 
     register_listener(EVENT_PLAYER_MOVED, on_player_move);
+    register_listener(EVENT_CHEST_OPENED, on_chest_open);
 
     return player;
 }
@@ -33,6 +34,7 @@ void free_components(ECS_Manager* ecs) {
     }
 
     unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
+    unregister_listener(EVENT_CHEST_OPENED, on_chest_open);
 }
 
 uint32_t add_player(ECS_Manager* ecs, float x, float y) {
@@ -120,6 +122,11 @@ bool is_colliding_with_chest(ECS_Manager* ecs, uint32_t entity) {
                 if (distance < 64) { // Assuming 64 is collision radius
                     // Change chest texture to opened
                     chest_sprite->texture = get_sprites()->chest_opened_texture;
+                    ChestOpenedEvent* event = malloc(sizeof(ChestOpenedEvent));
+                    event->chest_id = ecs->entity_ids[i];
+                    event->player_id = entity;
+                    event->x = chest_pos->x; event->y = chest_pos->y;
+                    trigger_event(EVENT_CHEST_OPENED, event);
                     return true;
                 }
             }
@@ -278,12 +285,6 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
                     else if(dx > 0) set_active_anim(anim, 3);
                     play_anim(anim);
                 }
-
-                PlayerMovedEvent* event = malloc(sizeof(PlayerMovedEvent));
-                event->player_id = ecs->entity_ids[i];
-                event->new_x = position->x + position->vx;
-                event->new_y = position->y + position->vy;
-                trigger_event(EVENT_PLAYER_MOVED, event);
             }
             else {
                 position->vx = 0; position->vy = 0;

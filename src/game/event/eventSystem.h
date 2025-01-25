@@ -9,7 +9,8 @@ typedef enum {
     EVENT_NONE,
     EVENT_PLAYER_MOVED,
     EVENT_PLAYER_DAMAGED,
-    EVENT_MAX
+    EVENT_CHEST_OPENED,
+    EVENT_MAX // Safeguard to know the number of event types
 } EventType;
 
 typedef struct {

@@ -1,5 +1,5 @@
 .vscode
-bins
+bins/game
 /.vscode
 src/buttons.h.gch
 src/dict.h.gch

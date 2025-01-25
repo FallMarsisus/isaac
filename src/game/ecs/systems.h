@@ -25,12 +25,12 @@ uint32_t initialize_game(ECS_Manager* ecs);
 
 void free_components(ECS_Manager* ecs);
 
-int distance_to_nearest_enemy(ECS_Manager* ecs, uint32_t entity);
+bool is_colliding_with_enemy(ECS_Manager* ecs, uint32_t entity);
 uint32_t get_nearest_enemy(ECS_Manager* ecs, uint32_t entity);
 
 uint32_t add_player(ECS_Manager* ecs, float x, float y);
 uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t player);
-uint32_t add_block(ECS_Manager* ecs, float x, float y);
+uint32_t add_block(ECS_Manager* ecs, float x, float y, SDL_Texture* texture);
 uint32_t add_blocks(ECS_Manager* ecs, int rX, int rY);
 uint32_t add_teleporter(ECS_Manager* ecs, float x, float y, float xTarget, float yTarget);
 

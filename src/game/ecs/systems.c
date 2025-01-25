@@ -11,7 +11,7 @@ uint32_t initialize_game(ECS_Manager* ecs) {
     for(int i = 0; i < 20; i++) {
         add_blocks(ecs, random_int(-5, 5), random_int(-5, 5));
         add_enemy(ecs, random_int(-5000, 5000), random_int(-5000, 5000), player);
-        add_block(ecs, random_int(-5000, 5000), random_int(-5000, 5000));
+        add_block(ecs, random_int(-5000, 5000), random_int(-5000, 5000), get_sprites()->chest_closed_texture);
 
         float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
               x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
@@ -91,18 +91,21 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     return player;
 }
 
-int distance_to_nearest_enemy(ECS_Manager* ecs, uint32_t entity) {
+bool is_colliding_with_enemy(ECS_Manager* ecs, uint32_t entity) {
     PositionComponent* pos = ECS_GetComponent(ecs, entity, POSITION);
+    RigidbodyComponent* body = ECS_GetComponent(ecs, entity, BODY);
+    
     int min_dist = 1000;
     for (size_t i = 0; i < ecs->count; ++i) {
         if (ecs->entity_ids[i] == entity) continue;
         PositionComponent* enemy_pos = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
-        if (enemy_pos) {
-            int dist = sqrt(pow(pos->x - enemy_pos->x, 2) + pow(pos->y - enemy_pos->y, 2));
-            if (dist < min_dist) min_dist = dist;
-        }
+        RigidbodyComponent* enemy_body = ECS_GetComponent(ecs, ecs->entity_ids[i], BODY);
+        DamagerComponent* damager = ECS_GetComponent(ecs, ecs->entity_ids[i], DAMAGER);
+        if( damager == NULL) continue;
+        if (isColliding(pos, body, enemy_pos, enemy_body)) return true;
+        
     }
-    return min_dist;
+    return false ;
 }
 
 uint32_t get_nearest_enemy(ECS_Manager *ecs, uint32_t entity)
@@ -112,6 +115,8 @@ uint32_t get_nearest_enemy(ECS_Manager *ecs, uint32_t entity)
     int nearest_enemy = -1;
     for (size_t i = 0; i < ecs->count; ++i) {
         if (ecs->entity_ids[i] == entity) continue;
+        
+        
         PositionComponent* enemy_pos = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
         if (enemy_pos) {
             int dist = sqrt(pow(pos->x - enemy_pos->x, 2) + pow(pos->y - enemy_pos->y, 2));
@@ -158,7 +163,7 @@ uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t pl) {
     return enemy;
 }
 
-uint32_t add_block(ECS_Manager* ecs, float x, float y) {
+uint32_t add_block(ECS_Manager* ecs, float x, float y, SDL_Texture* texture) {
     uint32_t block = ECS_CreateEntity(ecs);
     PositionComponent* position = ECS_AddComponent(ecs, block, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(ecs, block, SPRITE, sizeof(SpriteComponent));
@@ -170,7 +175,7 @@ uint32_t add_block(ECS_Manager* ecs, float x, float y) {
 
     init_rigidbody_component(body, 2, 2, 60, 60);
 
-    init_sprite_component(sprite, 64, 64, get_sprites()->cobble_texture);
+    init_sprite_component(sprite, 64, 64, texture);
 
     return block;
 }
@@ -179,7 +184,7 @@ uint32_t add_blocks(ECS_Manager* ecs, int rX, int rY) {
     for(int x = rX * 1280; x < (rX + 1) * 1280; x += 64) {
         for(int y = rY * 720; y < (rY + 1) * 720; y += 64) {
             if(rand() % 10 == 0) {
-                add_block(ecs, x, y);
+                add_block(ecs, x, y, get_sprites()->cobble_texture);
             }
         }
     }

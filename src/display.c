@@ -28,6 +28,8 @@ void load_sprites(SDL_Renderer* ren) {
     sl->red_heart_full_texture = load_texture("assets/health/red_heart_full.bmp", ren);
     sl->red_heart_half_texture = load_texture("assets/health/red_heart_half.bmp", ren);
     sl->heart_empty_texture = load_texture("assets/health/heart_empty.bmp", ren);
+    sl->chest_opened_texture = load_texture("assets/tilemap/chest_opened.bmp", ren);
+    sl->chest_closed_texture = load_texture("assets/tilemap/chest_closed.bmp", ren);
 }
 
 sprite_list* get_sprites() {

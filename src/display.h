@@ -16,6 +16,8 @@ typedef struct {
     SDL_Texture* red_heart_full_texture;
     SDL_Texture* red_heart_half_texture;
     SDL_Texture* heart_empty_texture;
+    SDL_Texture* chest_opened_texture;
+    SDL_Texture* chest_closed_texture;
 
 } sprite_list;
 

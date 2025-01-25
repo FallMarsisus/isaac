@@ -38,6 +38,12 @@ bool damage(ECS_Manager *manager, uint32_t entity, int damage) {
 		health->shield -= damage;
 	}
 
+
+	if( isDead(manager, entity) ) {
+		health->health = 0;
+		exit(0);
+	}
+
 	return true;
 }
 
@@ -52,6 +58,7 @@ bool heal(ECS_Manager *manager, uint32_t entity, int healAmount) {
 	if (health->health > health->max_health) {
 		health->health = health->max_health;
 	}
+
 
 	return true;
 }

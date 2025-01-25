@@ -120,6 +120,7 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
     
 
     test_damage(game);
+    is_colliding_with_chest(game->ecs, game->player);
 
     PositionComponent* pos = ECS_GetComponent(game->ecs, game->player, POSITION);
     if(pos) {

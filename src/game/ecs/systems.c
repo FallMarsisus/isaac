@@ -11,7 +11,8 @@ uint32_t initialize_game(ECS_Manager* ecs) {
     for(int i = 0; i < 20; i++) {
         add_blocks(ecs, random_int(-5, 5), random_int(-5, 5));
         add_enemy(ecs, random_int(-5000, 5000), random_int(-5000, 5000), player);
-        add_block(ecs, random_int(-5000, 5000), random_int(-5000, 5000), get_sprites()->chest_closed_texture);
+        add_chest(ecs, random_int(-5000, 5000), random_int(-5000, 5000));
+        add_block(ecs, random_int(-5000, 5000), random_int(-5000, 5000), get_sprites()->cobble_texture);
 
         float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
               x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
@@ -107,6 +108,34 @@ bool is_colliding_with_enemy(ECS_Manager* ecs, uint32_t entity) {
     }
     return false ;
 }
+bool is_colliding_with_chest(ECS_Manager* ecs, uint32_t entity) {
+    PositionComponent* pos = ECS_GetComponent(ecs, entity, POSITION);
+    RigidbodyComponent* body = ECS_GetComponent(ecs, entity, BODY);
+    
+    for (size_t i = 0; i < ecs->count; ++i) {
+        if (ecs->entity_ids[i] == entity) continue;
+        PositionComponent* chest_pos = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
+        SpriteComponent* chest_sprite = ECS_GetComponent(ecs, ecs->entity_ids[i], SPRITE);
+        
+        // Check if entity is a chest by checking its texture
+        if (chest_sprite && chest_sprite->texture == get_sprites()->chest_closed_texture) {
+            if (pos && chest_pos) {
+                // Simple distance check for collision
+                float dx = pos->x - chest_pos->x;
+                float dy = pos->y - chest_pos->y;
+                float distance = sqrt(dx*dx + dy*dy);
+                
+                if (distance < 64) { // Assuming 64 is collision radius
+                    // Change chest texture to opened
+                    chest_sprite->texture = get_sprites()->chest_opened_texture;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 
 uint32_t get_nearest_enemy(ECS_Manager *ecs, uint32_t entity)
 {
@@ -178,6 +207,20 @@ uint32_t add_block(ECS_Manager* ecs, float x, float y, SDL_Texture* texture) {
     init_sprite_component(sprite, 64, 64, texture);
 
     return block;
+}
+
+uint32_t add_chest(ECS_Manager* ecs, float x, float y) {
+    uint32_t chest = ECS_CreateEntity(ecs);
+    PositionComponent* position = ECS_AddComponent(ecs, chest, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(ecs, chest, SPRITE, sizeof(SpriteComponent));
+
+    position->x = x; position->y = y;
+    position->vx = 0; position->vy = 0;
+    position->camFixed = false;
+
+    init_sprite_component(sprite, 64, 64, get_sprites()->chest_closed_texture);
+
+    return chest;
 }
 
 uint32_t add_blocks(ECS_Manager* ecs, int rX, int rY) {

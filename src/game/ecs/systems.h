@@ -5,6 +5,9 @@
 #include "../../utils/utils.h"
 #include "../../utils/dyn_arrays.h"
 
+#include "../event/eventSystem.h"
+#include "../event/events/playerListeners.h"
+
 #include "render/renderSystems.h"
 #include "physics/physicsSystems.h"
 #include "other/otherSystems.h"

@@ -1,6 +1,6 @@
 #include "physicsSystems.h"
 
-void init_rigidbody_component(RigidbodyComponent* body,int offsetX, int offsetY, int width, int height) {
+void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY, int width, int height) {
     body->is_dynamic = false;
     body->hitbox = (SDL_Rect){offsetX, offsetY, width, height};
     body->friction = 0;

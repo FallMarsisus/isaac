@@ -13,14 +13,14 @@ uint32_t initialize_game(ECS_Manager* ecs) {
         add_enemy(ecs, random_int(-5000, 5000), random_int(-5000, 5000), player);
         add_chest(ecs, random_int(-5000, 5000), random_int(-5000, 5000));
         add_block(ecs, random_int(-5000, 5000), random_int(-5000, 5000), get_sprites()->cobble_texture);
-
+        
         float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
               x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
         add_teleporter(ecs, x1, y1, x2, y2);
         add_teleporter(ecs, x2, y2, x1, y1);
     }
 
-
+    register_listener(EVENT_PLAYER_MOVED, on_player_move);
 
     return player;
 }
@@ -31,6 +31,8 @@ void free_components(ECS_Manager* ecs) {
         free_all_other_components(ecs, ecs->entity_ids[i]);
         free_all_render_components(ecs, ecs->entity_ids[i]);
     }
+
+    unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
 }
 
 uint32_t add_player(ECS_Manager* ecs, float x, float y) {
@@ -56,8 +58,7 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
     add_item_to_inventory(ecs, player, 2187);
     add_item_to_inventory(ecs, player, 87498);
 
-
-    init_rigidbody_component(body, 2, 2,  60, 60);
+    init_rigidbody_component(body, 2, 2, 60, 60);
     body->is_dynamic = true;
 
     init_health_component(ecs, player, 11, 100, 0);
@@ -66,19 +67,10 @@ uint32_t add_player(ECS_Manager* ecs, float x, float y) {
 
     init_parent_component(parent);
 
-
     for (int j  = 0; j < itemCount - 1; j++) {
         create_item(ecs, player, *itemList[j]);
     }
 
-    /*
-
-    uint32_t child_test = add_enemy(ecs, position->x, position->y, player);
-    ChildComponent* childComp = ECS_AddComponent(ecs, child_test, CHILD, sizeof(ChildComponent));
-    init_child_component(childComp, player);
-
-    add_child(parent, &ecs->entity_ids[child_test]);
-    */
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 2);
@@ -136,7 +128,6 @@ bool is_colliding_with_chest(ECS_Manager* ecs, uint32_t entity) {
     return false;
 }
 
-
 uint32_t get_nearest_enemy(ECS_Manager *ecs, uint32_t entity)
 {
     PositionComponent* pos = ECS_GetComponent(ecs, entity, POSITION);
@@ -166,7 +157,7 @@ uint32_t add_enemy(ECS_Manager* ecs, float x, float y, uint32_t pl) {
     AnimationComponent* animation = ECS_AddComponent(ecs, enemy, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(ecs, enemy, BODY, sizeof(RigidbodyComponent));
     DamagerComponent* damager = ECS_AddComponent(ecs, enemy, DAMAGER, sizeof(DamagerComponent));
-
+    
     create_damager(ecs, enemy, (DamagerComponent) {1, 0, false, 0});
     // Initialize components
     position->x = x; position->y = y;
@@ -264,17 +255,11 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
     float distance = sqrt(pow(dx, 2) + pow(dy, 2));
     for (size_t i = 0; i < ecs->count; ++i) {
         PlayerMovementComponent* movement = ECS_GetComponent(ecs, ecs->entity_ids[i], PLAYER);
-        InventoryComponent* inv = ECS_GetComponent(ecs, ecs->entity_ids[i], INVENT);
         PositionComponent* position = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
         AnimationComponent* anim = ECS_GetComponent(ecs, ecs->entity_ids[i], ANIMATION);
+        InventoryComponent* inv = ECS_GetComponent(ecs, ecs->entity_ids[i], INVENT);
 
         if (movement && position) {
-            int dx = 0, dy = 0;
-            if(state[SDL_SCANCODE_W]) dy -= 1;
-            if(state[SDL_SCANCODE_S]) dy += 1;
-            if(state[SDL_SCANCODE_A]) dx -= 1;
-            if(state[SDL_SCANCODE_D]) dx += 1;
-
             static bool is_it_wanting_to_display = false;
             if (state[SDL_SCANCODE_E] && !is_it_wanting_to_display) {
                 is_it_wanting_to_display = true;
@@ -283,8 +268,6 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
             else if (!state[SDL_SCANCODE_E]) {
                 is_it_wanting_to_display = false;
             }
-
-            float distance = sqrt(pow(dx, 2) + pow(dy, 2));
             if(distance > 0.01) {
                 position->vx = (dx / distance) * movement->speed;
                 position->vy = (dy / distance) * movement->speed;
@@ -295,6 +278,12 @@ void handle_input_system(ECS_Manager* ecs, SDL_Event* event) {
                     else if(dx > 0) set_active_anim(anim, 3);
                     play_anim(anim);
                 }
+
+                PlayerMovedEvent* event = malloc(sizeof(PlayerMovedEvent));
+                event->player_id = ecs->entity_ids[i];
+                event->new_x = position->x + position->vx;
+                event->new_y = position->y + position->vy;
+                trigger_event(EVENT_PLAYER_MOVED, event);
             }
             else {
                 position->vx = 0; position->vy = 0;

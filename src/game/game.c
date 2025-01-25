@@ -18,6 +18,9 @@ typedef struct game_s {
 
 Game* create_game() {
     Game* game = malloc(sizeof(Game));
+
+    init_event_system();
+
     game->ecs = ECS_CreateManager(30);
     game->player = initialize_game(game->ecs);
 
@@ -32,11 +35,9 @@ void free_game(Game* game) {
     free_components(game->ecs);
     ECS_DestroyManager(game->ecs);
 
+    free_event_system();
+
     free(game);
-}
-
-void load_assets(Game* game) {
-
 }
 
 void add_children_to_room(Game* game, Room* r, uint32_t elt) {
@@ -90,7 +91,6 @@ void change_room(Game* game, int x, int y) {
 void get_keys(Game* game, SDL_Event* event) {
     handle_input_system(game->ecs, event);
 }
-
 void test_damage(Game* game) {
     uint32_t nearest_enemy = get_nearest_enemy(game->ecs, game->player);
     static bool attacked = false;
@@ -109,6 +109,8 @@ void test_damage(Game* game) {
 }
 
 void update_game(Game* game, int win_width, int win_height, float delta) {
+    call_events();
+
     update_systems(
         game->ecs, 
         get_entities(game->current_room), 
@@ -116,9 +118,7 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
         get_grid(game->current_room),
         cam
     );
-
     
-
     test_damage(game);
     is_colliding_with_chest(game->ecs, game->player);
 
@@ -146,10 +146,9 @@ void draw_game(SDL_Renderer* renderer, Game* game) {
     SDL_RenderClear(renderer);
 
     render_systems(game->ecs, get_entities(game->current_room), get_entity_amount(game->current_room), cam, renderer);
-
+    
     draw_inventory(game->ecs, game->player, renderer);
     display_health(game->ecs, game->player, renderer);
-
 
     SDL_RenderPresent(renderer);
 }

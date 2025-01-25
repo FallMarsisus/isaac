@@ -4,6 +4,9 @@
 
 #include "structure/map.h"
 
+#include "event/eventSystem.h"
+#include "event/events/playerListeners.h"
+
 #include "ecs/ecs.h"
 #include "ecs/components.h"
 #include "ecs/systems.h"
@@ -12,8 +15,6 @@ typedef struct game_s Game;
 
 Game* create_game();
 void free_game(Game* game);
-
-void load_assets(Game* game);
 
 void change_room(Game* game, int x, int y);
 

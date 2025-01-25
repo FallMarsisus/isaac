@@ -14,6 +14,9 @@ LINKER_FLAGS = -lSDL2 -lSDL2_ttf -LSDL2_image
 build:
 	gcc $(shell find src -type f -name '*.c') $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game
 
+build_github:
+	gcc $(shell find src -type f -name '*.c') $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game_release
+
 update_run:
 	find ./src/. -name "*.c" -exec gcc $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game {} + && ./bins/game
 

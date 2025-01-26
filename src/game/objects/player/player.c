@@ -12,15 +12,10 @@ uint32_t add_player(float x, float y) {
     InventoryComponent* inv = ECS_AddComponent(player, INVENT, sizeof(InventoryComponent));
     
     // Initialize components
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
-    inv->max_nb_items = 50;
-    inv->item_ids = malloc(sizeof(int) * inv->max_nb_items);
-    add_item_to_inventory(player, 5);
-    add_item_to_inventory(player, 2);
-    add_item_to_inventory(player, 2187);
-    add_item_to_inventory(player, 87498);
+    initialize_inventory(inv, 50, false);
+    for (int j  = 0; j < itemCount - 1; j++) {
+        add_item_to_inventory(player, *itemList[j]);
+    }
 
     init_rigidbody_component(body, 2, 2, 60, 60);
     body->is_dynamic = true;
@@ -31,9 +26,6 @@ uint32_t add_player(float x, float y) {
 
     init_parent_component(parent);
 
-    for (int j  = 0; j < itemCount - 1; j++) {
-        create_item(player, *itemList[j]);
-    }
 
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);

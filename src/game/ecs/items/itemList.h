@@ -1,15 +1,7 @@
 #ifndef ITEM_LIST_H
 #define ITEM_LIST_H
 
-#include "itemData.h"
-
-enum ItemID {
-    POTION,
-    APPLE,
-    SWORD,
-    KEY,
-    SHIELD
-};
+#include "./itemData.h"
 
 extern const int itemCount;
 

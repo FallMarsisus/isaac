@@ -41,6 +41,15 @@ uint32_t initialize_game();
 void free_components();
 
 /**
+ * @brief Creates an item entity at specified coordinates
+ * @param x X coordinate for item placement
+ * @param y Y coordinate for item placement
+ * @param itemType Data of item to create
+ * @return Entity ID of the created item entity
+ */
+uint32_t add_item_entity(float x, float y, ItemData itemType);
+
+/**
  * @brief Processes input events for the game systems
  * @param event SDL event to process
  */

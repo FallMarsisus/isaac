@@ -3,9 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../ecs.h"
-#include "itemData.h"
+#include "./itemData.h"
+#include "../itemComponent.h"
 
-bool create_item(uint32_t entity, ItemData itemC);
-bool destroy_item(uint32_t entity, ItemData item);
-
-ItemData get_item_by_id(uint32_t entity, int id);
+bool transfer_item_into_inventory(uint32_t itemEntity, uint32_t targetEntity);
+SDL_Texture* get_texture_from_Id(enum ItemID id);

@@ -1,29 +1,48 @@
 #include "itemSystem.h"
+#include "itemList.h"
+#include "../../../display.h"
+#include "../ecs.h"
+#include "../inventory/inventoryComponent.h"
+#include "../inventory/inventorySystem.h"
 
-bool create_item(uint32_t entity, ItemData itemC) {
-    ItemData *item = ECS_AddComponent(entity, ITEM, sizeof(ItemData));
-    item->id = itemC.id; ;
-    item->name = itemC.name;
-    item->description = itemC.description;
-    item->value = itemC.value;
-    return true;
-}
-
-bool destroy_item(uint32_t entity, ItemData itemC)
-{
-    // TODO: Implement this function
-    return false;    
-}
-
-ItemData get_item_by_id(uint32_t entity, int id)
-{
-    ItemData *item = ECS_GetComponent(entity, ITEM);
-    for (int i = 0; i < 50; i++)
+SDL_Texture* get_texture_from_Id(enum ItemID id) {
+    switch (id)
     {
-        if (item->id == id)
-        {
-            return *item;
-        }
+    case POTION:
+        // A FAIRE
+        break;
+    
+    case APPLE:
+        return get_sprites()->apple_item_texture;
+        break;
+
+    case SWORD:
+        return get_sprites()->sword_slash; // A CHANGER
+        break;
+
+    case KEY:
+        // A FAIRE
+        break;
+
+    case SHIELD:
+        // A FAIRE
+        break;
+
+    default:
+        return get_sprites()->apple_item_texture;
+        break;
     }
-    return (ItemData){-1, "NULL", "NULL", 0};
+
+    // Pour que les cas pas encore faits ne fassent pas crash le jeu
+    return get_sprites()->apple_item_texture;
+}
+
+bool transfer_item_into_inventory(uint32_t itemEntity, uint32_t targetEntity) {
+    ItemComponent* item = ECS_GetComponent(itemEntity, ITEM);
+
+    if (!item) {
+        return false;
+    }
+
+    return add_item_to_inventory(targetEntity, item->item);
 }

@@ -78,6 +78,24 @@ void handle_input_system(SDL_Event* event) {
     }
 }
 
+uint32_t add_item_entity(float x, float y, ItemData itemType) {
+    uint32_t itemEntity = ECS_CreateEntity();
+    PositionComponent* position = ECS_AddComponent(itemEntity, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(itemEntity, SPRITE, sizeof(SpriteComponent));
+    ItemComponent* itemC = ECS_AddComponent(itemEntity, ITEM, sizeof(SpriteComponent));
+
+    position->x = x; position->y = y;
+    position->vx = 0; position->vy = 0;
+    position->camFixed = false;
+
+    init_sprite_component(sprite, 64, 64, get_texture_from_Id(itemType.id));
+
+    itemC->isGettable = true;
+    itemC->item = itemType;
+
+    return itemEntity;
+}
+
 // Update all systems
 void update_systems(uint32_t* entities, int amount, 
                     int** grid, SDL_Rect cam) {

@@ -34,10 +34,10 @@ void free_anim_component(AnimationComponent* animation) {
     }
     free_array(animation->animations);
 }
-void free_all_render_components(ECS_Manager* ecs, uint32_t id) {
-    SpriteComponent* sprite = ECS_GetComponent(ecs, id, SPRITE);
+void free_all_render_components(uint32_t id) {
+    SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
     if(sprite) free_sprite_component(sprite);
-    AnimationComponent* anim = ECS_GetComponent(ecs, id, ANIMATION);
+    AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
     if(anim) free_anim_component(anim);
 }
 int add_anim(AnimationComponent* animation, float interval, int amount) {
@@ -68,14 +68,14 @@ void stop_anim(AnimationComponent* anim) {
     anim->counter = 0;
 }
 
-void render_component(uint32_t id, ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer* renderer) {
-    PositionComponent* position = ECS_GetComponent(ecs, id, POSITION);
-    SpriteComponent* sprite = ECS_GetComponent(ecs, id, SPRITE);
+void render_component(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {
+    PositionComponent* position = ECS_GetComponent(id, POSITION);
+    SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
 
     if (position && sprite && sprite->texture) {
         SDL_Rect* srcRect = NULL;
 
-        AnimationComponent* anim = ECS_GetComponent(ecs, id, ANIMATION);
+        AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
         if(anim && get_len(anim->animations) > 0) {
             double interval = (SDL_GetTicks() - anim->last_change) / 1000.;
             if(anim->anim_index >= get_len(anim->animations)) return;

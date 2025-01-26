@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rooms.h"
-#include "../../utils/dict.h"
+#include "../../utils/betterArrays/room_dict.h"
 
 typedef struct map_s Map;
 

@@ -1,8 +1,8 @@
 #include "healthSystem.h"
 
-bool init_health_component(ECS_Manager *manager, uint32_t entity, int max_health, int max_mana, int shield)
+bool init_health_component(uint32_t entity, int max_health, int max_mana, int shield)
 {
-    HealthComponent* health = ECS_AddComponent(manager, entity, HEALTH, sizeof(HealthComponent));
+    HealthComponent* health = ECS_AddComponent(entity, HEALTH, sizeof(HealthComponent));
 	health->health = max_health;
 	health->mana = 0;
 	health->max_health = max_health;
@@ -11,9 +11,9 @@ bool init_health_component(ECS_Manager *manager, uint32_t entity, int max_health
 	return true;
 }
 
-bool damage_bypass_shield(ECS_Manager *manager, uint32_t entity, int damage)
+bool damage_bypass_shield(uint32_t entity, int damage)
 {
-    HealthComponent* health = ECS_GetComponent(manager, entity, HEALTH);
+    HealthComponent* health = ECS_GetComponent(entity, HEALTH);
 
 	if (health == NULL || damage < 0) {
 		return false;
@@ -24,8 +24,8 @@ bool damage_bypass_shield(ECS_Manager *manager, uint32_t entity, int damage)
 	return true;
 }
 
-bool damage(ECS_Manager *manager, uint32_t entity, int damage) {
-	HealthComponent* health = ECS_GetComponent(manager, entity, HEALTH);
+bool damage(uint32_t entity, int damage) {
+	HealthComponent* health = ECS_GetComponent(entity, HEALTH);
 
 	if (health == NULL || damage < 0) {
 		return false;
@@ -39,7 +39,7 @@ bool damage(ECS_Manager *manager, uint32_t entity, int damage) {
 	}
 
 
-	if( isDead(manager, entity) ) {
+	if(isDead(entity)) {
 		health->health = 0;
 		exit(0);
 	}
@@ -47,8 +47,8 @@ bool damage(ECS_Manager *manager, uint32_t entity, int damage) {
 	return true;
 }
 
-bool heal(ECS_Manager *manager, uint32_t entity, int healAmount) {
-	HealthComponent* health = ECS_GetComponent(manager, entity, HEALTH);
+bool heal(uint32_t entity, int healAmount) {
+	HealthComponent* health = ECS_GetComponent(entity, HEALTH);
 
 	if (health == NULL || healAmount < 0) {
 		return false;
@@ -63,18 +63,18 @@ bool heal(ECS_Manager *manager, uint32_t entity, int healAmount) {
 	return true;
 }
 
-bool addEffect(ECS_Manager *manager, uint32_t entity, void *effect) {
+bool addEffect(uint32_t entity, void *effect) {
 	// Implementation for adding effect
 	return false;
 }
 
-bool removeEffect(ECS_Manager *manager, uint32_t entity, void *effect) {
+bool removeEffect(uint32_t entity, void *effect) {
 	// Implementation for removing effect
 	return false;
 }
 
-bool addShield(ECS_Manager *manager, uint32_t entity, int shieldAmount) {
-	HealthComponent* health = ECS_GetComponent(manager, entity, HEALTH);
+bool addShield(uint32_t entity, int shieldAmount) {
+	HealthComponent* health = ECS_GetComponent(entity, HEALTH);
 
 	if (health == NULL || shieldAmount < 0) {
 		return false;
@@ -84,15 +84,15 @@ bool addShield(ECS_Manager *manager, uint32_t entity, int shieldAmount) {
 	return true;
 }
 
-bool isDead(ECS_Manager* manager, uint32_t entity) {
-	HealthComponent* health = ECS_GetComponent(manager, entity, HEALTH);
+bool isDead(uint32_t entity) {
+	HealthComponent* health = ECS_GetComponent(entity, HEALTH);
 
 	return health != NULL && health->health <= 0; 
 }
 
-bool display_health(ECS_Manager *manager, uint32_t entity, SDL_Renderer *renderer)
+bool display_health(uint32_t entity, SDL_Renderer *renderer)
 {
-	HealthComponent* health = ECS_GetComponent(manager, entity, HEALTH);
+	HealthComponent* health = ECS_GetComponent(entity, HEALTH);
 	int screenWidth;
 	SDL_GetRendererOutputSize(renderer, &screenWidth, NULL);
 

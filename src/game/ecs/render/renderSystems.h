@@ -8,7 +8,7 @@ void init_anim_component(AnimationComponent* animation, int sprite_width, int sp
 
 void free_sprite_component(SpriteComponent* sprite);
 void free_anim_component(AnimationComponent* animation);
-void free_all_render_components(ECS_Manager* ecs, uint32_t id);
+void free_all_render_components(uint32_t id);
 
 int add_anim(AnimationComponent* animation, float interval, int amount);
 
@@ -17,4 +17,4 @@ void play_anim(AnimationComponent* anim);
 void pause_anim(AnimationComponent* anim);
 void stop_anim(AnimationComponent* anim);
 
-void render_component(uint32_t id, ECS_Manager* ecs, SDL_Rect cam, SDL_Renderer* renderer);
+void render_component(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer);

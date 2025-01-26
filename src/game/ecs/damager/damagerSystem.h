@@ -8,7 +8,7 @@
 #include "../health/healthSystem.h"
 #include "../components.h"
 
-bool create_damager(ECS_Manager* manager, uint32_t entity, DamagerComponent damagerC);
-bool destroy_damager(ECS_Manager* manager, uint32_t entity, DamagerComponent damager);
+bool create_damager(uint32_t entity, DamagerComponent damagerC);
+bool destroy_damager(uint32_t entity, DamagerComponent damager);
 
-bool apply_damage(ECS_Manager* manager, uint32_t entity, uint32_t target);
+bool apply_damage(uint32_t entity, uint32_t target);

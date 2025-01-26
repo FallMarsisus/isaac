@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <math.h>
 
-#include "../../utils/id_array.h"
+#include "../../utils/betterArrays/id_array.h"
 
 typedef struct room_s Room;
 

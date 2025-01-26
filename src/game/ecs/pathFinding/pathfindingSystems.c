@@ -15,14 +15,14 @@ void free_pathfinding_component(PathfindingComponent* component) {
     }
 }
 
-void update_pathfinding_system(uint32_t id, ECS_Manager* ecs, int** grid, SDL_Rect cam) {
-    PositionComponent* position = ECS_GetComponent(ecs, id, POSITION);
-    PathfindingComponent* pathfinding = ECS_GetComponent(ecs, id, PATHFINDING);
-    SpriteComponent* sprite = ECS_GetComponent(ecs, id, SPRITE);
+void update_pathfinding_system(uint32_t id, int** grid, SDL_Rect cam) {
+    PositionComponent* position = ECS_GetComponent(id, POSITION);
+    PathfindingComponent* pathfinding = ECS_GetComponent(id, PATHFINDING);
+    SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
     if (!position || !pathfinding || !sprite) return;
 
-    PositionComponent* targetPos = ECS_GetComponent(ecs, pathfinding->target, POSITION);
-    SpriteComponent* targetSprite = ECS_GetComponent(ecs, pathfinding->target, SPRITE);
+    PositionComponent* targetPos = ECS_GetComponent(pathfinding->target, POSITION);
+    SpriteComponent* targetSprite = ECS_GetComponent(pathfinding->target, SPRITE);
     if(!targetPos || !targetSprite) return;
 
     float staticPosX = position->x - cam.x;

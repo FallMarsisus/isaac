@@ -7,4 +7,4 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
 
 bool isColliding(PositionComponent* p1, RigidbodyComponent* r1, PositionComponent* p2, RigidbodyComponent* r2);
 
-void update_physics(uint32_t id, ECS_Manager* ecs);
+void update_physics(uint32_t id);

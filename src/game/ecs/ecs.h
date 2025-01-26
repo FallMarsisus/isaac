@@ -20,12 +20,13 @@ typedef struct ecs_manager_s {
     size_t component_count;  // Number of component types
 } ECS_Manager;
 
-ECS_Manager* ECS_CreateManager(size_t component_count);
-void ECS_DestroyManager(ECS_Manager* ecs);
-uint32_t ECS_CreateEntity(ECS_Manager* ecs);
-void* ECS_AddComponent(ECS_Manager* ecs, uint32_t entity, ComponentType component_type, size_t component_size);
-void* ECS_GetComponent(ECS_Manager* ecs, uint32_t entity, ComponentType component_type);
-int ECS_HasComponent(ECS_Manager* ecs, uint32_t entity, ComponentType component_type);
-void ECS_RemoveEntity(ECS_Manager* ecs, uint32_t entity);
+void ECS_CreateManager(size_t component_count);
+void ECS_DestroyManager();
+ECS_Manager* ECS_GetManager();
+uint32_t ECS_CreateEntity();
+void* ECS_AddComponent(uint32_t entity, ComponentType component_type, size_t component_size);
+void* ECS_GetComponent(uint32_t entity, ComponentType component_type);
+int ECS_HasComponent(uint32_t entity, ComponentType component_type);
+void ECS_RemoveEntity(uint32_t entity);
 
 #endif

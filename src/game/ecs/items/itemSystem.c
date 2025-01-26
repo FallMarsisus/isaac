@@ -1,7 +1,7 @@
 #include "itemSystem.h"
 
-bool create_item(ECS_Manager *manager, uint32_t entity, ItemData itemC) {
-    ItemData *item = ECS_AddComponent(manager, entity, ITEM, sizeof(ItemData));
+bool create_item(uint32_t entity, ItemData itemC) {
+    ItemData *item = ECS_AddComponent(entity, ITEM, sizeof(ItemData));
     item->id = itemC.id; ;
     item->name = itemC.name;
     item->description = itemC.description;
@@ -9,15 +9,15 @@ bool create_item(ECS_Manager *manager, uint32_t entity, ItemData itemC) {
     return true;
 }
 
-bool destroy_item(ECS_Manager *manager, uint32_t entity, ItemData itemC)
+bool destroy_item(uint32_t entity, ItemData itemC)
 {
     // TODO: Implement this function
     return false;    
 }
 
-ItemData get_item_by_id(ECS_Manager *manager, uint32_t entity, int id)
+ItemData get_item_by_id(uint32_t entity, int id)
 {
-    ItemData *item = ECS_GetComponent(manager, entity, ITEM);
+    ItemData *item = ECS_GetComponent(entity, ITEM);
     for (int i = 0; i < 50; i++)
     {
         if (item->id == id)

@@ -12,4 +12,4 @@
 void init_pathfinding_component(PathfindingComponent* targetComp, u_int32_t target);
 void free_pathfinding_component(PathfindingComponent* targetComp);
 
-void update_pathfinding_system(uint32_t id, ECS_Manager* ecs, int** grid, SDL_Rect cam);
+void update_pathfinding_system(uint32_t id, int** grid, SDL_Rect cam);

@@ -4,10 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../../utils/id_array.h"
-#include "../../utils/dyn_arrays.h"
-
-typedef struct ecs_manager_s ECS_Manager;
+#include "../../utils/betterArrays/id_array.h"
+#include "../../utils/betterArrays/dyn_arrays.h"
 
 typedef enum {
     POSITION,
@@ -24,7 +22,8 @@ typedef enum {
     INVENT,
     HEALTH,
     ITEM,
-    DAMAGER
+    DAMAGER,
+    STATE_MACHINE
 } ComponentType;
 
 // Position and velocity component
@@ -91,7 +90,7 @@ typedef struct {
 } TimerComponent;
 
 typedef struct {
-    void (*update)(uint32_t entity, ECS_Manager* ecs);
+    void (*update)(uint32_t entity);
 } ScriptComponent;
 
 typedef struct {

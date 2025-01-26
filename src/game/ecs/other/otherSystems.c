@@ -4,7 +4,7 @@ void init_timer_component(TimerComponent* timer, float chrono) {
     timer->last = SDL_GetTicks();
     timer->time = chrono;
 }
-void init_script_component(ScriptComponent* script, void (*update)(uint32_t entity, ECS_Manager* ecs)) {
+void init_script_component(ScriptComponent* script, void (*update)(uint32_t entity)) {
     script->update = update;
 }
 void init_parent_component(ParentComponent* parent) {
@@ -24,19 +24,19 @@ void add_child(ParentComponent* parent, uint32_t id) {
 void free_parent_component(ParentComponent* parent) {
     if(parent) free_id_array(parent->children);
 }
-void free_all_other_components(ECS_Manager* ecs, uint32_t id) {
-    ParentComponent* parent = ECS_GetComponent(ecs, id, PARENT);
+void free_all_other_components(uint32_t id) {
+    ParentComponent* parent = ECS_GetComponent(id, PARENT);
     if(parent) free_parent_component(parent);
 }
 
-void update_others(uint32_t id, ECS_Manager* ecs) {
-    PositionComponent* position = ECS_GetComponent(ecs, id, POSITION);
-    ScriptComponent* script = ECS_GetComponent(ecs, id, SCRIPT);
+void update_others(uint32_t id) {
+    PositionComponent* position = ECS_GetComponent(id, POSITION);
+    ScriptComponent* script = ECS_GetComponent(id, SCRIPT);
 
-    ChildComponent* childComp = ECS_GetComponent(ecs, id, CHILD);
+    ChildComponent* childComp = ECS_GetComponent(id, CHILD);
 
     if(childComp && position) {
-        PositionComponent* posParent = ECS_GetComponent(ecs, childComp->parent, POSITION);
+        PositionComponent* posParent = ECS_GetComponent(childComp->parent, POSITION);
         if(posParent && childComp->is_relative) {
             position->x = posParent->x + childComp->offsetX;
             position->y = posParent->y + childComp->offsetY;
@@ -44,6 +44,6 @@ void update_others(uint32_t id, ECS_Manager* ecs) {
     }
 
     if(script) {
-        script->update(id, ecs);
+        script->update(id);
     }
 }

@@ -10,6 +10,7 @@ typedef enum {
     EVENT_PLAYER_MOVED,
     EVENT_PLAYER_DAMAGED,
     EVENT_CHEST_OPENED,
+    EVENT_STATE_CHANGE,
     EVENT_MAX // Safeguard to know the number of event types
 } EventType;
 

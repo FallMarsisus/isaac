@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../utils/id_array.h"
+#include "../utils/betterArrays/id_array.h"
 
 #include "structure/map.h"
 
 #include "event/eventSystem.h"
-#include "event/events/playerListeners.h"
+#include "event/events/listeners.h"
 
 #include "ecs/ecs.h"
 #include "ecs/components.h"

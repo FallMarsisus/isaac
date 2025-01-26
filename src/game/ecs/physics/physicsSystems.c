@@ -101,9 +101,9 @@ void resolveDynamicCollision(
     }
 }
 
-void update_physics(uint32_t id, ECS_Manager* ecs) {
-    PositionComponent* position = ECS_GetComponent(ecs, id, POSITION);
-    RigidbodyComponent* body = ECS_GetComponent(ecs, id, BODY);
+void update_physics(uint32_t id) {
+    PositionComponent* position = ECS_GetComponent(id, POSITION);
+    RigidbodyComponent* body = ECS_GetComponent(id, BODY);
 
     if (position) {
         // Save original position
@@ -117,11 +117,11 @@ void update_physics(uint32_t id, ECS_Manager* ecs) {
         if (body) {
             if(!body->is_dynamic) return;
 
-            for (int i = 0; i < ecs->count; i++) {
-                if (ecs->entity_ids[i] == id) continue;
+            for (int i = 0; i < ECS_GetManager()->count; i++) {
+                if (ECS_GetManager()->entity_ids[i] == id) continue;
 
-                PositionComponent* otherPos = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
-                RigidbodyComponent* otherBody = ECS_GetComponent(ecs, ecs->entity_ids[i], BODY);
+                PositionComponent* otherPos = ECS_GetComponent(ECS_GetManager()->entity_ids[i], POSITION);
+                RigidbodyComponent* otherBody = ECS_GetComponent(ECS_GetManager()->entity_ids[i], BODY);
                 if (!otherPos || !otherBody) continue;
 
                 if (isColliding(position, body, otherPos, otherBody)) {
@@ -149,11 +149,11 @@ void update_physics(uint32_t id, ECS_Manager* ecs) {
 
         // Handle collisions for Y-axis
         if (body) {
-            for (int i = 0; i < ecs->count; i++) {
-                if (ecs->entity_ids[i] == id) continue;
+            for (int i = 0; i < ECS_GetManager()->count; i++) {
+                if (ECS_GetManager()->entity_ids[i] == id) continue;
 
-                PositionComponent* otherPos = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
-                RigidbodyComponent* otherBody = ECS_GetComponent(ecs, ecs->entity_ids[i], BODY);
+                PositionComponent* otherPos = ECS_GetComponent(ECS_GetManager()->entity_ids[i], POSITION);
+                RigidbodyComponent* otherBody = ECS_GetComponent(ECS_GetManager()->entity_ids[i], BODY);
                 if (!otherPos || !otherBody) continue;
 
                 if (isColliding(position, body, otherPos, otherBody)) {

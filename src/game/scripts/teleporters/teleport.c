@@ -1,15 +1,15 @@
 #include "teleport.h"
 
-void update_teleporter(u_int32_t id, ECS_Manager* ecs) {
-    PositionComponent* position = ECS_GetComponent(ecs, id, POSITION);
-    SpriteComponent* sprite = ECS_GetComponent(ecs, id, SPRITE);
-    TeleporterComponent* teleport = ECS_GetComponent(ecs, id, TELEPORT);
+void update_teleporter(u_int32_t id) {
+    PositionComponent* position = ECS_GetComponent(id, POSITION);
+    SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
+    TeleporterComponent* teleport = ECS_GetComponent(id, TELEPORT);
 
     if(position && sprite && teleport) {
-        for(int i = 0; i < ecs->count; i++) {
-            PositionComponent* otherPos = ECS_GetComponent(ecs, ecs->entity_ids[i], POSITION);
-            SpriteComponent* otherSprite = ECS_GetComponent(ecs, ecs->entity_ids[i], SPRITE);
-            PlayerMovementComponent* otherPlayer = ECS_GetComponent(ecs, ecs->entity_ids[i], PLAYER);
+        for(int i = 0; i < ECS_GetManager()->count; i++) {
+            PositionComponent* otherPos = ECS_GetComponent(ECS_GetManager()->entity_ids[i], POSITION);
+            SpriteComponent* otherSprite = ECS_GetComponent(ECS_GetManager()->entity_ids[i], SPRITE);
+            PlayerMovementComponent* otherPlayer = ECS_GetComponent(ECS_GetManager()->entity_ids[i], PLAYER);
 
             if(otherPos && otherSprite && otherPlayer) {
                 if (position->x < otherPos->x + otherSprite->width &&

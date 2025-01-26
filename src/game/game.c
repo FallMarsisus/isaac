@@ -11,8 +11,7 @@ int grid_height = (int) ceil(720 / 64);
 typedef struct game_s {
     Map* map;
     Room* current_room;
-
-    ECS_Manager* ecs;
+    
     uint32_t player;
 } Game;
 
@@ -21,19 +20,27 @@ Game* create_game() {
 
     init_event_system();
 
-    game->ecs = ECS_CreateManager(30);
-    game->player = initialize_game(game->ecs);
+    ECS_CreateManager(30);
+    game->player = initialize_game();
 
     game->map = create_map();
     change_room(game, 0, 0);
 
+    register_listener(EVENT_PLAYER_MOVED, on_player_move);
+    register_listener(EVENT_CHEST_OPENED, on_chest_open);
+    register_listener(EVENT_STATE_CHANGE, on_state_change);
+
     return game;
 }
 void free_game(Game* game) {
+    unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
+    unregister_listener(EVENT_CHEST_OPENED, on_chest_open);
+    unregister_listener(EVENT_STATE_CHANGE, on_state_change);
+
     free_map(game->map);
     
-    free_components(game->ecs);
-    ECS_DestroyManager(game->ecs);
+    free_components();
+    ECS_DestroyManager();
 
     free_event_system();
 
@@ -41,11 +48,11 @@ void free_game(Game* game) {
 }
 
 void add_children_to_room(Game* game, Room* r, uint32_t elt) {
-    ParentComponent* parent = ECS_GetComponent(game->ecs, elt, PARENT);
+    ParentComponent* parent = ECS_GetComponent(elt, PARENT);
     if(parent) {
         for(int i = 0; i < get_ids_len(parent->children); i++) {
             uint32_t id = get_ids(parent->children)[i];
-            add_entity(r, game->ecs->entity_ids[id]);
+            add_entity(r, ECS_GetManager()->entity_ids[id]);
 
             add_children_to_room(game, r, id);
         }
@@ -60,17 +67,17 @@ void change_room(Game* game, int x, int y) {
         add_entity(r, game->player);
         add_children_to_room(game, r, game->player);
 
-        for(int i = 0; i < game->ecs->count; i++) {
-            if(game->ecs->entity_ids[i] == game->player) continue;
-            PositionComponent* position = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], POSITION);
-            ChildComponent* child = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], CHILD);
-            RigidbodyComponent* body = ECS_GetComponent(game->ecs, game->ecs->entity_ids[i], BODY);
+        for(int i = 0; i < ECS_GetManager()->count; i++) {
+            if(ECS_GetManager()->entity_ids[i] == game->player) continue;
+            PositionComponent* position = ECS_GetComponent(ECS_GetManager()->entity_ids[i], POSITION);
+            ChildComponent* child = ECS_GetComponent(ECS_GetManager()->entity_ids[i], CHILD);
+            RigidbodyComponent* body = ECS_GetComponent(ECS_GetManager()->entity_ids[i], BODY);
             if(child) continue;
 
             if(position->camFixed || 
                ((int) floor(position->x / cam.w) == x && (int) floor(position->y / cam.h) == y)) {
-                add_entity(r, game->ecs->entity_ids[i]);
-                add_children_to_room(game, r, game->ecs->entity_ids[i]);
+                add_entity(r, ECS_GetManager()->entity_ids[i]);
+                add_children_to_room(game, r, ECS_GetManager()->entity_ids[i]);
 
                 int pos_x = (int) (position->x - cam.x) / 64;
                 int pos_y = (int) (position->y - cam.y) / 64;
@@ -89,20 +96,20 @@ void change_room(Game* game, int x, int y) {
 }
 
 void get_keys(Game* game, SDL_Event* event) {
-    handle_input_system(game->ecs, event);
+    handle_input_system(event);
 }
 void test_damage(Game* game) {
-    uint32_t nearest_enemy = get_nearest_enemy(game->ecs, game->player);
+    uint32_t nearest_enemy = get_nearest_enemy(game->player);
     static bool attacked = false;
-    if(nearest_enemy != UINT32_MAX && is_colliding_with_enemy(game->ecs, game->player) && attacked == false) {
+    if(nearest_enemy != UINT32_MAX && is_colliding_with_enemy(game->player) && attacked == false) {
         attacked = true;
-        if(apply_damage(game->ecs, nearest_enemy, game->player) == false) {
+        if(apply_damage(nearest_enemy, game->player) == false) {
             printf("ERROR : Player not found\n");
         } else {
             printf("Player is taking damage from entity %d\n", nearest_enemy);
         }
     }
-    else if (!is_colliding_with_enemy(game->ecs, game->player)) {
+    else if (!is_colliding_with_enemy(game->player)) {
         attacked = false;
     }
     
@@ -112,7 +119,6 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
     call_events();
 
     update_systems(
-        game->ecs, 
         get_entities(game->current_room), 
         get_entity_amount(game->current_room), 
         get_grid(game->current_room),
@@ -120,9 +126,9 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
     );
     
     test_damage(game);
-    is_colliding_with_chest(game->ecs, game->player);
+    is_colliding_with_chest(game->player);
 
-    PositionComponent* pos = ECS_GetComponent(game->ecs, game->player, POSITION);
+    PositionComponent* pos = ECS_GetComponent(game->player, POSITION);
     if(pos) {
         int changeX = floor(pos->x / cam.w);
         int changeY = floor(pos->y / cam.h);
@@ -145,10 +151,10 @@ void draw_game(SDL_Renderer* renderer, Game* game) {
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
 
-    render_systems(game->ecs, get_entities(game->current_room), get_entity_amount(game->current_room), cam, renderer);
+    render_systems(get_entities(game->current_room), get_entity_amount(game->current_room), cam, renderer);
     
-    draw_inventory(game->ecs, game->player, renderer);
-    display_health(game->ecs, game->player, renderer);
+    draw_inventory(game->player, renderer);
+    display_health(game->player, renderer);
 
     SDL_RenderPresent(renderer);
 }

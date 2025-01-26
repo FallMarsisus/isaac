@@ -3,8 +3,8 @@
 #include "../ecs.h"
 #include "../inventoryComponent.h"
 
-bool add_item_to_inventory(ECS_Manager* manager, uint32_t entity, int item) {
-	InventoryComponent* inventory = ECS_GetComponent(manager, entity , INVENT);
+bool add_item_to_inventory(uint32_t entity, int item) {
+	InventoryComponent* inventory = ECS_GetComponent(entity, INVENT);
 	if (inventory && inventory->nb_items < inventory->max_nb_items) {
 		inventory->item_ids[inventory->nb_items] = item;
 		inventory->nb_items++;	
@@ -13,8 +13,8 @@ bool add_item_to_inventory(ECS_Manager* manager, uint32_t entity, int item) {
 	return false;
 }
 
-bool remove_item_from_inventory(ECS_Manager* manager, uint32_t entity, int item) {
-	InventoryComponent* invertory = ECS_GetComponent(manager, entity, INVENT);
+bool remove_item_from_inventory(uint32_t entity, int item) {
+	InventoryComponent* invertory = ECS_GetComponent(entity, INVENT);
 	if (!invertory || invertory->nb_items <= 0) {
 		return false;
 	}
@@ -33,8 +33,8 @@ bool remove_item_from_inventory(ECS_Manager* manager, uint32_t entity, int item)
 	return false;
 }
 
-void draw_inventory(ECS_Manager* manager, uint32_t entity, SDL_Renderer* renderer) {
-	InventoryComponent* inventory = ECS_GetComponent(manager, entity, INVENT);
+void draw_inventory(uint32_t entity, SDL_Renderer* renderer) {
+	InventoryComponent* inventory = ECS_GetComponent(entity, INVENT);
 	if (!inventory || !inventory->isDisplayed) {
 		return;
 	}

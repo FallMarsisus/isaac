@@ -1,8 +1,8 @@
 #include "damagerSystem.h"
 
-bool create_damager(ECS_Manager *manager, uint32_t entity, DamagerComponent damagerC)
+bool create_damager(uint32_t entity, DamagerComponent damagerC)
 {
-    DamagerComponent* damager = ECS_AddComponent(manager, entity, DAMAGER, sizeof(DamagerComponent));
+    DamagerComponent* damager = ECS_AddComponent(entity, DAMAGER, sizeof(DamagerComponent));
     damager->damage = damagerC.damage;
     damager->knockback = damagerC.knockback;
     damager->is_poisonnous = damagerC.is_poisonnous;
@@ -10,22 +10,22 @@ bool create_damager(ECS_Manager *manager, uint32_t entity, DamagerComponent dama
     return true;
 }
 
-bool destroy_damager(ECS_Manager *manager, uint32_t entity, DamagerComponent damager)
+bool destroy_damager(uint32_t entity, DamagerComponent damager)
 {
     return false;
 }
 
-bool apply_damage(ECS_Manager *manager, uint32_t entity, uint32_t target)
+bool apply_damage(uint32_t entity, uint32_t target)
 {
-    DamagerComponent* damager = ECS_GetComponent(manager, entity, DAMAGER);
-    HealthComponent* health = ECS_GetComponent(manager, target, HEALTH);
-    PlayerMovementComponent* player = ECS_GetComponent(manager, target, PLAYER);
+    DamagerComponent* damager = ECS_GetComponent(entity, DAMAGER);
+    HealthComponent* health = ECS_GetComponent(target, HEALTH);
+    PlayerMovementComponent* player = ECS_GetComponent(target, PLAYER);
 
     if (damager == NULL|| health == NULL || player == NULL) {
         return false;
     }
 
-    damage(manager, target, damager->damage);
+    damage(target, damager->damage);
     // player->speed = -player->speed*2; NONONONONOONN
 
     return true;

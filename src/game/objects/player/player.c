@@ -10,7 +10,10 @@ uint32_t add_player(float x, float y) {
     RigidbodyComponent* body = ECS_AddComponent(player, BODY, sizeof(RigidbodyComponent));
     ParentComponent* parent = ECS_AddComponent(player, PARENT, sizeof(ParentComponent));
     InventoryComponent* inv = ECS_AddComponent(player, INVENT, sizeof(InventoryComponent));
-    
+
+    position->x = 640; position->y = 360;
+    position->vx = 0; position->vy = 0;
+
     // Initialize components
     initialize_inventory(inv, 50, false);
     for (int j  = 0; j < itemCount - 1; j++) {

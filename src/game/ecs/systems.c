@@ -25,6 +25,11 @@ void free_components() {
             free_state_machine(sm);
         }
 
+        InventoryComponent* invent = ECS_GetComponent(ECS_GetManager()->entity_ids[i], INVENT);
+        if(invent) {
+            free_inventory(invent);
+        }
+
         free_pathfinding_component(ECS_GetComponent(ECS_GetManager()->entity_ids[i], PATHFINDING));
         free_all_other_components(ECS_GetManager()->entity_ids[i]);
         free_all_render_components(ECS_GetManager()->entity_ids[i]);

@@ -30,8 +30,6 @@ void init_state_machine(StateMachineComponent* sm, uint32_t id) {
 void free_state_machine(StateMachineComponent* sm) {
     iterate_dictionary(sm->state_dict, free_state);
     free_dictionary(sm->state_dict);
-    
-    free(sm);
 }
 
 void add_state(StateMachineComponent* sm, State* state) {

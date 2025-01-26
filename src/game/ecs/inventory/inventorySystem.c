@@ -20,6 +20,9 @@ void initialize_inventory(InventoryComponent* invent, int maxItems, bool isDispl
 		invent->items[i].value = -1;
 	}
 }
+void free_inventory(InventoryComponent* invent) {
+	free(invent->items);
+}
 
 bool add_item_to_inventory(uint32_t entity, ItemData item) {
 	InventoryComponent* inventory = ECS_GetComponent(entity , INVENT);

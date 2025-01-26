@@ -1,7 +1,7 @@
 #ifndef ITEM_LIST_H
 #define ITEM_LIST_H
 
-#include "./itemData.h"
+#include "itemData.h"
 
 extern const int itemCount;
 

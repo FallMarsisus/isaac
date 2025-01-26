@@ -90,7 +90,7 @@ typedef struct {
 } TimerComponent;
 
 typedef struct {
-    void (*update)(uint32_t entity);
+    void (*update)(uint32_t entity, SDL_Rect cam);
 } ScriptComponent;
 
 typedef struct {

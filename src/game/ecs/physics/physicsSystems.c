@@ -101,7 +101,7 @@ void resolveDynamicCollision(
     }
 }
 
-void update_physics(uint32_t id) {
+void update_physics(uint32_t id, float delta) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(id, BODY);
 
@@ -111,7 +111,7 @@ void update_physics(uint32_t id) {
         float originalY = position->y;
 
         // Update X-axis position first
-        position->x += position->vx;
+        position->x += position->vx * 60 * delta;
 
         // Handle collisions for X-axis first
         if (body) {
@@ -145,7 +145,7 @@ void update_physics(uint32_t id) {
         }
 
         // Update Y-axis position next
-        position->y += position->vy;
+        position->y += position->vy * 60 * delta;
 
         // Handle collisions for Y-axis
         if (body) {

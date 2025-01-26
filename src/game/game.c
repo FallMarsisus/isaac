@@ -47,37 +47,24 @@ void free_game(Game* game) {
     free(game);
 }
 
-void add_children_to_room(Game* game, Room* r, uint32_t elt) {
-    ParentComponent* parent = ECS_GetComponent(elt, PARENT);
-    if(parent) {
-        for(int i = 0; i < get_ids_len(parent->children); i++) {
-            uint32_t id = get_ids(parent->children)[i];
-            add_entity(r, ECS_GetManager()->entity_ids[id]);
-
-            add_children_to_room(game, r, id);
-        }
-    }
-}
-
 void change_room(Game* game, int x, int y) {
     Room* r = get_room(game->map, x, y);
     if(r == NULL) {
         r = create_room(x, y);
         add_room(game->map, r);
         add_entity(r, game->player);
-        add_children_to_room(game, r, game->player);
 
         for(int i = 0; i < ECS_GetManager()->count; i++) {
             if(ECS_GetManager()->entity_ids[i] == game->player) continue;
             PositionComponent* position = ECS_GetComponent(ECS_GetManager()->entity_ids[i], POSITION);
             ChildComponent* child = ECS_GetComponent(ECS_GetManager()->entity_ids[i], CHILD);
             RigidbodyComponent* body = ECS_GetComponent(ECS_GetManager()->entity_ids[i], BODY);
-            if(child) continue;
 
             if(position->camFixed || 
                ((int) floor(position->x / cam.w) == x && (int) floor(position->y / cam.h) == y)) {
-                add_entity(r, ECS_GetManager()->entity_ids[i]);
-                add_children_to_room(game, r, ECS_GetManager()->entity_ids[i]);
+                if(!child) {
+                    add_entity(r, ECS_GetManager()->entity_ids[i]);
+                }
 
                 int pos_x = (int) (position->x - cam.x) / 64;
                 int pos_y = (int) (position->y - cam.y) / 64;
@@ -118,12 +105,14 @@ void test_damage(Game* game) {
 void update_game(Game* game, int win_width, int win_height, float delta) {
     call_events();
 
-    update_systems(
-        get_entities(game->current_room), 
-        get_entity_amount(game->current_room), 
-        get_grid(game->current_room),
-        cam
-    );
+    for(int i = 0; i < get_entity_amount(game->current_room); i++) {
+        update_elt(
+            get_entities(game->current_room)[i],
+            get_grid(game->current_room),
+            cam,
+            delta
+        );
+    }
     
     test_damage(game);
     is_colliding_with_chest(game->player);

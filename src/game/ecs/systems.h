@@ -56,13 +56,13 @@ uint32_t add_item_entity(float x, float y, ItemData itemType);
 void handle_input_system(SDL_Event* event);
 
 /**
- * @brief Updates all game systems for the specified entities
- * @param entities Array of entity IDs to update
- * @param amount Number of entities in the array
+ * @brief Updates all game systems for the specified entitiy
+ * @param elt The updated entity id
  * @param grid Game world grid
  * @param cam Camera rectangle for viewport calculations
+ * @param delta Delta time
  */
-void update_systems(uint32_t* entities, int amount, int** grid, SDL_Rect cam);
+void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta);
 
 /**
  * @brief Renders all visible entities using the game systems

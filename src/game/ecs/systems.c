@@ -101,21 +101,23 @@ uint32_t add_item_entity(float x, float y, ItemData itemType) {
     return itemEntity;
 }
 
-// Update all systems
-void update_systems(uint32_t* entities, int amount, 
-                    int** grid, SDL_Rect cam) {
-    for(int i = 0; i < amount; i++) {
-        u_int32_t id = entities[i];
+void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta) {
+    StateMachineComponent* sm = ECS_GetComponent(elt, STATE_MACHINE);
+    ParentComponent* parent = ECS_GetComponent(elt, PARENT);
+    if(sm) {
+        update_state_machine(sm);
+    }
+    
+    update_others(elt, cam);
+    update_pathfinding_system(elt, grid, cam);
+    
+    update_physics(elt, delta);
 
-        StateMachineComponent* sm = ECS_GetComponent(id, STATE_MACHINE);
-        if(sm) {
-            update_state_machine(sm);
+    if(parent) {
+        for(int i = 0; i < get_ids_len(parent->children); i++) {
+            uint32_t id = get_ids(parent->children)[i];
+            update_elt(id, grid, cam, delta);
         }
-        
-        update_others(id);
-        update_pathfinding_system(id, grid, cam);
-        
-        update_physics(id);
     }
 }
 

@@ -19,7 +19,9 @@ State* create_state(char* name, StateCallback on_enter, StateCallback on_update,
 }
 void free_state(char* key, void* data) {
     State* state = (State*) data;
+    if(!data) return;
     if(state->on_free) state->on_free(state, -1);
+    free(state);
 }
 
 void init_state_machine(StateMachineComponent* sm, uint32_t id) {

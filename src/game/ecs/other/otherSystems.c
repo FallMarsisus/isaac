@@ -4,7 +4,7 @@ void init_timer_component(TimerComponent* timer, float chrono) {
     timer->last = SDL_GetTicks();
     timer->time = chrono;
 }
-void init_script_component(ScriptComponent* script, void (*update)(uint32_t entity)) {
+void init_script_component(ScriptComponent* script, void (*update)(uint32_t entity, SDL_Rect cam)) {
     script->update = update;
 }
 void init_parent_component(ParentComponent* parent) {
@@ -29,7 +29,7 @@ void free_all_other_components(uint32_t id) {
     if(parent) free_parent_component(parent);
 }
 
-void update_others(uint32_t id) {
+void update_others(uint32_t id, SDL_Rect cam) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     ScriptComponent* script = ECS_GetComponent(id, SCRIPT);
 
@@ -44,6 +44,6 @@ void update_others(uint32_t id) {
     }
 
     if(script) {
-        script->update(id);
+        script->update(id, cam);
     }
 }

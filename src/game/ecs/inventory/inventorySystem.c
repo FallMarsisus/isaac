@@ -22,6 +22,7 @@ void initialize_inventory(InventoryComponent* invent, int maxItems, bool isDispl
 }
 void free_inventory(InventoryComponent* invent) {
 	free(invent->items);
+	free(invent->itemsTextures);
 }
 
 bool add_item_to_inventory(uint32_t entity, ItemData item) {

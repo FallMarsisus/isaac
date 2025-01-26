@@ -1,6 +1,6 @@
 #include "teleport.h"
 
-void update_teleporter(u_int32_t id) {
+void update_teleporter(u_int32_t id, SDL_Rect cam) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
     TeleporterComponent* teleport = ECS_GetComponent(id, TELEPORT);

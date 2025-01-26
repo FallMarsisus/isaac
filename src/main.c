@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
     Game* game = create_game();
 
     while (running) {
-        if (SDL_PollEvent(&event)) {
+        while(SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = 0;
             }

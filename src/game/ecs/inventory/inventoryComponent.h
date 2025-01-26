@@ -9,5 +9,4 @@ typedef struct {
 	int max_nb_items;
 	int nb_items;
 	ItemData* items;
-	SDL_Texture** itemsTextures;
 } InventoryComponent;

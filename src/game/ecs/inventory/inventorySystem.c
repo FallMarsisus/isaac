@@ -9,11 +9,9 @@ void initialize_inventory(InventoryComponent* invent, int maxItems, bool isDispl
 	invent->max_nb_items = maxItems;
 	invent->nb_items = 0;
 
-	invent->itemsTextures = malloc(sizeof(SDL_Texture*) * maxItems);
 	invent->items = malloc(sizeof(ItemData) * maxItems);
 
 	for (int i = 0; i < maxItems; i++) {
-		invent->itemsTextures[i] = NULL;
 		invent->items[i].id = -1;
 		invent->items[i].name = "";
 		invent->items[i].description = "";
@@ -22,19 +20,12 @@ void initialize_inventory(InventoryComponent* invent, int maxItems, bool isDispl
 }
 void free_inventory(InventoryComponent* invent) {
 	free(invent->items);
-	free(invent->itemsTextures);
 }
 
 bool add_item_to_inventory(uint32_t entity, ItemData item) {
 	InventoryComponent* inventory = ECS_GetComponent(entity , INVENT);
 	if (inventory && inventory->nb_items < inventory->max_nb_items) {
 		inventory->items[inventory->nb_items] = item;
-		inventory->itemsTextures[inventory->nb_items] = get_texture_from_Id(item.id);
-		if (inventory->itemsTextures[inventory->nb_items] == NULL) {
-			printf("failed to add item texture\n");
-			return false;
-		}
-		printf("not failed\n");
 		inventory->nb_items++;	
 		return true;
 	}
@@ -53,9 +44,8 @@ bool remove_item_from_inventory(uint32_t entity, ItemData item) { //faudra mettr
 		if (inventory->items[i].id == item.id) { // Pour l'instant l'id est pas unique donc ça suppr pas forcément le bon
 			for (int j = i; j < inventory->nb_items-1; j++) {
 				inventory->items[j] = inventory->items[j+1];
-				inventory->itemsTextures[j] = inventory->itemsTextures[j+1];
 			}
-			inventory->itemsTextures[inventory->nb_items] = NULL;
+			inventory->items[inventory->nb_items].id = -1; // Giga important pour enpêcher de draw un objet vide
 			inventory->nb_items--;
 			return true;
 		}
@@ -88,11 +78,11 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer) {
 		SDL_Rect itemRect = { 15 + heightPos * 42, 15 + widthPos * 40, 32, 32 }; // Position and size of each item
 
 
-		if (i < inventory->nb_items && inventory->itemsTextures[i] != NULL) {
+		if (i < inventory->nb_items && inventory->items[i].id != -1) {
 			// Draw the item texture if not NULL
 			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 			SDL_RenderFillRect(renderer, &itemRect);
-			SDL_RenderCopy(renderer, inventory->itemsTextures[i], NULL, &itemRect);
+			SDL_RenderCopy(renderer, get_texture_from_Id(inventory->items[i].id), NULL, &itemRect);
 		} else {
 			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
 			SDL_RenderFillRect(renderer, &itemRect);

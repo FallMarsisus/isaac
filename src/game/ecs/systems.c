@@ -3,6 +3,7 @@
 // Initialize the game with entities and components
 uint32_t initialize_game() {
     uint32_t player = add_player(100, 200);
+    add_item_entity(300, 300, apple);
 
     for(int i = 0; i < 20; i++) {
         add_blocks(i % 5 - 2, i / 5 - 2);
@@ -13,6 +14,7 @@ uint32_t initialize_game() {
               x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
         add_teleporter(x1, y1, x2, y2);
         add_teleporter(x2, y2, x1, y1);
+
     }
 
     return player;
@@ -34,6 +36,24 @@ void free_components() {
         free_all_other_components(ECS_GetManager()->entity_ids[i]);
         free_all_render_components(ECS_GetManager()->entity_ids[i]);
     }
+}
+
+void free_one_entity(uint32_t entity) {
+    StateMachineComponent* sm = ECS_GetComponent(entity, STATE_MACHINE);
+    if(sm) {
+        free_state_machine(sm);
+    }
+
+    InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
+    if(invent) {
+        free_inventory(invent);
+    }
+
+    free_pathfinding_component(ECS_GetComponent(entity, PATHFINDING));
+    free_all_other_components(entity);
+    free_all_render_components(entity);
+
+    ECS_RemoveEntity(entity);
 }
 
 // Handle input for player movement
@@ -104,6 +124,7 @@ uint32_t add_item_entity(float x, float y, ItemData itemType) {
 void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta) {
     StateMachineComponent* sm = ECS_GetComponent(elt, STATE_MACHINE);
     ParentComponent* parent = ECS_GetComponent(elt, PARENT);
+
     if(sm) {
         update_state_machine(sm);
     }
@@ -119,6 +140,7 @@ void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta) {
             update_elt(id, grid, cam, delta);
         }
     }
+
 }
 
 // Render all entities

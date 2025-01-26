@@ -64,6 +64,11 @@ void add_entity(Room* r, uint32_t id) {
     add_id(r->entity_ids, id);
 }
 
+void remove_entity(Room* r, uint32_t id) {
+    assert(r != NULL);
+    remove_id(r->entity_ids, id);
+}
+
 int** get_grid(Room* r) {
     return r->grid;
 }

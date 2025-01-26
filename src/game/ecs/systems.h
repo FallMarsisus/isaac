@@ -41,6 +41,12 @@ uint32_t initialize_game();
 void free_components();
 
 /**
+* @brief Frees one entity 
+* @param entity entity to be freed
+*/
+void free_one_entity(uint32_t entity);
+
+/**
  * @brief Creates an item entity at specified coordinates
  * @param x X coordinate for item placement
  * @param y Y coordinate for item placement

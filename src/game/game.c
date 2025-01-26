@@ -60,6 +60,10 @@ void change_room(Game* game, int x, int y) {
             ChildComponent* child = ECS_GetComponent(ECS_GetManager()->entity_ids[i], CHILD);
             RigidbodyComponent* body = ECS_GetComponent(ECS_GetManager()->entity_ids[i], BODY);
 
+            if (position == NULL) {
+                continue;
+            }
+
             if(position->camFixed || 
                ((int) floor(position->x / cam.w) == x && (int) floor(position->y / cam.h) == y)) {
                 if(!child) {
@@ -105,13 +109,26 @@ void test_damage(Game* game) {
 void update_game(Game* game, int win_width, int win_height, float delta) {
     call_events();
 
+    uint32_t* entities = get_entities(game->current_room);
     for(int i = 0; i < get_entity_amount(game->current_room); i++) {
+
         update_elt(
-            get_entities(game->current_room)[i],
+            entities[i],
             get_grid(game->current_room),
             cam,
             delta
         );
+
+        // creating another to avoid polluting default function with too many args and return
+        if (ECS_GetComponent(entities[i], ITEM) != NULL && update_item(entities[i], entities, get_entity_amount(game->current_room))) {
+            free_one_entity(entities[i]);
+            ECS_RemoveEntity(entities[i]);
+            remove_entity(game->current_room, entities[i]);
+            entities = get_entities(game->current_room);
+
+            fflush(stdout);
+            i--;
+        }
     }
     
     test_damage(game);

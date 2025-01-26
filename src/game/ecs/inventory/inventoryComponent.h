@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "itemData.h"
+#include "../items/itemData.h"
 #include <stdbool.h>
 
 typedef struct {

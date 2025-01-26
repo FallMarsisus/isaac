@@ -303,6 +303,7 @@ void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* 
     //for(int i = 0; i < amount; i++) {
     for(int i = 0; i < ECS_GetManager()->count; i++) {
         u_int32_t id = ECS_GetManager()->entity_ids[i];
+        //u_int32_t id = entities[i];
         PositionComponent* position = ECS_GetComponent(id, POSITION);
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
         if(!position || !sprite) continue;

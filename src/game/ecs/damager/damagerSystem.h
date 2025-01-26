@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../ecs.h"
-#include "../damagerComponent.h"
-#include "../healthComponent.h"
+#include "damagerComponent.h"
+#include "../health/healthComponent.h"
 #include "../health/healthSystem.h"
 #include "../components.h"
 

@@ -1,7 +1,4 @@
-#include <stdbool.h>
-#include <stdint.h>
-#include "../ecs.h"
-#include "../inventoryComponent.h"
+#include "inventorySystem.h"
 
 bool add_item_to_inventory(uint32_t entity, int item) {
 	InventoryComponent* inventory = ECS_GetComponent(entity, INVENT);

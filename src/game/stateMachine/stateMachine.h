@@ -14,6 +14,9 @@ struct state_s {
     StateCallback on_enter;
     StateCallback on_update;
     StateCallback on_exit;
+    
+    void* vars;
+    StateCallback on_free;
 };
 
 typedef struct {
@@ -22,7 +25,7 @@ typedef struct {
     uint32_t id;
 } StateMachineComponent;
 
-State* create_state(char* name, StateCallback on_enter, StateCallback on_update, StateCallback on_exit);
+State* create_state(char* name, StateCallback on_enter, StateCallback on_update, StateCallback on_exit, StateCallback on_free);
 
 void init_state_machine(StateMachineComponent* sm, uint32_t id);
 void free_state_machine(StateMachineComponent* sm);

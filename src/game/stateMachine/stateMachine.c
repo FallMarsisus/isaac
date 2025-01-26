@@ -1,6 +1,7 @@
 #include "stateMachine.h"
 
-State* create_state(char* name, StateCallback on_enter, StateCallback on_update, StateCallback on_exit) {
+State* create_state(char* name, StateCallback on_enter, StateCallback on_update, 
+                    StateCallback on_exit, StateCallback on_free) {
     State* state = (State*)malloc(sizeof(State));
     if (!state) {
         printf("Failed to allocate memory for state: %s\n", name);
@@ -11,7 +12,14 @@ State* create_state(char* name, StateCallback on_enter, StateCallback on_update,
     state->on_enter = on_enter;
     state->on_update = on_update;
     state->on_exit = on_exit;
+
+    state->on_free = on_free;
+    state->vars = NULL;
     return state;
+}
+void free_state(char* key, void* data) {
+    State* state = (State*) data;
+    if(state->on_free) state->on_free(state, -1);
 }
 
 void init_state_machine(StateMachineComponent* sm, uint32_t id) {
@@ -20,6 +28,7 @@ void init_state_machine(StateMachineComponent* sm, uint32_t id) {
     sm->state_dict = create_dictionary();
 }
 void free_state_machine(StateMachineComponent* sm) {
+    iterate_dictionary(sm->state_dict, free_state);
     free_dictionary(sm->state_dict);
     
     free(sm);

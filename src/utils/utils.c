@@ -30,3 +30,7 @@ void draw_rect(SDL_Rect* rect, SDL_Renderer* ren, int r, int g, int b, int a) {
 int random_int(int a, int b) {
     return (rand() % (b - a)) + a;
 }
+
+float random_float(float a, float b) {
+    return (rand() / (float) RAND_MAX) * (b - a) + a;
+}

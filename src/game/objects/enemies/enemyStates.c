@@ -10,8 +10,9 @@ void randomize_idle_vars(IdleStateVars* vars) {
     vars->wander_time = random_float(0.5, 3);
 }
 
-IdleStateVars* create_idle_vars() {
+IdleStateVars* create_idle_vars(uint32_t pl) {
     IdleStateVars* vars = malloc(sizeof(IdleStateVars));
+    vars->player = pl;
     randomize_idle_vars(vars);
     return vars;
 }
@@ -20,10 +21,25 @@ void on_idle_enter(State* state, uint32_t id) {
     randomize_idle_vars(vars);
 }
 void on_idle_update(State* state, uint32_t id) {
-    PositionComponent* pos = ECS_GetComponent(id, POSITION);
-    if(!pos) return;
-
     IdleStateVars* vars = (IdleStateVars*) state->vars;
+    if(!vars) return;
+
+    PositionComponent* pos = ECS_GetComponent(id, POSITION);
+    PositionComponent* playerPos = ECS_GetComponent(vars->player, POSITION);
+
+    if(!pos || !playerPos) return;
+    
+    Vector dir = (Vector) {
+        playerPos->x - pos->x,
+        playerPos->y - pos->y
+    };
+    if(vectorSize(&dir) < 250) {
+        StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
+        event->id = id; event->new_state = "chase";
+        trigger_event(EVENT_STATE_CHANGE, event);
+        return;
+    }
+
     if(vars->wander_time > 0) {
         vars->wander_time -= 1/60.;
         
@@ -37,5 +53,41 @@ void on_idle_update(State* state, uint32_t id) {
 void on_idle_exit(State* state, uint32_t id) {}
 void on_idle_free(State* state, uint32_t id) {
     IdleStateVars* vars = (IdleStateVars*) state->vars;
+    if(vars) free(vars);
+}
+
+ChaseStateVars* create_chase_vars(uint32_t player) {
+    ChaseStateVars* vars = malloc(sizeof(ChaseStateVars));
+    vars->player = player;
+    vars->speed = 3;
+    return vars;
+}
+void on_chase_enter(State* state, uint32_t id) {}
+void on_chase_update(State* state, uint32_t id) {
+    ChaseStateVars* vars = (ChaseStateVars*) state->vars;
+    if(!vars) return;
+
+    PositionComponent* pos = ECS_GetComponent(id, POSITION);
+    PositionComponent* playerPos = ECS_GetComponent(vars->player, POSITION);
+
+    if(!pos || !playerPos) return;
+    
+    Vector dir = (Vector) {
+        playerPos->x - pos->x,
+        playerPos->y - pos->y
+    };
+    if(vectorSize(&dir) > 250) {
+        StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
+        event->id = id; event->new_state = "idle";
+        trigger_event(EVENT_STATE_CHANGE, event);
+    }
+
+    normalize(&dir);
+    pos->vx = dir.x * vars->speed;
+    pos->vy = dir.y * vars->speed;
+}
+void on_chase_exit(State* state, uint32_t id) {}
+void on_chase_free(State* state, uint32_t id) {
+    ChaseStateVars* vars = (ChaseStateVars*) state->vars;
     if(vars) free(vars);
 }

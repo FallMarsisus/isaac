@@ -7,6 +7,8 @@
 #include "../event/eventSystem.h"
 #include "../event/events/listeners.h"
 
+#include "../stateMachine/stateMachine.h"
+
 #include "render/renderSystems.h"
 #include "physics/physicsSystems.h"
 #include "other/otherSystems.h"

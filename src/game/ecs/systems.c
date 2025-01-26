@@ -20,12 +20,16 @@ uint32_t initialize_game() {
 
 void free_components() {
     for (size_t i = 0; i < ECS_GetManager()->count; ++i) {
+        StateMachineComponent* sm = ECS_GetComponent(ECS_GetManager()->entity_ids[i], STATE_MACHINE);
+        if(sm) {
+            update_state_machine(sm);
+        }
+
         free_pathfinding_component(ECS_GetComponent(ECS_GetManager()->entity_ids[i], PATHFINDING));
         free_all_other_components(ECS_GetManager()->entity_ids[i]);
         free_all_render_components(ECS_GetManager()->entity_ids[i]);
     }
 }
-
 
 // Handle input for player movement
 void handle_input_system(SDL_Event* event) {
@@ -79,6 +83,11 @@ void update_systems(uint32_t* entities, int amount,
                     int** grid, SDL_Rect cam) {
     for(int i = 0; i < amount; i++) {
         u_int32_t id = entities[i];
+
+        StateMachineComponent* sm = ECS_GetComponent(id, STATE_MACHINE);
+        if(sm) {
+            update_state_machine(sm);
+        }
         
         update_others(id);
         update_pathfinding_system(id, grid, cam);

@@ -41,11 +41,13 @@ void add_state(StateMachineComponent* sm, State* state) {
 
 void switch_state(StateMachineComponent* sm, char* name) {
     if (!sm) return;
+    
+    State* new_state = get_from_dictionary(sm->state_dict, name);
+    if(!new_state) return;
+
     if (sm->current_state && sm->current_state->on_exit) {
         sm->current_state->on_exit(sm->current_state, sm->id);
     }
-
-    State* new_state = get_from_dictionary(sm->state_dict, name);
 
     sm->current_state = new_state;
 
@@ -54,6 +56,7 @@ void switch_state(StateMachineComponent* sm, char* name) {
         new_state->on_enter(new_state, sm->id);
     }
 }
+
 void update_state_machine(StateMachineComponent* sm) {
     if (!sm || !sm->current_state || !sm->current_state->on_update) return;
     sm->current_state->on_update(sm->current_state, sm->id);

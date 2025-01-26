@@ -11,9 +11,14 @@ uint32_t add_enemy(float x, float y, uint32_t pl) {
     init_state_machine(sm, enemy);
 
     State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
-    idle_state->vars = create_idle_vars();
-
+    idle_state->vars = create_idle_vars(pl);
     add_state(sm , idle_state);
+
+    State* chase_state = create_state("chase", on_chase_enter, on_chase_update, on_chase_exit, on_chase_free);
+    chase_state->vars = create_chase_vars(pl);
+    add_state(sm, chase_state);
+
+    switch_state(sm, "idle");
     
     create_damager(enemy, (DamagerComponent) {1, 0, false, 0});
     // Initialize components

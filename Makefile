@@ -23,5 +23,8 @@ update_run:
 run:
 	./bins/game
 
+run_debug:
+	valgrind --leak-check=full --show-leak-kinds=all bins/game
+
 clean:
 	rm bins/*

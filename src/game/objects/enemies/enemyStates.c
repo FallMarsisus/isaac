@@ -6,7 +6,7 @@ void randomize_idle_vars(IdleStateVars* vars) {
         random_float(-1, 1)
     };
     normalize(&vars->direction);
-    vars->speed = random_float(1, 5);
+    vars->speed = random_float(0.5, 1.5);
     vars->wander_time = random_float(0.5, 3);
 }
 
@@ -25,6 +25,7 @@ void on_idle_update(State* state, uint32_t id) {
     if(!vars) return;
 
     PositionComponent* pos = ECS_GetComponent(id, POSITION);
+    AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
     PositionComponent* playerPos = ECS_GetComponent(vars->player, POSITION);
 
     if(!pos || !playerPos) return;
@@ -42,9 +43,18 @@ void on_idle_update(State* state, uint32_t id) {
 
     if(vars->wander_time > 0) {
         vars->wander_time -= 1/60.;
-        
-        pos->vx = vars->direction.x;
-        pos->vy = vars->direction.y;
+
+        normalize(&vars->direction);
+        pos->vx = vars->direction.x * vars->speed;
+        pos->vy = vars->direction.y * vars->speed;
+
+        if(anim) {
+            if(vars->direction.y < -0.5) set_active_anim(anim, 1);
+            else if(vars->direction.y > 0.5) set_active_anim(anim, 0);
+            else if(vars->direction.x < -0.5) set_active_anim(anim, 2);
+            else if(vars->direction.x > 0.5) set_active_anim(anim, 3);
+            play_anim(anim);
+        }
     }
     else {
         randomize_idle_vars(vars);
@@ -68,6 +78,7 @@ void on_chase_update(State* state, uint32_t id) {
     if(!vars) return;
 
     PositionComponent* pos = ECS_GetComponent(id, POSITION);
+    AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
     PositionComponent* playerPos = ECS_GetComponent(vars->player, POSITION);
 
     if(!pos || !playerPos) return;
@@ -85,6 +96,13 @@ void on_chase_update(State* state, uint32_t id) {
     normalize(&dir);
     pos->vx = dir.x * vars->speed;
     pos->vy = dir.y * vars->speed;
+    if(anim) {
+        if(pos->vy < 0) set_active_anim(anim, 1);
+        else if(pos->vy > 0) set_active_anim(anim, 0);
+        else if(pos->vx < 0) set_active_anim(anim, 2);
+        else if(pos->vx > 0) set_active_anim(anim, 3);
+        play_anim(anim);
+    }
 }
 void on_chase_exit(State* state, uint32_t id) {}
 void on_chase_free(State* state, uint32_t id) {

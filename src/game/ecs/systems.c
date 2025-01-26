@@ -22,7 +22,7 @@ void free_components() {
     for (size_t i = 0; i < ECS_GetManager()->count; ++i) {
         StateMachineComponent* sm = ECS_GetComponent(ECS_GetManager()->entity_ids[i], STATE_MACHINE);
         if(sm) {
-            update_state_machine(sm);
+            free_state_machine(sm);
         }
 
         free_pathfinding_component(ECS_GetComponent(ECS_GetManager()->entity_ids[i], PATHFINDING));

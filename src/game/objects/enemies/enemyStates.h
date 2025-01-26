@@ -2,10 +2,15 @@
 
 #include "../../../utils/vector.h"
 #include "../../../utils/utils.h"
+
 #include "../../stateMachine/stateMachine.h"
+
 #include "../../event/eventSystem.h"
+
 #include "../../ecs/ecs.h"
 #include "../../ecs/components.h"
+
+#include "../../ecs/render/renderSystems.h"
 
 typedef struct {
     uint32_t player;

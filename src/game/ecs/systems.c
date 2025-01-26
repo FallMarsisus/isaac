@@ -3,16 +3,11 @@
 // Initialize the game with entities and components
 uint32_t initialize_game() {
     uint32_t player = add_player(100, 200);
-    add_enemy(500, 200, player);
-    add_blocks(0, 0);
-    add_enemy(-200, 300, player);
-    add_blocks(-1, 0);
 
     for(int i = 0; i < 20; i++) {
-        add_blocks(random_int(-5, 5), random_int(-5, 5));
+        add_blocks(i % 5 - 2, i / 5 - 2);
         add_enemy(random_int(-5000, 5000), random_int(-5000, 5000), player);
         add_chest(random_int(-5000, 5000), random_int(-5000, 5000));
-        add_block(random_int(-5000, 5000), random_int(-5000, 5000), get_sprites()->cobble_texture);
         
         float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
               x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
@@ -74,7 +69,7 @@ uint32_t add_player(float x, float y) {
     set_active_anim(animation, 0);
     play_anim(animation);
 
-    movement->speed = 10;
+    movement->speed = 5;
 
     return player;
 }
@@ -212,12 +207,15 @@ uint32_t add_chest(float x, float y) {
 }
 
 uint32_t add_blocks(int rX, int rY) {
-    for(int x = rX * 1280; x < (rX + 1) * 1280; x += 64) {
-        for(int y = rY * 720; y < (rY + 1) * 720; y += 64) {
-            if(rand() % 10 == 0) {
-                add_block(x, y, get_sprites()->cobble_texture);
-            }
-        }
+    int start_x = rX * 1280; int start_y = rY * 720;
+    int door_x = rand() % GRID_WIDTH; int door_y = rand() % GRID_HEIGHT;
+    for(int x = start_x; x < start_x + 1280; x += 64) {
+        if(start_x + door_x * 64 <= x && x <= (door_x + 1) * 64 + start_x) continue;
+        add_block(x, start_y, get_sprites()->cobble_texture);
+    }
+    for(int y = start_y; y < start_y  + 720; y += 64) {
+        if(start_y + door_y * 64 <= y && y <= (door_y + 1) * 64 + start_y) continue;
+        add_block(start_x, y, get_sprites()->cobble_texture);
     }
     return -1;
 }
@@ -302,8 +300,17 @@ void update_systems(uint32_t* entities, int amount,
 
 // Render all entities
 void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* renderer) {
-    for(int i = 0; i < amount; i++) {
-        u_int32_t id = entities[i];
+    //for(int i = 0; i < amount; i++) {
+    for(int i = 0; i < ECS_GetManager()->count; i++) {
+        u_int32_t id = ECS_GetManager()->entity_ids[i];
+        PositionComponent* position = ECS_GetComponent(id, POSITION);
+        SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
+        if(!position || !sprite) continue;
+        if(!(position->x + sprite->width >= cam.x &&
+        position->x <= cam.x + cam.w &&
+        position->y + sprite->height >= cam.y &&
+        position->y <= cam.y + cam.h)) continue;
+
         PathfindingComponent* targetComp = ECS_GetComponent(id, PATHFINDING);
 
         if(targetComp) {

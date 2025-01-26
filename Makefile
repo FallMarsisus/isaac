@@ -18,7 +18,7 @@ build_github:
 	gcc $(shell find src -type f -name '*.c') $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game_release
 
 update_run:
-	find ./src/. -name "*.c" -exec gcc $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game {} + && ./bins/game
+	gcc $(shell find src -type f -name '*.c') $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bins/game && ./bins/game
 
 run:
 	./bins/game

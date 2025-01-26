@@ -1,6 +1,6 @@
 #include "game.h"
 
-bool static_cam = true;
+bool static_cam = false;
 SDL_Rect cam = {
     0, 0, 1280, 720
 };

@@ -3,14 +3,14 @@
 #include <string.h>
 #include <stdbool.h>
 
-typedef struct dict_s Dictionary;
+typedef struct dict_s IntDictionary;
 
-Dictionary* create_dictionary();
-void free_dictionary(Dictionary* dict);
+IntDictionary* create_int_dictionary();
+void free_int_dictionary(IntDictionary* dict);
 
-void* get_from_dictionary(Dictionary* dict, int key);
+void* get_from_int_dictionary(IntDictionary* dict, int key);
 
-void add_to_dictionary(Dictionary* dict, int key, void* value);
-bool remove_from_dictionary(Dictionary *dict, int key);
+void add_to_int_dictionary(IntDictionary* dict, int key, void* value);
+bool remove_from_int_dictionary(IntDictionary *dict, int key);
 
-void iterate_dictionary(Dictionary* dict, void (*callback)(int key, void* value));
+void iterate_int_dictionary(IntDictionary* dict, void (*callback)(int key, void* value));

@@ -17,6 +17,8 @@
 
 #include "../../event/eventSystem.h"
 
+#include "../blocks/blocks.h"
+
 /**
  * @brief Creates a player entity at specified coordinates
  * @param x X coordinate for player spawn

@@ -28,7 +28,11 @@ uint32_t add_player(float x, float y) {
     init_anim_component(animation, 16, 16);
 
     init_parent_component(parent);
-
+    
+    uint32_t block = add_block(0, 0, get_sprites()->apple_item_texture);
+    ChildComponent* child = ECS_AddComponent(block, CHILD, sizeof(ChildComponent));
+    init_child_component(child, -100, 0, true, player);
+    add_child(parent, block);
 
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);

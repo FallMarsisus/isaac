@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../../utils/betterArrays/string_dict.h"
+#include "../../utils/betterArrays/dicts/string_dict.h"
 
 typedef struct state_s State;
 

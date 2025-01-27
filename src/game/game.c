@@ -1,8 +1,8 @@
 #include "game.h"
 
-bool static_cam = false;
+bool static_cam = true;
 SDL_Rect cam = {
-    0, 0, 1280, 720
+    32, 32, 1280, 720
 };
 
 int grid_width = (int) ceil(1280 / 64);
@@ -52,7 +52,6 @@ void change_room(Game* game, int x, int y) {
     if(r == NULL) {
         r = create_room(x, y);
         add_room(game->map, r);
-        add_entity(r, game->player);
 
         for(int i = 0; i < ECS_GetManager()->count; i++) {
             if(ECS_GetManager()->entity_ids[i] == game->player) continue;
@@ -130,6 +129,13 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
             i--;
         }
     }
+
+    update_elt(
+        game->player,
+        get_grid(game->current_room),
+        cam,
+        delta
+    );
     
     test_damage(game);
     is_colliding_with_chest(game->player);
@@ -144,8 +150,8 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
         }
         if(changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {
             if(static_cam) {
-                cam.x = changeX * cam.w;
-                cam.y = changeY * cam.h;
+                cam.x = changeX * cam.w + 32;
+                cam.y = changeY * cam.h + 32;
             }
             change_room(game, changeX, changeY);
             printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, cam.w, pos->y, cam.h, changeX, changeY);

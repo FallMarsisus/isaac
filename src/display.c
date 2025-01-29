@@ -31,6 +31,7 @@ void load_sprites(SDL_Renderer* ren) {
     sl->chest_opened_texture = load_texture("assets/tilemap/chest_opened.bmp", ren);
     sl->chest_closed_texture = load_texture("assets/tilemap/chest_closed.bmp", ren);
     sl->unknown_item_texture = load_texture("assets/inventory/unknown_item.bmp", ren);
+    sl->sword_item_texture = load_texture("assets/inventory/sword_item.bmp", ren);
 }
 
 sprite_list* get_sprites() {

@@ -19,7 +19,7 @@ SDL_Texture* get_texture_from_Id(enum ItemID id) {
         break;
 
     case SWORD:
-        return get_sprites()->sword_slash; // A CHANGER
+        return get_sprites()->sword_item_texture; // A CHANGER
         break;
 
     case KEY:

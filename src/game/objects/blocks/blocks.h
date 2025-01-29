@@ -39,6 +39,8 @@ uint32_t add_chest(float x, float y);
  * @return false if the entity is not colliding with a chest
  */
 
+bool is_colliding_with_item(uint32_t entity);
+
 bool is_colliding_with_chest(uint32_t entity);
 
 /**

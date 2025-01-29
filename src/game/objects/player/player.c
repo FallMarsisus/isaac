@@ -3,19 +3,18 @@
 uint32_t add_player(float x, float y) {
     // Create a player entity
     uint32_t player = ECS_CreateEntity();
+    InventoryComponent* inv = ECS_AddComponent(player, INVENT, sizeof(InventoryComponent));
     PositionComponent* position = ECS_AddComponent(player, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(player, SPRITE, sizeof(SpriteComponent));
     PlayerMovementComponent* movement = ECS_AddComponent(player, PLAYER, sizeof(PlayerMovementComponent));
     AnimationComponent* animation = ECS_AddComponent(player, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(player, BODY, sizeof(RigidbodyComponent));
     ParentComponent* parent = ECS_AddComponent(player, PARENT, sizeof(ParentComponent));
-    InventoryComponent* inv = ECS_AddComponent(player, INVENT, sizeof(InventoryComponent));
-
     position->x = 640; position->y = 360;
     position->vx = 0; position->vy = 0;
 
     // Initialize components
-    initialize_inventory(inv, 50, false);
+    initialize_inventory(inv, 20, false);
     for (int j  = 0; j < itemCount - 1; j++) {
         add_item_to_inventory(player, *itemList[j]);
     }
@@ -29,10 +28,10 @@ uint32_t add_player(float x, float y) {
 
     init_parent_component(parent);
     
-    uint32_t block = add_block(0, 0, get_sprites()->apple_item_texture);
-    ChildComponent* child = ECS_AddComponent(block, CHILD, sizeof(ChildComponent));
-    init_child_component(child, -100, 0, true, player);
-    add_child(parent, block);
+    // uint32_t block = add_block(0, 0, get_sprites()->apple_item_texture);
+    // ChildComponent* child = ECS_AddComponent(block, CHILD, sizeof(ChildComponent));
+    // init_child_component(child, -100, 0, true, player);
+    // add_child(parent, block);
 
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);

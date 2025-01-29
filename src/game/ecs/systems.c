@@ -103,11 +103,12 @@ void handle_input_system(SDL_Event* event) {
     }
 }
 
+
 uint32_t add_item_entity(float x, float y, ItemData itemType) {
     uint32_t itemEntity = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(itemEntity, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(itemEntity, SPRITE, sizeof(SpriteComponent));
-    ItemComponent* itemC = ECS_AddComponent(itemEntity, ITEM, sizeof(SpriteComponent));
+    ItemComponent* itemC = ECS_AddComponent(itemEntity, ITEM, sizeof(ItemComponent));
 
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
@@ -120,6 +121,7 @@ uint32_t add_item_entity(float x, float y, ItemData itemType) {
 
     return itemEntity;
 }
+
 
 void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta) {
     StateMachineComponent* sm = ECS_GetComponent(elt, STATE_MACHINE);

@@ -31,6 +31,33 @@ uint32_t add_chest(float x, float y) {
     return chest;
 }
 
+
+/*
+bool is_colliding_with_item(uint32_t entity) {
+    PositionComponent* pos = ECS_GetComponent(entity, POSITION);
+    for (size_t i = 0; i < ECS_GetManager()->count; ++i) {
+        if (ECS_GetManager()->entity_ids[i] == entity) continue;
+        PositionComponent* item_pos = ECS_GetComponent(ECS_GetManager()->entity_ids[i], POSITION);
+        SpriteComponent* item_sprite = ECS_GetComponent(ECS_GetManager()->entity_ids[i], SPRITE);
+        
+        if (item_sprite) {
+            if (pos && item_pos) {
+                float dx = pos->x - item_pos->x;
+                float dy = pos->y - item_pos->y;
+                float distance = sqrt(dx*dx + dy*dy);
+                
+                if (distance < 32) { // Assuming 64 is collision radius
+                    
+                    free_sprite_component(item_sprite);
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+*/
+
 bool is_colliding_with_chest(uint32_t entity) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     

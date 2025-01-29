@@ -5,6 +5,7 @@
 #include "../inventory/inventoryComponent.h"
 #include "../inventory/inventorySystem.h"
 #include "../../../utils/vector.h"
+#include <math.h>
 
 SDL_Texture* get_texture_from_Id(enum ItemID id) {
     switch (id)
@@ -30,42 +31,55 @@ SDL_Texture* get_texture_from_Id(enum ItemID id) {
         break;
 
     default:
-        return get_sprites()->apple_item_texture;
+        return get_sprites()->unknown_item_texture;
         break;
     }
 
     // Pour que les cas pas encore faits ne fassent pas crash le jeu
-    return get_sprites()->apple_item_texture;
+    return get_sprites()->unknown_item_texture;
 }
-
-bool update_item(uint32_t entity, uint32_t* other_entitites, int nb_entities) {
-    if (!ECS_GetComponent(entity, ITEM)) return false; // If entity is not an item
-
+bool update_item(uint32_t entity, uint32_t* other_entities, int nb_entities) {
+    ItemComponent* itemComponent = ECS_GetComponent(entity, ITEM);
+    if (!itemComponent) {
+        printf("DEBUG: Entity %u is not an item\n", entity);
+        return false;
+    }
+    
     InventoryComponent* invent;
     PositionComponent* position;
     PositionComponent* selfPosition = ECS_GetComponent(entity, POSITION);
 
-    if (!selfPosition) return false;
+    if (!selfPosition) {
+        printf("DEBUG: Item entity %u has no position\n", entity);
+        return false;
+    }
+
+    printf("DEBUG: Checking item at position (%.2f, %.2f)\n", selfPosition->x, selfPosition->y);
 
     for (int i = 0; i < nb_entities; i++) {
-        invent = ECS_GetComponent(other_entitites[i], INVENT);
-        position = ECS_GetComponent(other_entitites[i], POSITION);
+        invent = ECS_GetComponent(other_entities[i], INVENT);
+        position = ECS_GetComponent(other_entities[i], POSITION);
         
-
         if (!invent || !position) {
+            printf("DEBUG: Entity %u skipped (no inventory or position)\n", other_entities[i]);
             continue;
         }
 
+        float dx = position->x - selfPosition->x;
+        float dy = position->y - selfPosition->y;
+        float distance = sqrt(dx * dx + dy * dy);
 
-        float distance = sqrt((position->x - selfPosition->x) * (position->x - selfPosition->x) 
-            + (position->y - selfPosition->y) * (position->y - selfPosition->y)); 
+        printf("DEBUG: Distance to entity %u: %.2f\n", other_entities[i], distance);
 
-        if (distance <= 10) {
-            return transfer_item_into_inventory(entity, other_entitites[i]);
+        if (distance <= 50.0f) {
+            printf("DEBUG: Attempting transfer to entity %u\n", other_entities[i]);
+            if (transfer_item_into_inventory(entity, other_entities[i])) {
+                printf("DEBUG: Transfer successful\n");
+                return true;
+            } else {
+                printf("DEBUG: Transfer failed\n");
+            }
         }
-
-        // faudra ajouter un event je pense mais là j'ai la flemme
-
     }
 
     return false;

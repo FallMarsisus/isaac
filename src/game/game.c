@@ -118,8 +118,12 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
             delta
         );
 
+        uint32_t* entities2 = malloc(sizeof(uint32_t) );
+        entities2[0] = game->player;
+
+        
         // creating another to avoid polluting default function with too many args and return
-        if (ECS_GetComponent(entities[i], ITEM) != NULL && update_item(entities[i], entities, get_entity_amount(game->current_room))) {
+        if (ECS_GetComponent(entities[i], ITEM) && update_item(entities[i], entities2, 1)) {
             free_one_entity(entities[i]);
             ECS_RemoveEntity(entities[i]);
             remove_entity(game->current_room, entities[i]);
@@ -138,6 +142,7 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
     );
     
     test_damage(game);
+    // is_colliding_with_item(game->player);
     is_colliding_with_chest(game->player);
 
     PositionComponent* pos = ECS_GetComponent(game->player, POSITION);

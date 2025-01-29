@@ -90,6 +90,18 @@ void handle_input_system(SDL_Event* event) {
                 else if (!state[SDL_SCANCODE_E]) {
                     is_it_wanting_to_display = false;
                 }
+
+                // temp
+                static bool spacePressed = false;
+                if (state[SDL_SCANCODE_SPACE] && !spacePressed && inv != NULL) {
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    printf("mouse is in slot n° %d\n", get_slot_of_mouse(current->key, x, y));
+                    spacePressed = true;
+                } else if (!state[SDL_SCANCODE_SPACE]) {
+                    spacePressed = false;
+                }
+
                 if(distance > 0.01) {
                     position->vx = (dx / distance) * movement->speed;
                     position->vy = (dy / distance) * movement->speed;

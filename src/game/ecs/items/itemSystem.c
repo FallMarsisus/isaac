@@ -41,7 +41,7 @@ SDL_Texture* get_texture_from_Id(enum ItemID id) {
 bool update_item(uint32_t entity, uint32_t* other_entities, int nb_entities) {
     ItemComponent* itemComponent = ECS_GetComponent(entity, ITEM);
     if (!itemComponent) {
-        printf("DEBUG: Entity %u is not an item\n", entity);
+        // printf("DEBUG: Entity %u is not an item\n", entity);
         return false;
     }
     
@@ -50,18 +50,18 @@ bool update_item(uint32_t entity, uint32_t* other_entities, int nb_entities) {
     PositionComponent* selfPosition = ECS_GetComponent(entity, POSITION);
 
     if (!selfPosition) {
-        printf("DEBUG: Item entity %u has no position\n", entity);
+        // printf("DEBUG: Item entity %u has no position\n", entity);
         return false;
     }
 
-    printf("DEBUG: Checking item at position (%.2f, %.2f)\n", selfPosition->x, selfPosition->y);
+    // printf("DEBUG: Checking item at position (%.2f, %.2f)\n", selfPosition->x, selfPosition->y);
 
     for (int i = 0; i < nb_entities; i++) {
         invent = ECS_GetComponent(other_entities[i], INVENT);
         position = ECS_GetComponent(other_entities[i], POSITION);
         
         if (!invent || !position) {
-            printf("DEBUG: Entity %u skipped (no inventory or position)\n", other_entities[i]);
+            // printf("DEBUG: Entity %u skipped (no inventory or position)\n", other_entities[i]);
             continue;
         }
 
@@ -69,15 +69,15 @@ bool update_item(uint32_t entity, uint32_t* other_entities, int nb_entities) {
         float dy = position->y - selfPosition->y;
         float distance = sqrt(dx * dx + dy * dy);
 
-        printf("DEBUG: Distance to entity %u: %.2f\n", other_entities[i], distance);
+        // printf("DEBUG: Distance to entity %u: %.2f\n", other_entities[i], distance);
 
         if (distance <= 50.0f) {
-            printf("DEBUG: Attempting transfer to entity %u\n", other_entities[i]);
+            // printf("DEBUG: Attempting transfer to entity %u\n", other_entities[i]);
             if (transfer_item_into_inventory(entity, other_entities[i])) {
-                printf("DEBUG: Transfer successful\n");
+                // printf("DEBUG: Transfer successful\n");
                 return true;
             } else {
-                printf("DEBUG: Transfer failed\n");
+                // printf("DEBUG: Transfer failed\n");
             }
         }
     }

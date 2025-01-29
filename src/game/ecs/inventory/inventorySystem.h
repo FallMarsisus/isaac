@@ -11,4 +11,7 @@ void free_inventory(InventoryComponent* invent);
 bool add_item_to_inventory(uint32_t entity, ItemData item);
 bool remove_item_from_inventory(uint32_t entity, ItemData item);
 
+bool mouse_in_any_slot(uint32_t entity, int x, int y);
+int get_slot_of_mouse(uint32_t entity, int x, int y);
+
 void draw_inventory(uint32_t entity, SDL_Renderer* renderer);

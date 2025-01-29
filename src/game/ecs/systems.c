@@ -4,6 +4,8 @@
 uint32_t initialize_game() {
     uint32_t player = add_player(100, 200);
     add_item_entity(300, 300, apple);
+    add_chest(200, 500);
+    add_enemy(500, 200, player);
 
     for(int i = 0; i < 20; i++) {
         add_blocks(i % 5 - 2, i / 5 - 2);
@@ -21,20 +23,24 @@ uint32_t initialize_game() {
 }
 
 void free_components() {
-    for (size_t i = 0; i < ECS_GetManager()->count; ++i) {
-        StateMachineComponent* sm = ECS_GetComponent(ECS_GetManager()->entity_ids[i], STATE_MACHINE);
-        if(sm) {
-            free_state_machine(sm);
-        }
+    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
+        Node* current = ECS_GetManager()->st->dict->array[i];
+        while (current) {
+            StateMachineComponent* sm = ECS_GetComponent(current->key, STATE_MACHINE);
+            if(sm) {
+                free_state_machine(sm);
+            }
 
-        InventoryComponent* invent = ECS_GetComponent(ECS_GetManager()->entity_ids[i], INVENT);
-        if(invent) {
-            free_inventory(invent);
-        }
+            InventoryComponent* invent = ECS_GetComponent(current->key, INVENT);
+            if(invent) {
+                free_inventory(invent);
+            }
 
-        free_pathfinding_component(ECS_GetComponent(ECS_GetManager()->entity_ids[i], PATHFINDING));
-        free_all_other_components(ECS_GetManager()->entity_ids[i]);
-        free_all_render_components(ECS_GetManager()->entity_ids[i]);
+            free_pathfinding_component(ECS_GetComponent(current->key, PATHFINDING));
+            free_all_other_components(current->key);
+            free_all_render_components(current->key);
+            current = current->next;
+        }
     }
 }
 
@@ -67,38 +73,42 @@ void handle_input_system(SDL_Event* event) {
     if(state[SDL_SCANCODE_D]) dx += 1;
 
     float distance = sqrt(pow(dx, 2) + pow(dy, 2));
-    for (size_t i = 0; i < ECS_GetManager()->count; ++i) {
-        PlayerMovementComponent* movement = ECS_GetComponent(ECS_GetManager()->entity_ids[i], PLAYER);
-        PositionComponent* position = ECS_GetComponent(ECS_GetManager()->entity_ids[i], POSITION);
-        AnimationComponent* anim = ECS_GetComponent(ECS_GetManager()->entity_ids[i], ANIMATION);
-        InventoryComponent* inv = ECS_GetComponent(ECS_GetManager()->entity_ids[i], INVENT);
+    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
+        Node* current = ECS_GetManager()->st->dict->array[i];
+        while (current) {
+            PlayerMovementComponent* movement = ECS_GetComponent(current->key, PLAYER);
+            PositionComponent* position = ECS_GetComponent(current->key, POSITION);
+            AnimationComponent* anim = ECS_GetComponent(current->key, ANIMATION);
+            InventoryComponent* inv = ECS_GetComponent(current->key, INVENT);
 
-        if (movement && position) {
-            static bool is_it_wanting_to_display = false;
-            if (state[SDL_SCANCODE_E] && !is_it_wanting_to_display) {
-                is_it_wanting_to_display = true;
-                inv->isDisplayed = !inv->isDisplayed;
-            }
-            else if (!state[SDL_SCANCODE_E]) {
-                is_it_wanting_to_display = false;
-            }
-            if(distance > 0.01) {
-                position->vx = (dx / distance) * movement->speed;
-                position->vy = (dy / distance) * movement->speed;
-                if(anim) {
-                    if(dy < 0) set_active_anim(anim, 1);
-                    else if(dy > 0) set_active_anim(anim, 0);
-                    else if(dx < 0) set_active_anim(anim, 2);
-                    else if(dx > 0) set_active_anim(anim, 3);
-                    play_anim(anim);
+            if (movement && position) {
+                static bool is_it_wanting_to_display = false;
+                if (state[SDL_SCANCODE_E] && !is_it_wanting_to_display) {
+                    is_it_wanting_to_display = true;
+                    inv->isDisplayed = !inv->isDisplayed;
+                }
+                else if (!state[SDL_SCANCODE_E]) {
+                    is_it_wanting_to_display = false;
+                }
+                if(distance > 0.01) {
+                    position->vx = (dx / distance) * movement->speed;
+                    position->vy = (dy / distance) * movement->speed;
+                    if(anim) {
+                        if(dy < 0) set_active_anim(anim, 1);
+                        else if(dy > 0) set_active_anim(anim, 0);
+                        else if(dx < 0) set_active_anim(anim, 2);
+                        else if(dx > 0) set_active_anim(anim, 3);
+                        play_anim(anim);
+                    }
+                }
+                else {
+                    position->vx = 0; position->vy = 0;
+                    if(anim) {
+                        stop_anim(anim);
+                    }
                 }
             }
-            else {
-                position->vx = 0; position->vy = 0;
-                if(anim) {
-                    stop_anim(anim);
-                }
-            }
+            current = current->next;
         }
     }
 }
@@ -142,40 +152,49 @@ void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta) {
             update_elt(id, grid, cam, delta);
         }
     }
-
 }
 
 // Render all entities
 void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* renderer) {
     //for(int i = 0; i < amount; i++) {
-    for(int i = 0; i < ECS_GetManager()->count; i++) {
-        u_int32_t id = ECS_GetManager()->entity_ids[i];
-        //u_int32_t id = entities[i];
-        PositionComponent* position = ECS_GetComponent(id, POSITION);
-        SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
-        if(!position || !sprite) continue;
-        if(!(position->x + sprite->width >= cam.x &&
-        position->x <= cam.x + cam.w &&
-        position->y + sprite->height >= cam.y &&
-        position->y <= cam.y + cam.h)) continue;
+    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
+        Node* current = ECS_GetManager()->st->dict->array[i];
+        while (current) {    
+            u_int32_t id = current->key;
+            //u_int32_t id = entities[i];
+            PositionComponent* position = ECS_GetComponent(id, POSITION);
+            SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
+            if(!position || !sprite) {
+                current = current->next;
+                continue;
+            }
+            if(!(position->x + sprite->width >= cam.x &&
+            position->x <= cam.x + cam.w &&
+            position->y + sprite->height >= cam.y &&
+            position->y <= cam.y + cam.h)) {
+                current = current->next;
+                continue;
+            }
 
-        PathfindingComponent* targetComp = ECS_GetComponent(id, PATHFINDING);
+            PathfindingComponent* targetComp = ECS_GetComponent(id, PATHFINDING);
 
-        if(targetComp) {
-            PositionComponent* targetPos = ECS_GetComponent(targetComp->target, POSITION);
-            if(targetPos) {
-                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-                for(int j = 0; j < targetComp->path_length - 1; j++) {
-                    SDL_RenderDrawRect(renderer, &(SDL_Rect) {
-                        64 * targetComp->path[2 * j] + 16, 
-                        64 * targetComp->path[2 * j + 1] + 16, 
-                        32, 
-                        32
-                    });
+            if(targetComp) {
+                PositionComponent* targetPos = ECS_GetComponent(targetComp->target, POSITION);
+                if(targetPos) {
+                    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+                    for(int j = 0; j < targetComp->path_length - 1; j++) {
+                        SDL_RenderDrawRect(renderer, &(SDL_Rect) {
+                            64 * targetComp->path[2 * j] + 16, 
+                            64 * targetComp->path[2 * j + 1] + 16, 
+                            32, 
+                            32
+                        });
+                    }
                 }
             }
+            
+            render_component(id, cam, renderer);
+            current = current->next;
         }
-        
-        render_component(id, cam, renderer);
     }
 }

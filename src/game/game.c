@@ -29,7 +29,7 @@ Game* create_game() {
     register_listener(EVENT_PLAYER_MOVED, on_player_move);
     register_listener(EVENT_CHEST_OPENED, on_chest_open);
     register_listener(EVENT_STATE_CHANGE, on_state_change);
-
+    
     return game;
 }
 void free_game(Game* game) {
@@ -53,32 +53,40 @@ void change_room(Game* game, int x, int y) {
         r = create_room(x, y);
         add_room(game->map, r);
 
-        for(int i = 0; i < ECS_GetManager()->count; i++) {
-            if(ECS_GetManager()->entity_ids[i] == game->player) continue;
-            PositionComponent* position = ECS_GetComponent(ECS_GetManager()->entity_ids[i], POSITION);
-            ChildComponent* child = ECS_GetComponent(ECS_GetManager()->entity_ids[i], CHILD);
-            RigidbodyComponent* body = ECS_GetComponent(ECS_GetManager()->entity_ids[i], BODY);
+        for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
+            Node* current = ECS_GetManager()->st->dict->array[i];
+            while (current) {
+                if(current->key == game->player) {
+                    current = current->next;
+                    continue;
+                }
+                PositionComponent* position = ECS_GetComponent(current->key, POSITION);
+                ChildComponent* child = ECS_GetComponent(current->key, CHILD);
+                RigidbodyComponent* body = ECS_GetComponent(current->key, BODY);
 
-            if (position == NULL) {
-                continue;
-            }
-
-            if(position->camFixed || 
-               ((int) floor(position->x / cam.w) == x && (int) floor(position->y / cam.h) == y)) {
-                if(!child) {
-                    add_entity(r, ECS_GetManager()->entity_ids[i]);
+                if (position == NULL) {
+                    current = current->next;
+                    continue;
                 }
 
-                int pos_x = (int) (position->x - cam.x) / 64;
-                int pos_y = (int) (position->y - cam.y) / 64;
-                if(pos_x < 0) pos_x = 0;
-                if(pos_y < 0) pos_y = 0;
-                if(pos_x >= get_grid_width(r)) pos_x = get_grid_width(r) - 1;
-                if(pos_y >= get_grid_height(r)) pos_y = get_grid_height(r) - 1;
+                if(position->camFixed || 
+                ((int) floor(position->x / cam.w) == x && (int) floor(position->y / cam.h) == y)) {
+                    if(!child) {
+                        add_entity(r, current->key);
+                    }
 
-                if(body && !body->is_dynamic) {
-                    get_grid(r)[pos_y][pos_x] = 1;
+                    int pos_x = (int) (position->x - cam.x) / 64;
+                    int pos_y = (int) (position->y - cam.y) / 64;
+                    if(pos_x < 0) pos_x = 0;
+                    if(pos_y < 0) pos_y = 0;
+                    if(pos_x >= get_grid_width(r)) pos_x = get_grid_width(r) - 1;
+                    if(pos_y >= get_grid_height(r)) pos_y = get_grid_height(r) - 1;
+
+                    if(body && !body->is_dynamic) {
+                        get_grid(r)[pos_y][pos_x] = 1;
+                    }
                 }
+                current = current->next;
             }
         }
     }
@@ -110,7 +118,6 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
 
     uint32_t* entities = get_entities(game->current_room);
     for(int i = 0; i < get_entity_amount(game->current_room); i++) {
-
         update_elt(
             entities[i],
             get_grid(game->current_room),

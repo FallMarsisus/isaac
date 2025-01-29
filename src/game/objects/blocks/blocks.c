@@ -60,31 +60,38 @@ bool is_colliding_with_item(uint32_t entity) {
 
 bool is_colliding_with_chest(uint32_t entity) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
-    
-    for (size_t i = 0; i < ECS_GetManager()->count; ++i) {
-        if (ECS_GetManager()->entity_ids[i] == entity) continue;
-        PositionComponent* chest_pos = ECS_GetComponent(ECS_GetManager()->entity_ids[i], POSITION);
-        SpriteComponent* chest_sprite = ECS_GetComponent(ECS_GetManager()->entity_ids[i], SPRITE);
-        
-        // Check if entity is a chest by checking its texture
-        if (chest_sprite && chest_sprite->texture == get_sprites()->chest_closed_texture) {
-            if (pos && chest_pos) {
-                // Simple distance check for collision
-                float dx = pos->x - chest_pos->x;
-                float dy = pos->y - chest_pos->y;
-                float distance = sqrt(dx*dx + dy*dy);
-                
-                if (distance < 64) { // Assuming 64 is collision radius
-                    // Change chest texture to opened
-                    chest_sprite->texture = get_sprites()->chest_opened_texture;
-                    ChestOpenedEvent* event = malloc(sizeof(ChestOpenedEvent));
-                    event->chest_id = ECS_GetManager()->entity_ids[i];
-                    event->player_id = entity;
-                    event->x = chest_pos->x; event->y = chest_pos->y;
-                    trigger_event(EVENT_CHEST_OPENED, event);
-                    return true;
+
+    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
+        Node* current = ECS_GetManager()->st->dict->array[i];
+        while (current) {
+            if(current->key == entity) {
+                current = current->next;
+                continue;
+            }
+            PositionComponent* chest_pos = ECS_GetComponent(current->key, POSITION);
+            SpriteComponent* chest_sprite = ECS_GetComponent(current->key, SPRITE);
+            
+            // Check if entity is a chest by checking its texture
+            if (chest_sprite && chest_sprite->texture == get_sprites()->chest_closed_texture) {
+                if (pos && chest_pos) {
+                    // Simple distance check for collision
+                    float dx = pos->x - chest_pos->x;
+                    float dy = pos->y - chest_pos->y;
+                    float distance = sqrt(dx*dx + dy*dy);
+                    
+                    if (distance < 64) { // Assuming 64 is collision radius
+                        // Change chest texture to opened
+                        chest_sprite->texture = get_sprites()->chest_opened_texture;
+                        ChestOpenedEvent* event = malloc(sizeof(ChestOpenedEvent));
+                        event->chest_id = current->key;
+                        event->player_id = entity;
+                        event->x = chest_pos->x; event->y = chest_pos->y;
+                        trigger_event(EVENT_CHEST_OPENED, event);
+                        return true;
+                    }
                 }
             }
+            current = current->next;
         }
     }
     return false;

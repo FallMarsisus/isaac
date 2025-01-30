@@ -3,6 +3,7 @@
 #include "../../display.h"
 
 #include "../../utils/utils.h"
+#include "../../utils/mouse.h"
 
 #include "../event/eventSystem.h"
 #include "../event/events/listeners.h"

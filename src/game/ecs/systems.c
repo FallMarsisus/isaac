@@ -92,14 +92,15 @@ void handle_input_system(SDL_Event* event) {
                 }
 
                 // temp
-                static bool spacePressed = false;
-                if (state[SDL_SCANCODE_SPACE] && !spacePressed && inv != NULL) {
-                    int x, y;
-                    SDL_GetMouseState(&x, &y);
+                static bool mouseClicked = false;
+                int x, y;
+                Uint32 mouseState = SDL_GetMouseState(&x, &y);
+                
+                if ((mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouseClicked && inv != NULL) {
                     printf("mouse is in slot n° %d\n", get_slot_of_mouse(current->key, x, y));
-                    spacePressed = true;
-                } else if (!state[SDL_SCANCODE_SPACE]) {
-                    spacePressed = false;
+                    mouseClicked = true;
+                } else if (!(mouseState & SDL_BUTTON(SDL_BUTTON_LEFT))) {
+                    mouseClicked = false;
                 }
 
                 if(distance > 0.01) {

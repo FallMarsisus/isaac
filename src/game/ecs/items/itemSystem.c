@@ -1,11 +1,13 @@
+#include <math.h>
+#include <stdlib.h>
 #include "itemSystem.h"
 #include "itemList.h"
+#include "../health/healthSystem.h"
 #include "../../../display.h"
 #include "../ecs.h"
 #include "../inventory/inventoryComponent.h"
 #include "../inventory/inventorySystem.h"
 #include "../../../utils/vector.h"
-#include <math.h>
 
 SDL_Texture* get_texture_from_Id(enum ItemID id) {
     switch (id)
@@ -38,6 +40,78 @@ SDL_Texture* get_texture_from_Id(enum ItemID id) {
     // Pour que les cas pas encore faits ne fassent pas crash le jeu
     return get_sprites()->unknown_item_texture;
 }
+
+Action* get_item_actions(enum ItemID id) {
+    Action* action = malloc(sizeof(Action));
+        switch (id)
+    {
+    case POTION:
+        action->nb_actions = 1;
+
+        action->titles = malloc(sizeof(char*) * action->nb_actions);
+        action->titles[0] = "consommer";
+
+        action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
+        action->functions[0] = itemHeal; 
+        break;
+    
+    case APPLE:
+        action->nb_actions = 1;
+        
+        action->titles = malloc(sizeof(char*) * action->nb_actions);
+        action->titles[0] = "consommer";
+
+        action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
+        action->functions[0] = itemHeal; 
+        break;
+
+    case SWORD:
+        action->nb_actions = 1;
+        
+        action->titles = malloc(sizeof(char*) * action->nb_actions);
+        action->titles[0] = "équiper";
+
+        action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
+        action->functions[0] = itemDoNothing; 
+        break;
+
+    case KEY:
+        action->nb_actions = 0;
+        
+        action->titles = NULL;
+
+        action->functions = NULL;
+        break;
+
+    case SHIELD:
+        action->nb_actions = 1;
+        
+        action->titles = malloc(sizeof(char*) * action->nb_actions);
+        action->titles[0] = "équiper";
+
+        action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
+        action->functions[0] = itemDoNothing;
+        break;
+
+    default:
+        action->nb_actions = 0;
+        
+        action->titles = NULL;
+
+        action->functions = NULL;
+        break;
+    }
+
+
+    return action;
+}
+
+
+void freeAction(Action* act) {
+    free(act->titles);
+    free(act->functions);
+}
+
 bool update_item(uint32_t entity, uint32_t* other_entities, int nb_entities) {
     ItemComponent* itemComponent = ECS_GetComponent(entity, ITEM);
     if (!itemComponent) {

@@ -6,5 +6,6 @@ typedef struct {
 	int max_mana;
 	int mana;
 	int shield;
+	bool isDisplayed;
 	//effcts genre poison à ajouter
 } HealthComponent;

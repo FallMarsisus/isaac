@@ -116,20 +116,78 @@ int get_slot_of_mouse(uint32_t entity, int x, int y) {
 
 }
 
+int get_clicked_acion(InventoryComponent* invent, int x, int y) {
+	if (!invent || invent->selected_slot == -1 || invent->selected_slot_actions == NULL) {
+		return -1;
+	}
 
-void updateSelectedSlot(uint32_t entity, int x, int y) {
+	int nbRows = NB_ROWS;
+	int widthPos = invent->selected_slot % nbRows;
+	int heightPos = invent->selected_slot / nbRows;
+
+	int xPos = (MARGIN+SPACING+SLOT_SIZE) + heightPos * (SPACING + SLOT_SIZE);
+
+	for (int i = 0; i < invent->selected_slot_actions->nb_actions; i++) {
+		int yPos = (MARGIN+SPACING) + (widthPos+i) * (SPACING + SLOT_SIZE);
+		SDL_Rect actions_rect = {
+			xPos,
+			yPos,
+			160,
+			SPACING+SLOT_SIZE
+		};
+
+		if (mouseInRect(x, y, actions_rect)) {
+			return i;
+		}
+	}
+
+	for (int i = invent->selected_slot_actions->nb_actions; i < invent->selected_slot_actions->nb_actions+2; i++) {
+		int yPos = (MARGIN+SPACING) + (widthPos+i) * (SPACING + SLOT_SIZE);
+		SDL_Rect actions_rect = {
+			xPos,
+			yPos,
+			160,
+			SPACING+SLOT_SIZE
+		};
+
+		if (mouseInRect(x, y, actions_rect)) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+void executeAction(uint32_t entity, InventoryComponent* invent, int selectedAction) {
+	// fonction super moche
+	(invent->selected_slot_actions->functions[selectedAction])(entity, invent->items[invent->selected_slot]);
+}
+
+int onClic(uint32_t entity, int x, int y) {
 	InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
-	if (!invent) return;
+	if (!invent) return -1;
 
 	if (invent->selected_slot == -1) {
 		invent->selected_slot = mouse_in_any_slot(entity, x, y);
 		invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
-		return;
+		return invent->selected_slot;
 	}
 
-	// faudra gérer le cas si y'a déjà un slot sélectionné
-	invent->selected_slot = mouse_in_any_slot(entity, x, y);
-	invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
+	// pour gérer le cas si y'a déjà un slot sélectionné
+	int action = get_clicked_acion(invent, x, y);
+	printf("Action selected: %d\n", action);
+
+	if (action >= invent->selected_slot_actions->nb_actions) {
+		get_constant_functions(action - invent->selected_slot_actions->nb_actions)(entity, invent->items[invent->selected_slot]);
+		return -1;
+	} else if (action >= 0) {
+		executeAction(entity, invent, action);
+		return -1;
+	} else { // ce else me trigger
+		invent->selected_slot = mouse_in_any_slot(entity, x, y);
+		invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
+		return invent->selected_slot;
+	}
 }
 
 
@@ -175,8 +233,25 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer) {
 	}
 
 
-	// ajouter les deux actions communes à tous les items (drop & inspect)
-	
+	// techniquemement ça marche de deux manières donc je préfère faire deux boucles
+	for (int i = inventory->selected_slot_actions->nb_actions; i < inventory->selected_slot_actions->nb_actions+2; i++) {
+
+		int yPos = (MARGIN+SPACING) + (widthPos+i) * (SPACING + SLOT_SIZE);
+		actions_rect = (SDL_Rect) {
+			xPos,
+			yPos,
+			160,
+			SPACING+SLOT_SIZE
+		};
+
+		if (mouseInRect(mouseX, mouseY, actions_rect)) {
+			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		} else {
+			SDL_SetRenderDrawColor(renderer, 255, 200, 255, 255);
+		}
+
+		SDL_RenderFillRect(renderer, &actions_rect);
+	}
 
 
 }
@@ -222,11 +297,12 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer) {
 		}; // Position and size of each item
 
 
+
 		// change the color according to pos of mouse and if slot is full
 		if (i < inventory->nb_items && inventory->items[i].id != -1) {
 			
 			// change the color according to pos of mouse
-			if (mouse_in_slot(mouseX, mouseY, widthPos, heightPos)) {
+			if (mouseInRect(mouseX, mouseY, itemRect)) {
 				SDL_SetRenderDrawColor(renderer, 200, 200, 255, 255);
 			} else {
 				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -237,7 +313,7 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer) {
 		} else {
 
 			// change color if mouse in slot
-			if (mouse_in_slot(mouseX, mouseY, widthPos, heightPos)) {
+			if (mouseInRect(mouseX, mouseY, itemRect)) {
 				SDL_SetRenderDrawColor(renderer, 200, 200, 255, 128);
 			} else {
 				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);

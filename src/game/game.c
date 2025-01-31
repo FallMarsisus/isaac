@@ -180,5 +180,13 @@ void draw_game(SDL_Renderer* renderer, Game* game) {
     draw_inventory(game->player, renderer);
     display_health(game->player, renderer);
 
+    SDL_SetRenderDrawColor(renderer, 0, 255, 255, 100);
+    SDL_Rect rec = {0, 0, 5, 5};
+    for(rec.x = 0; rec.x < cam.w; rec.x += 64) {
+        for(rec.y = 0; rec.y < cam.h; rec.y += 64) {
+            SDL_RenderFillRect(renderer, &rec);
+        }
+    }
+
     SDL_RenderPresent(renderer);
 }

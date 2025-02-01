@@ -2,12 +2,15 @@
 
 // Initialize the game with entities and components
 uint32_t initialize_game() {
+
+
     uint32_t player = add_player(100, 200);
     add_item_entity(300, 300, apple);
     add_chest(200, 500);
     add_enemy(500, 200, player);
 
-    for(int i = 0; i < 20; i++) {
+    
+    for(int i = 0; i < 30; i++) {
         add_blocks(i % 5 - 2, i / 5 - 2);
         add_enemy(random_int(-5000, 5000), random_int(-5000, 5000), player);
         add_chest(random_int(-5000, 5000), random_int(-5000, 5000));
@@ -16,8 +19,8 @@ uint32_t initialize_game() {
               x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
         add_teleporter(x1, y1, x2, y2);
         add_teleporter(x2, y2, x1, y1);
-
     }
+
 
     return player;
 }
@@ -61,9 +64,9 @@ void free_one_entity(uint32_t entity) {
 
     ECS_RemoveEntity(entity);
 }
-
-// Handle input for player movement
 void handle_input_system(SDL_Event* event) {
+
+    static bool is_use_sword = false;
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
     int dx = 0, dy = 0;
@@ -71,6 +74,12 @@ void handle_input_system(SDL_Event* event) {
     if(state[SDL_SCANCODE_S]) dy += 1;
     if(state[SDL_SCANCODE_A]) dx -= 1;
     if(state[SDL_SCANCODE_D]) dx += 1;
+    if(state[SDL_SCANCODE_ESCAPE]) {
+        SDL_Event quit;
+        quit.type = SDL_QUIT;
+        SDL_PushEvent(&quit);
+    }
+    
 
     float distance = sqrt(pow(dx, 2) + pow(dy, 2));
     for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
@@ -80,6 +89,7 @@ void handle_input_system(SDL_Event* event) {
             PositionComponent* position = ECS_GetComponent(current->key, POSITION);
             AnimationComponent* anim = ECS_GetComponent(current->key, ANIMATION);
             InventoryComponent* inv = ECS_GetComponent(current->key, INVENT);
+            SwordComponent* sword = ECS_GetComponent(current->key, SWORD_C);
 
             if (movement && position) {
                 static bool is_it_wanting_to_display = false;
@@ -120,6 +130,9 @@ void handle_input_system(SDL_Event* event) {
                     }
                 }
             }
+
+            
+
             current = current->next;
         }
     }
@@ -158,6 +171,8 @@ void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta) {
     
     update_physics(elt, delta);
 
+    
+
     if(parent) {
         for(int i = 0; i < get_ids_len(parent->children); i++) {
             uint32_t id = get_ids(parent->children)[i];
@@ -168,6 +183,8 @@ void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta) {
 
 // Render all entities
 void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* renderer) {
+
+    render_background(cam, renderer, get_sprites()->background_texture);
     //for(int i = 0; i < amount; i++) {
     for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
         Node* current = ECS_GetManager()->st->dict->array[i];
@@ -204,7 +221,6 @@ void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* 
                     }
                 }
             }
-            
             render_component(id, cam, renderer);
             current = current->next;
         }

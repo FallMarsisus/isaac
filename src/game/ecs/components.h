@@ -2,10 +2,12 @@
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>
+
 #include <stdint.h>
 
 #include "../../utils/betterArrays/id_array.h"
 #include "../../utils/betterArrays/dyn_arrays.h"
+#include "items/itemData.h"
 
 typedef enum {
     POSITION,
@@ -23,7 +25,8 @@ typedef enum {
     HEALTH,
     ITEM,
     DAMAGER,
-    STATE_MACHINE
+    STATE_MACHINE,
+    SWORD_C
 } ComponentType;
 
 // Position and velocity component
@@ -107,3 +110,5 @@ typedef struct {
 
     uint32_t parent;
 } ChildComponent;
+
+

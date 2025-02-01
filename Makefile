@@ -2,18 +2,24 @@
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -Wextra -g -lm
-LFLAGS = -lSDL2 -lSDL2_ttf -LSDL2_image
+CFLAGS = -Wall -Wextra -g
+LFLAGS = -lm -lSDL2 -lSDL2_ttf
+
+# Detect OS
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S), Darwin)
+	CFLAGS += -I/opt/homebrew/include
+	LFLAGS += -L/opt/homebrew/lib -lSDL2_image
+endif
 
 # Source files
-#SRC = src/display.c src/main.c src/game/game.c src/game/ecs/ecs.c src/game/ecs/systems.c src/utils/chained_list.c src/utils/dict.c src/utils/dyn_arrays.c src/utils/id_array.c src/utils/timer.c src/utils/utils.c src/utils/vector.c
 SRC = $(shell find src -type f -name '*.c')
 
 # Object files directory
 OBJDIR = obj
 
 # Object files
-OBJ = $(SRC:%.c=$(OBJDIR)/%.o)
+OBJ = $(patsubst src/%.c,$(OBJDIR)/%.o,$(SRC))
 
 # Executable name
 EXEC = bins/game
@@ -32,7 +38,7 @@ $(EXEC): $(OBJ)
 	$(CC) $(LFLAGS) $(CFLAGS) $(OBJ) -o $(EXEC)
 
 # Compiling source files to object files
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: src/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(LFLAGS) $(CFLAGS) -c $< -o $@
 

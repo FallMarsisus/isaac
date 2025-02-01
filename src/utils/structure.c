@@ -143,7 +143,7 @@ Structure* create_structure() {
 
     //Array
     st->array = malloc(sizeof(NodeArray));
-    st->array->capacity = 100;
+    st->array->capacity = 200;
     st->array->array = calloc(st->array->capacity, sizeof(Node*));
     st->array->len = 0;
 

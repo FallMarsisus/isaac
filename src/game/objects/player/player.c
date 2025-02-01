@@ -10,6 +10,8 @@ uint32_t add_player(float x, float y) {
     AnimationComponent* animation = ECS_AddComponent(player, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(player, BODY, sizeof(RigidbodyComponent));
     ParentComponent* parent = ECS_AddComponent(player, PARENT, sizeof(ParentComponent));
+    SwordComponent* sword = ECS_AddComponent(player, SWORD_C, sizeof(SwordComponent));
+    create_sword(player, SWORD, 10, 64, 1);
     position->x = 640; position->y = 360;
     position->vx = 0; position->vy = 0;
 
@@ -27,11 +29,14 @@ uint32_t add_player(float x, float y) {
     init_anim_component(animation, 16, 16);
 
     init_parent_component(parent);
+
+
+    /*uint32_t sword = add_block(0, 0, get_sprites()->sword_item_texture);
+    ChildComponent* child = ECS_AddComponent(sword, CHILD, sizeof(SwordComponent));
     
-    uint32_t block = add_block(0, 0, get_sprites()->sword_item_texture);
-    ChildComponent* child = ECS_AddComponent(block, CHILD, sizeof(ChildComponent));
-    init_child_component(child, -100, 0, true, player);
-    add_child(parent, block);
+    init_child_component(child, -64, 0, true, player);
+    add_child(parent, child);*/
+
 
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);

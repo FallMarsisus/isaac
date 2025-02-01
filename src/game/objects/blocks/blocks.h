@@ -24,6 +24,14 @@
 uint32_t add_block(float x, float y, SDL_Texture* texture);
 
 /**
+ * @brief Creates a background tile entity at specified coordinates
+ * @param x X coordinate for block placement
+ * @param y Y coordinate for block placement
+ * @return Entity ID of the created block
+ */
+uint32_t add_background_tile(float x, float y);
+
+/**
  * @brief Creates a chest at specified coordinates with a closed_chest texture
  * @param x X coordinate for block placement
  * @param y Y coordinate for block placement

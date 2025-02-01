@@ -5,8 +5,8 @@ SDL_Rect cam = {
     32, 32, 1280, 720
 };
 
-int grid_width = (int) ceil(1280 / 64);
-int grid_height = (int) ceil(720 / 64);
+int grid_width;
+int grid_height;
 
 typedef struct game_s {
     Map* map;
@@ -17,6 +17,9 @@ typedef struct game_s {
 
 Game* create_game() {
     Game* game = malloc(sizeof(Game));
+
+    grid_width = (int) ceil(1280 / 64);
+    grid_height = (int) ceil(720 / 64);
 
     init_event_system();
 
@@ -110,7 +113,11 @@ void test_damage(Game* game) {
     else if (!is_colliding_with_enemy(game->player)) {
         attacked = false;
     }
-    
+    if(SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT]) {
+    // Gestion des dégâts faits par le joueur en utilisant use_sword
+    SwordComponent* sword = ECS_GetComponent(game->player, SWORD_C);
+    use_sword(game->player, get_nearest_enemy(game->player));
+    }
 }
 
 void update_game(Game* game, int win_width, int win_height, float delta) {
@@ -124,6 +131,8 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
             cam,
             delta
         );
+
+        
 
         uint32_t* entities2 = malloc(sizeof(uint32_t) );
         entities2[0] = game->player;

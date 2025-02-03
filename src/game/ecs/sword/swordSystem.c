@@ -25,6 +25,7 @@ bool use_sword(uint32_t entity, uint32_t enemy)
         return false;
     }
 
+    if(enemy == -1) return false;
     PositionComponent* pos2 = ECS_GetComponent(enemy, POSITION);
     if (!pos2) {
         printf("Position component not found for enemy %u\n", enemy);

@@ -96,7 +96,7 @@ void get_keys(Game* game, SDL_Event* event) {
 void test_damage(Game* game) {
     uint32_t nearest_enemy = get_nearest_enemy(game->player);
     static bool attacked = false;
-    if(nearest_enemy != UINT32_MAX && is_colliding_with_enemy(game->player) && attacked == false) {
+    if(nearest_enemy != -1 && is_colliding_with_enemy(game->player) && attacked == false) {
         attacked = true;
         if(apply_damage(nearest_enemy, game->player) == false) {
             printf("ERROR : Player not found\n");

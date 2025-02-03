@@ -45,8 +45,7 @@ uint32_t add_enemy(float x, float y, uint32_t pl) {
     return enemy;
 }
 
-uint32_t get_nearest_enemy(uint32_t entity)
-{
+uint32_t get_nearest_enemy(uint32_t entity) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     int min_dist = 1000;
     int nearest_enemy = -1;
@@ -60,7 +59,9 @@ uint32_t get_nearest_enemy(uint32_t entity)
             }
             
             PositionComponent* enemy_pos = ECS_GetComponent(current->key, POSITION);
-            if (enemy_pos) {
+            HealthComponent* health_comp = ECS_GetComponent(current->key, HEALTH);
+            
+            if (enemy_pos && health_comp) {
                 int dist = sqrt(pow(pos->x - enemy_pos->x, 2) + pow(pos->y - enemy_pos->y, 2));
                 if (dist < min_dist) {
                     min_dist = dist;

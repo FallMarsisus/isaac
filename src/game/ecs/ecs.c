@@ -72,6 +72,7 @@ void* ECS_AddComponent(uint32_t entity, ComponentType component_type, int compon
 void* ECS_GetComponent(uint32_t entity, ComponentType component_type) {
     ComponentArray* array = &ecs->components[component_type];
     int index = get_index(ecs->st, entity);
+    if(index == -1) return NULL;
 
     if (!array->entity_mask[index]) return NULL; // Return NULL if the component is not present
     return (char*)array->components + (index * array->component_size);

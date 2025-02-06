@@ -93,6 +93,8 @@ bool isDead(uint32_t entity) {
 bool display_health(uint32_t entity, SDL_Renderer *renderer)
 {
 	HealthComponent* health = ECS_GetComponent(entity, HEALTH);
+	if(!health) return false;
+
 	int screenWidth;
 	SDL_GetRendererOutputSize(renderer, &screenWidth, NULL);
 

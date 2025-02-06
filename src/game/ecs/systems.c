@@ -167,9 +167,7 @@ void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta) {
     update_pathfinding_system(elt, grid, cam);
     
     update_physics(elt, delta);
-
     
-
     if(parent) {
         for(int i = 0; i < get_ids_len(parent->children); i++) {
             uint32_t id = get_ids(parent->children)[i];

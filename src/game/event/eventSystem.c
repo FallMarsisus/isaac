@@ -161,6 +161,7 @@ void call_events() {
 
         // Call listeners for the event type
         EventSystem* system = &event_system[event.type];
+        if(!system) continue;
         for (int i = 0; i < system->listener_count; ++i) {
             system->listeners[i](event);
         }

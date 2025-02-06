@@ -117,9 +117,6 @@ void test_damage(Game* game) {
 void update_game(Game* game, int win_width, int win_height, float delta) {
     call_events();
 
-    PositionComponent* pos = ECS_GetComponent(game->player, POSITION);
-    SpriteComponent* sprite = ECS_GetComponent(game->player, SPRITE);
-
     uint32_t* entities = get_entities(game->current_room);
     for(int i = 0; i < get_entity_amount(game->current_room); i++) {
         update_elt(
@@ -154,6 +151,9 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
     test_damage(game);
     // is_colliding_with_item(game->player);
     is_colliding_with_chest(game->player);
+    
+    PositionComponent* pos = ECS_GetComponent(game->player, POSITION);
+    SpriteComponent* sprite = ECS_GetComponent(game->player, SPRITE);
 
     if(pos) {
         int changeX = floor(pos->x / cam.w);

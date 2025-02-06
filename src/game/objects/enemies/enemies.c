@@ -47,6 +47,8 @@ uint32_t add_enemy(float x, float y, uint32_t pl) {
 
 uint32_t get_nearest_enemy(uint32_t entity) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
+    if(!pos) return -1;
+
     int min_dist = 1000;
     int nearest_enemy = -1;
 
@@ -77,6 +79,7 @@ uint32_t get_nearest_enemy(uint32_t entity) {
 bool is_colliding_with_enemy(uint32_t entity) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
+    if(!pos || !body) return false;
     
     for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
         Node* current = ECS_GetManager()->st->dict->array[i];

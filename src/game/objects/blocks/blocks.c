@@ -14,6 +14,23 @@ uint32_t add_block(float x, float y, SDL_Texture* texture) {
 
     init_sprite_component(sprite, 64, 64, texture);
 
+
+
+    
+    return block;
+}
+
+uint32_t add_background_tile(float x, float y) {
+    uint32_t block = ECS_CreateEntity();
+    PositionComponent* position = ECS_AddComponent(block, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(block, SPRITE, sizeof(SpriteComponent));
+
+    position->x = x; position->y = y;
+    position->vx = 0; position->vy = 0;
+    position->camFixed = true;
+
+    init_sprite_component(sprite, 64, 64, get_sprites()->background_texture);
+
     return block;
 }
 
@@ -100,14 +117,44 @@ bool is_colliding_with_chest(uint32_t entity) {
 uint32_t add_blocks(int rX, int rY) {
     int start_x = rX * 1280; int start_y = rY * 720;
     int door_x = rand() % GRID_WIDTH; int door_y = rand() % GRID_HEIGHT;
+    
+    // Add outer walls
     for(int x = start_x; x < start_x + 1280; x += 64) {
         if(start_x + door_x * 64 <= x && x <= (door_x + 1) * 64 + start_x) continue;
         add_block(x, start_y, get_sprites()->cobble_texture);
     }
-    for(int y = start_y; y < start_y  + 720; y += 64) {
+    for(int y = start_y; y < start_y + 720; y += 64) {
         if(start_y + door_y * 64 <= y && y <= (door_y + 1) * 64 + start_y) continue;
         add_block(start_x, y, get_sprites()->cobble_texture);
     }
+    // Add random inner walls
+    int num_inner_walls = rand() % 5 + 3; // Random number of inner walls between 3 and 8
+    for (int i = 0; i < num_inner_walls; i++) {
+        int wall_x, wall_y;
+        bool horizontal = rand() % 2;
+        int wall_length = rand() % 2 + 3; // Random wall length between 3 and 5 blocks
+
+        if (horizontal) {
+            wall_x = start_x + (rand() % (1280 / 64 - wall_length - 2) + 1) * 64;
+            wall_y = start_y + (rand() % (720 / 64 - 2) + 1) * 64;
+        } else {
+            wall_x = start_x + (rand() % (1280 / 64 - 2) + 1) * 64;
+            wall_y = start_y + (rand() % (720 / 64 - wall_length - 2) + 1) * 64;
+        }
+
+        for (int j = 0; j < wall_length; j++) {
+            if (horizontal) {
+                if (wall_x + j * 64 < start_x + 1280 && !(start_x + door_x * 64 <= wall_x + j * 64 && wall_x + j * 64 <= (door_x + 1) * 64 + start_x)) {
+                    add_block(wall_x + j * 64, wall_y, get_sprites()->cobble_texture);
+                }
+            } else {
+                if (wall_y + j * 64 < start_y + 720 && !(start_y + door_y * 64 <= wall_y + j * 64 && wall_y + j * 64 <= (door_y + 1) * 64 + start_y)) {
+                    add_block(wall_x, wall_y + j * 64, get_sprites()->cobble_texture);
+                }
+            }
+        }
+    }
+
     return -1;
 }
 

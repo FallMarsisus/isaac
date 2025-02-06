@@ -3,6 +3,7 @@
 #include "../../../display.h"
 
 #include "../../ecs/components.h"
+
 #include "../../ecs/ecs.h"
 
 #include "../../ecs/render/renderSystems.h"
@@ -12,6 +13,7 @@
 #include "../../ecs/health/healthSystem.h"
 #include "../../ecs/items/itemSystem.h"
 #include "../../ecs/damager/damagerSystem.h"
+#include "../../ecs/sword/swordSystem.h"
 
 #include "../../ecs/items/itemList.h"
 

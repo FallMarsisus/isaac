@@ -7,7 +7,9 @@ uint32_t add_enemy(float x, float y, uint32_t pl) {
     AnimationComponent* animation = ECS_AddComponent(enemy, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(enemy, BODY, sizeof(RigidbodyComponent));
     StateMachineComponent* sm = ECS_AddComponent(enemy, STATE_MACHINE, sizeof(StateMachineComponent));
-
+    HealthComponent* health = ECS_AddComponent(enemy, HEALTH, sizeof(HealthComponent));
+    
+    init_health_component(enemy, 1, 10, 0);
     init_state_machine(sm, enemy);
 
     State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
@@ -43,8 +45,7 @@ uint32_t add_enemy(float x, float y, uint32_t pl) {
     return enemy;
 }
 
-uint32_t get_nearest_enemy(uint32_t entity)
-{
+uint32_t get_nearest_enemy(uint32_t entity) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     int min_dist = 1000;
     int nearest_enemy = -1;
@@ -58,7 +59,9 @@ uint32_t get_nearest_enemy(uint32_t entity)
             }
             
             PositionComponent* enemy_pos = ECS_GetComponent(current->key, POSITION);
-            if (enemy_pos) {
+            HealthComponent* health_comp = ECS_GetComponent(current->key, HEALTH);
+            
+            if (enemy_pos && health_comp) {
                 int dist = sqrt(pow(pos->x - enemy_pos->x, 2) + pow(pos->y - enemy_pos->y, 2));
                 if (dist < min_dist) {
                     min_dist = dist;

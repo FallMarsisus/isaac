@@ -68,6 +68,15 @@ void stop_anim(AnimationComponent* anim) {
     anim->counter = 0;
 }
 
+void render_background(SDL_Rect cam, SDL_Renderer* renderer, SDL_Texture* background) {
+    for (int y = 0; y < 720; y += 64) {
+        for (int x = 0; x < 1280; x += 64) {
+            SDL_Rect dest = {x, y, 64, 64};
+            SDL_RenderCopy(renderer, background, NULL, &dest);
+        }
+    }
+}
+
 void render_component(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);

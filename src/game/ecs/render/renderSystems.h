@@ -17,4 +17,18 @@ void play_anim(AnimationComponent* anim);
 void pause_anim(AnimationComponent* anim);
 void stop_anim(AnimationComponent* anim);
 
+
+/**
+ * @brief Renders the background texture to the screen.
+ *
+ * This function takes a camera rectangle, an SDL renderer, and an SDL texture
+ * representing the background, and renders the background texture to the screen
+ * using the provided renderer.
+ *
+ * @param cam The SDL_Rect representing the camera view.
+ * @param renderer The SDL_Renderer used to render the texture.
+ * @param background The SDL_Texture representing the background to be rendered.
+ */
+void render_background(SDL_Rect cam, SDL_Renderer *renderer, SDL_Texture *background);
+
 void render_component(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer);

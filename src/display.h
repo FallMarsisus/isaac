@@ -20,6 +20,7 @@ typedef struct {
     SDL_Texture* chest_closed_texture;
     SDL_Texture* unknown_item_texture;
     SDL_Texture* sword_item_texture;
+    SDL_Texture* background_texture;
 
 } sprite_list;
 

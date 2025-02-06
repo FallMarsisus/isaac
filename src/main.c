@@ -9,7 +9,7 @@
 
 #include "display.h"
 
-int main(int argc, char* argv[]) {
+int main() {
     srand(time(NULL));
 
     // Initialize SDL

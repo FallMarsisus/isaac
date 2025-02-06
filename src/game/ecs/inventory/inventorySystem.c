@@ -110,6 +110,10 @@ int get_slot_of_mouse(uint32_t entity, int x, int y) {
 	}
 
 	invent->selected_slot = NB_ROWS * (x/42) + y/42;
+
+	freeAction(invent->selected_slot_actions);
+	free(invent->selected_slot_actions);
+
 	invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
 
 	return NB_ROWS * (x/42) + y/42; // magic numbers
@@ -169,6 +173,10 @@ int onClic(uint32_t entity, int x, int y) {
 
 	if (invent->selected_slot == -1) {
 		invent->selected_slot = mouse_in_any_slot(entity, x, y);
+
+		freeAction(invent->selected_slot_actions);
+		free(invent->selected_slot_actions);
+
 		invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
 		return invent->selected_slot;
 	}
@@ -185,6 +193,10 @@ int onClic(uint32_t entity, int x, int y) {
 		return -1;
 	} else { // ce else me trigger
 		invent->selected_slot = mouse_in_any_slot(entity, x, y);
+		
+		freeAction(invent->selected_slot_actions);
+		free(invent->selected_slot_actions);
+		
 		invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
 		return invent->selected_slot;
 	}

@@ -24,7 +24,7 @@ uint32_t add_player(float x, float y) {
     init_rigidbody_component(body, 2, 2, 60, 60);
     body->is_dynamic = true;
 
-    init_health_component(player, 11, 100, 0);
+    init_health_component(player, 12, 100, 0);
     init_sprite_component(sprite, 64, 64, get_sprites()->player_texture);
     init_anim_component(animation, 16, 16);
 

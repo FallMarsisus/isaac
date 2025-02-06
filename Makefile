@@ -1,7 +1,7 @@
 # Compiler
 CC = gcc
 
-# Compiler flags
+
 CFLAGS = -Wall -Wextra -g
 LFLAGS = -lm -lSDL2 -lSDL2_ttf
 
@@ -32,6 +32,7 @@ run:
 
 run_debug:
 	valgrind --leak-check=full --show-leak-kinds=all $(EXEC)
+
 
 # Linking the executable
 $(EXEC): $(OBJ)

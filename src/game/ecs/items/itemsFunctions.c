@@ -20,7 +20,7 @@ ActionFunction get_constant_functions(int i) {
 
 	switch (i) {
 	case 0:
-		/* code */
+		return itemDoNothing;
 		break;
 	
 	case 1:

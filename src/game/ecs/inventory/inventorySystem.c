@@ -177,7 +177,7 @@ int onClic(uint32_t entity, int x, int y) {
 	int action = get_clicked_acion(invent, x, y);
 	printf("Action selected: %d\n", action);
 
-	if (action >= invent->selected_slot_actions->nb_actions) {
+	if (invent->selected_slot_actions && invent->selected_slot != -1 && action >= invent->selected_slot_actions->nb_actions) {
 		get_constant_functions(action - invent->selected_slot_actions->nb_actions)(entity, invent->items[invent->selected_slot]);
 		return -1;
 	} else if (action >= 0) {

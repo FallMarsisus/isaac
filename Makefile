@@ -36,12 +36,12 @@ run_debug:
 
 # Linking the executable
 $(EXEC): $(OBJ)
-	$(CC) $(LFLAGS) $(CFLAGS) $(OBJ) -o $(EXEC)
+	$(CC) $(CFLAGS) $(OBJ) -o $(EXEC) $(LFLAGS)
 
 # Compiling source files to object files
 $(OBJDIR)/%.o: src/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(LFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean up
 clean:

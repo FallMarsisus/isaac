@@ -108,6 +108,8 @@ Action* get_item_actions(enum ItemID id) {
 
 
 void freeAction(Action* act) {
+    if (act == NULL) return;
+
     free(act->titles);
     free(act->functions);
 }

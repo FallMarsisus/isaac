@@ -24,3 +24,8 @@ typedef struct {
     int id;
     char* new_state;
 } StateChangeEvent;
+
+typedef struct {
+    uint32_t entity1;
+    uint32_t entity2;
+} CollisionEvent;

@@ -7,8 +7,6 @@ uint32_t initialize_game() {
     add_chest(200, 500);
     add_enemy(500, 200, player);
 
-    
-    /*
     for(int i = 0; i < 30; i++) {
         add_blocks(i % 5 - 2, i / 5 - 2);
         add_enemy(random_int(-5000, 5000), random_int(-5000, 5000), player);
@@ -19,9 +17,7 @@ uint32_t initialize_game() {
         add_teleporter(x1, y1, x2, y2);
         add_teleporter(x2, y2, x1, y1);
     }
-    */
-
-
+    
     return player;
 }
 

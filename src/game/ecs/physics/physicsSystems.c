@@ -132,6 +132,7 @@ void update_physics(uint32_t id, float delta) {
                     }
 
                     if (isColliding(position, body, otherPos, otherBody)) {
+                        printf("Collided x!\n");
                         // Case Handling
                         if (!body->is_dynamic && !otherBody->is_dynamic) {
                             current = current->next;
@@ -189,6 +190,8 @@ void update_physics(uint32_t id, float delta) {
                             // Dynamic vs. Dynamic: Apply elastic collision resolution
                             //resolveDynamicCollision(position, body, otherPos, otherBody);
                         }
+
+                        
                     }
                     current = current->next;
                 }

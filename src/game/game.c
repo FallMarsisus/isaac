@@ -129,12 +129,9 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
             delta
         );
 
-        
-
-        uint32_t* entities2 = malloc(sizeof(uint32_t) );
+        uint32_t* entities2 = malloc(sizeof(uint32_t));
         entities2[0] = game->player;
 
-        
         // creating another to avoid polluting default function with too many args and return
         if (ECS_GetComponent(entities[i], ITEM) && update_item(entities[i], entities2, 1)) {
             free_one_entity(entities[i]);

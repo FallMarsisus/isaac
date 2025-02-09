@@ -19,6 +19,7 @@
 #include "items/itemSystem.h"
 #include "damager/damagerSystem.h"
 
+#include "../objects/enemies/enemyAi.h"
 #include "../objects/enemies/enemies.h"
 #include "../objects/player/player.h"
 #include "../objects/blocks/blocks.h"
@@ -63,14 +64,15 @@ uint32_t add_item_entity(float x, float y, ItemData itemType);
 void handle_input_system(SDL_Event* event);
 
 /**
- * @brief Updates all game systems for the specified entitiy
- * @param elt The updated entity id
- * @param grid Game world grid
- * @param cam Camera rectangle for viewport calculations
- * @param delta Delta time
+ * @brief Updates all systems for a single entity
+ * @param elt Entity ID to update
+ * @param grid Grid of the current room
+ * @param entities Array of entity IDs in the current room
+ * @param amount Number of entities in the array
+ * @param roomPos The room Position
+ * @param delta Time since last frame
  */
-void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta);
-
+void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Rect roomPos, float delta);
 /**
  * @brief Renders all visible entities using the game systems
  * @param entities Array of entity IDs to render

@@ -31,7 +31,7 @@ run:
 	$(EXEC)
 
 run_debug:
-	valgrind --leak-check=full --show-leak-kinds=all $(EXEC)
+	valgrind --leak-check=full --show-leak-kinds=definite $(EXEC)
 
 
 # Linking the executable

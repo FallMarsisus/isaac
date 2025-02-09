@@ -7,6 +7,7 @@
 
 #include "../../ecs/render/renderSystems.h"
 #include "../../ecs/physics/physicsSystems.h"
+#include "../../ecs/pathFinding/pathfindingSystems.h"
 #include "../../ecs/other/otherSystems.h"
 #include "../../ecs/health/healthSystem.h"
 #include "../../ecs/damager/damagerSystem.h"
@@ -14,6 +15,7 @@
 #include "../../event/eventSystem.h"
 
 #include "enemyStates.h"
+#include "enemyAi.h"
 
 /**
  * @brief Creates an enemy entity at specified coordinates

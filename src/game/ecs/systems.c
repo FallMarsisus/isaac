@@ -25,19 +25,8 @@ void free_components() {
     for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
         Node* current = ECS_GetManager()->st->dict->array[i];
         while (current) {
-            StateMachineComponent* sm = ECS_GetComponent(current->key, STATE_MACHINE);
-            if(sm) {
-                free_state_machine(sm);
-            }
-
-            InventoryComponent* invent = ECS_GetComponent(current->key, INVENT);
-            if(invent) {
-                free_inventory(invent);
-            }
-
-            free_pathfinding_component(ECS_GetComponent(current->key, PATHFINDING));
-            free_all_other_components(current->key);
-            free_all_render_components(current->key);
+            free_one_entity(current->key);
+            if(current == NULL) break;
             current = current->next;
         }
     }
@@ -53,6 +42,8 @@ void free_one_entity(uint32_t entity) {
     if(invent) {
         free_inventory(invent);
     }
+
+    free_enemy_ai(entity);
 
     free_pathfinding_component(ECS_GetComponent(entity, PATHFINDING));
     free_all_other_components(entity);
@@ -135,7 +126,6 @@ void handle_input_system(SDL_Event* event) {
     }
 }
 
-
 uint32_t add_item_entity(float x, float y, ItemData itemType) {
     uint32_t itemEntity = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(itemEntity, POSITION, sizeof(PositionComponent));
@@ -154,8 +144,7 @@ uint32_t add_item_entity(float x, float y, ItemData itemType) {
     return itemEntity;
 }
 
-
-void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta) {
+void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Rect roomPos, float delta) {
     StateMachineComponent* sm = ECS_GetComponent(elt, STATE_MACHINE);
     ParentComponent* parent = ECS_GetComponent(elt, PARENT);
 
@@ -163,22 +152,22 @@ void update_elt(uint32_t elt, int** grid, SDL_Rect cam, float delta) {
         update_state_machine(sm);
     }
     
-    update_others(elt, cam);
-    update_pathfinding_system(elt, grid, cam);
+    update_others(elt, roomPos);
+    update_pathfinding_system(elt, grid, roomPos);
+    update_enemy_ai(elt, entities, amount);
     
     update_physics(elt, delta);
     
     if(parent) {
         for(int i = 0; i < get_ids_len(parent->children); i++) {
             uint32_t id = get_ids(parent->children)[i];
-            update_elt(id, grid, cam, delta);
+            update_elt(id, grid, entities, amount, roomPos, delta);
         }
     }
 }
 
 // Render all entities
 void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* renderer) {
-
     render_background(cam, renderer, get_sprites()->background_texture);
     //for(int i = 0; i < amount; i++) {
     for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
@@ -201,21 +190,28 @@ void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* 
             }
 
             PathfindingComponent* targetComp = ECS_GetComponent(id, PATHFINDING);
-
             if(targetComp) {
                 PositionComponent* targetPos = ECS_GetComponent(targetComp->target, POSITION);
                 if(targetPos) {
                     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
                     for(int j = 0; j < targetComp->path_length - 1; j++) {
                         SDL_RenderDrawRect(renderer, &(SDL_Rect) {
-                            64 * targetComp->path[2 * j] + 16, 
-                            64 * targetComp->path[2 * j + 1] + 16, 
-                            32, 
-                            32
+                            targetComp->path[2 * j] - cam.x + 16,
+                            targetComp->path[2 * j + 1] - cam.y + 16,
+                            32, 32
                         });
                     }
                 }
             }
+
+            EnemyAiComponent* ai = ECS_GetComponent(id, ENEMYAI);
+            if(ai) {
+                Vector current;
+                queue_peek(ai->prev_pos, &current, sizeof(Vector));
+                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+                SDL_RenderDrawRect(renderer, &((SDL_Rect) {current.x - cam.x, current.y - cam.y, 16, 16}));
+            }
+
             render_component(id, cam, renderer);
             current = current->next;
         }

@@ -45,8 +45,8 @@ void on_idle_update(State* state, uint32_t id) {
         vars->wander_time -= 1/60.;
 
         normalize(&vars->direction);
-        pos->vx = vars->direction.x * vars->speed;
-        pos->vy = vars->direction.y * vars->speed;
+        /*pos->vx = vars->direction.x * vars->speed;
+        pos->vy = vars->direction.y * vars->speed;*/
 
         if(anim) {
             if(vars->direction.y < -0.5) set_active_anim(anim, 1);
@@ -94,8 +94,8 @@ void on_chase_update(State* state, uint32_t id) {
     }
 
     normalize(&dir);
-    pos->vx = dir.x * vars->speed;
-    pos->vy = dir.y * vars->speed;
+    /*pos->vx = dir.x * vars->speed;
+    pos->vy = dir.y * vars->speed;*/
     if(anim) {
         if(pos->vy < 0) set_active_anim(anim, 1);
         else if(pos->vy > 0) set_active_anim(anim, 0);

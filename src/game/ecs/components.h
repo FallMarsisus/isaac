@@ -7,6 +7,8 @@
 
 #include "../../utils/betterArrays/id_array.h"
 #include "../../utils/betterArrays/dyn_arrays.h"
+#include "../../utils/betterArrays/queue.h"
+#include "../../utils/vector.h"
 #include "items/itemData.h"
 
 typedef enum {
@@ -88,8 +90,9 @@ typedef struct {
 } PathfindingComponent;
 
 typedef struct {
-    int* interests;
-    int* danger;
+    Queue* prev_pos;
+    int prev_update;
+    Vector currentGoal;
 
     int speed;
     uint32_t target;

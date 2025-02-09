@@ -16,8 +16,12 @@ void ECS_CreateManager(int component_count) {
         ecs->components[i].entity_mask = calloc(ecs->st->array->capacity, sizeof(uint8_t)); // Initialize all masks to 0
         ecs->components[i].component_size = 0;
     }
+
+    register_listener(EVENT_ENTITY_REMOVED, onEntityRemove);
 }
 void ECS_DestroyManager() {
+    unregister_listener(EVENT_ENTITY_REMOVED, onEntityRemove);
+
     free_structure(ecs->st);
 
     for (int i = 0; i < ecs->component_count; ++i) {
@@ -84,6 +88,15 @@ int ECS_HasComponent(uint32_t entity, ComponentType component_type) {
 }
 
 void ECS_RemoveEntity(uint32_t entity) {
+    EntityRemovedEvent* event = malloc(sizeof(EntityRemovedEvent));
+    event->entity = entity;
+    trigger_event(EVENT_ENTITY_REMOVED, event);
+}
+
+void onEntityRemove(Event event) {
+    EntityRemovedEvent* e = (EntityRemovedEvent*)event.data;
+    uint32_t entity = e->entity;
+
     int dest = get_index(ecs->st, entity);
     int src = remove_element(ecs->st, entity); // Returns index of the last element
 
@@ -107,9 +120,9 @@ void ECS_RemoveEntity(uint32_t entity) {
         }
     }
 
-    // Clear last element (optional but prevents undefined behavior)
     for (int i = 0; i < ecs->component_count; ++i) {
-        ecs->components[i].entity_mask[src] = 0;
+        ComponentArray* comp = &ecs->components[i];
+        comp->entity_mask[src] = 0;
     }
 
     // Shrink storage if necessary

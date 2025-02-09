@@ -4,6 +4,9 @@
 #include "components.h"
 #include "../../utils/structure.h"
 
+#include "../event/eventList.h"
+#include "../event/eventSystem.h"
+
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -27,5 +30,7 @@ void* ECS_AddComponent(uint32_t entity, ComponentType component_type, int compon
 void* ECS_GetComponent(uint32_t entity, ComponentType component_type);
 int ECS_HasComponent(uint32_t entity, ComponentType component_type);
 void ECS_RemoveEntity(uint32_t entity);
+
+void onEntityRemove(Event event);
 
 #endif

@@ -30,9 +30,7 @@ cell* createCell(void* data, cell* next) {
     return cellule;
 }
 
-
 void append_elt(chained_list* l, void* element) {
-
     if (l->len == 0) {
         l->first = createCell(element, NULL);
         l->last = l->first;
@@ -40,12 +38,12 @@ void append_elt(chained_list* l, void* element) {
         return;
     }
 
-    l->first = createCell(element, l->first);
+    l->last->next = createCell(element, NULL);
+    l->last = l->last->next;
     l->len++;
 }
 
 void remove_elt(chained_list* l, void* element) {
-
     if(element == NULL) return;
     if(l == NULL || l->len == 0) return;
 

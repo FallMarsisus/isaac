@@ -15,7 +15,7 @@ void free_pathfinding_component(PathfindingComponent* component) {
     }
 }
 
-void update_pathfinding_system(uint32_t id, int** grid, SDL_Rect cam) {
+void update_pathfinding_system(uint32_t id, int** grid, SDL_Rect roomPos) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     PathfindingComponent* pathfinding = ECS_GetComponent(id, PATHFINDING);
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
@@ -25,10 +25,10 @@ void update_pathfinding_system(uint32_t id, int** grid, SDL_Rect cam) {
     SpriteComponent* targetSprite = ECS_GetComponent(pathfinding->target, SPRITE);
     if(!targetPos || !targetSprite) return;
 
-    float staticPosX = position->x - cam.x;
-    float staticPosY = position->y - cam.y;
+    float staticPosX = position->x - roomPos.x;
+    float staticPosY = position->y - roomPos.y;
 
-    if(pathfinding->last_update + 250 < SDL_GetTicks()) {
+    if(pathfinding->last_update + 1000 < SDL_GetTicks()) {
         pathfinding->last_update = SDL_GetTicks();
 
         int pos_x = floor(staticPosX + sprite->width / 2) / 64;
@@ -38,8 +38,8 @@ void update_pathfinding_system(uint32_t id, int** grid, SDL_Rect cam) {
         if(pos_x >= GRID_WIDTH) pos_x = GRID_WIDTH - 1; 
         if(pos_y >= GRID_HEIGHT) pos_y = GRID_HEIGHT - 1;
 
-        int target_x = floor(targetPos->x - cam.x + targetSprite->width / 2) / 64;
-        int target_y = floor(targetPos->y - cam.y + targetSprite->height / 2) / 64;
+        int target_x = floor(targetPos->x - roomPos.x + targetSprite->width / 2) / 64;
+        int target_y = floor(targetPos->y - roomPos.y + targetSprite->height / 2) / 64;
         if(target_x < 0) target_x = 0; 
         if(target_y < 0) target_y = 0;
         if(target_x >= GRID_WIDTH) target_x = GRID_WIDTH - 1; 
@@ -53,6 +53,26 @@ void update_pathfinding_system(uint32_t id, int** grid, SDL_Rect cam) {
 
         // Compute new path using A* algorithm
         a_star(pos_x, pos_y, target_x, target_y, &pathfinding->path, &pathfinding->path_length, grid);
+        if(pathfinding->path_length < 2) return;
+
+        int prevX = pathfinding->path[0]; int prevY = pathfinding->path[1];
+        int dx = 0; int dy = 0;
+
+        int j = 0;
+        for(int i = 0; i < pathfinding->path_length; i++) {
+            int newX = pathfinding->path[2 * i];
+            int newY = pathfinding->path[2 * i + 1];
+
+            //if(newX - prevX != dx || newY - prevY != dy) {
+                pathfinding->path[2 * j] = roomPos.x + newX * 64;
+                pathfinding->path[2 * j + 1] = roomPos.y + newY * 64;
+                dx = newX - prevX; dy = newY - prevY;
+                j++;
+            //}
+            prevX = newX; prevY = newY;
+        }
+        pathfinding->path_length = j;
+        
         pathfinding->current_step = 1;
     }
 
@@ -60,29 +80,18 @@ void update_pathfinding_system(uint32_t id, int** grid, SDL_Rect cam) {
     if (pathfinding->path_length > 0 && pathfinding->current_step < pathfinding->path_length) {
         //if Reached the next step, increment the step
         SDL_Rect blockHitbox = {
-            pathfinding->path[pathfinding->current_step * 2] * 64 + 32 - 4, 
-            pathfinding->path[pathfinding->current_step * 2 + 1] * 64 + 32 - 4, 
-            8, 8
+            pathfinding->path[pathfinding->current_step * 2], 
+            pathfinding->path[pathfinding->current_step * 2 + 1], 
+            64, 64
         };
         SDL_Rect hitbox = {
-            staticPosX + sprite->width / 2 - 4,
-            staticPosY + sprite->height / 2 - 4,
-            8, 8
+            position->x,
+            position->y,
+            sprite->width,
+            sprite->height
         };
         if(SDL_HasIntersection(&blockHitbox, &hitbox)) {
-            //position->x = cam.x + pathfinding->path[pathfinding->current_step * 2] * 64;
-            //position->y = cam.y + pathfinding->path[pathfinding->current_step * 2 + 1] * 64;
             pathfinding->current_step++;
         }
-
-        int next_x = pathfinding->path[pathfinding->current_step * 2];
-        int next_y = pathfinding->path[pathfinding->current_step * 2 + 1];
-
-        float dx = next_x * 64 - staticPosX;
-        float dy = next_y * 64 - staticPosY;
-
-        float distance = sqrt(dx * dx + dy * dy);
-        position->vx = (dx / distance) * pathfinding->speed;
-        position->vy = (dy / distance) * pathfinding->speed;
     }
 }

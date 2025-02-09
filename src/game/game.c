@@ -117,26 +117,33 @@ void test_damage(Game* game) {
 void update_game(Game* game, int win_width, int win_height, float delta) {
     call_events();
 
+    SDL_Rect room_pos = {
+        get_x(game->current_room) * cam.w,
+        get_y(game->current_room) * cam.h,
+        cam.w,
+        cam.y
+    };
+
     uint32_t* entities = get_entities(game->current_room);
     for(int i = 0; i < get_entity_amount(game->current_room); i++) {
         update_elt(
             entities[i],
             get_grid(game->current_room),
-            cam,
+            get_entities(game->current_room),
+            get_entity_amount(game->current_room),
+            room_pos,
             delta
         );
 
-        uint32_t* entities2 = malloc(sizeof(uint32_t));
-        entities2[0] = game->player;
-
         // creating another to avoid polluting default function with too many args and return
-        if (ECS_GetComponent(entities[i], ITEM) && update_item(entities[i], entities2, 1)) {
+        if (ECS_GetComponent(entities[i], ITEM) && 
+            update_item(entities[i], game->player, get_entities(game->current_room), get_entity_amount(game->current_room))
+        ) {
             free_one_entity(entities[i]);
             ECS_RemoveEntity(entities[i]);
             remove_entity(game->current_room, entities[i]);
             entities = get_entities(game->current_room);
 
-            fflush(stdout);
             i--;
         }
     }
@@ -144,7 +151,9 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
     update_elt(
         game->player,
         get_grid(game->current_room),
-        cam,
+        get_entities(game->current_room),
+        get_entity_amount(game->current_room),
+        room_pos,
         delta
     );
     

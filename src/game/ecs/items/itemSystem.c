@@ -113,15 +113,13 @@ void freeAction(Action* act) {
     free(act->functions);
 }
 
-bool update_item(uint32_t entity, uint32_t* other_entities, int nb_entities) {
+bool update_item(uint32_t entity, uint32_t player, uint32_t* other_entities, int nb_entities) {
     ItemComponent* itemComponent = ECS_GetComponent(entity, ITEM);
     if (!itemComponent) {
         // printf("DEBUG: Entity %u is not an item\n", entity);
         return false;
     }
-    
-    InventoryComponent* invent;
-    PositionComponent* position;
+
     PositionComponent* selfPosition = ECS_GetComponent(entity, POSITION);
 
     if (!selfPosition) {
@@ -131,12 +129,21 @@ bool update_item(uint32_t entity, uint32_t* other_entities, int nb_entities) {
 
     // printf("DEBUG: Checking item at position (%.2f, %.2f)\n", selfPosition->x, selfPosition->y);
 
-    for (int i = 0; i < nb_entities; i++) {
-        invent = ECS_GetComponent(other_entities[i], INVENT);
-        position = ECS_GetComponent(other_entities[i], POSITION);
+    for (int i = 0; i < nb_entities + 1; i++) {
+        int id;
+        if(i = nb_entities) id = player;
+        else id = other_entities[i];
+
+        if (id == entity) {
+            // printf("DEBUG: Entity %u skipped (self)\n", id);
+            continue;
+        }
+
+        InventoryComponent* invent = ECS_GetComponent(id, INVENT);
+        PositionComponent* position = ECS_GetComponent(id, POSITION);
         
         if (!invent || !position) {
-            // printf("DEBUG: Entity %u skipped (no inventory or position)\n", other_entities[i]);
+            // printf("DEBUG: Entity %u skipped (no inventory or position)\n", id);
             continue;
         }
 
@@ -144,11 +151,11 @@ bool update_item(uint32_t entity, uint32_t* other_entities, int nb_entities) {
         float dy = position->y - selfPosition->y;
         float distance = sqrt(dx * dx + dy * dy);
 
-        // printf("DEBUG: Distance to entity %u: %.2f\n", other_entities[i], distance);
+        // printf("DEBUG: Distance to entity %u: %.2f\n", id, distance);
 
         if (distance <= 50.0f) {
-            // printf("DEBUG: Attempting transfer to entity %u\n", other_entities[i]);
-            if (transfer_item_into_inventory(entity, other_entities[i])) {
+            // printf("DEBUG: Attempting transfer to entity %u\n", id);
+            if (transfer_item_into_inventory(entity, id)) {
                 // printf("DEBUG: Transfer successful\n");
                 return true;
             } else {

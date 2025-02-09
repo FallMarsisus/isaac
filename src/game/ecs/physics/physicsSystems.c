@@ -16,6 +16,20 @@ bool isColliding(PositionComponent* p1, RigidbodyComponent* r1,
             p1->y + r1->hitbox.y + r1->hitbox.h > p2->y + r2->hitbox.y);
 }
 
+bool checkCircleCollision(PositionComponent* p1, RigidbodyComponent* r1, 
+                          float cX, float cY, float radius) {
+    // Find the closest point on the rectangle to the circle's center
+    float closestX = fmaxf(p1->x + r1->hitbox.x, fminf(cX, p1->x + r1->hitbox.x + r1->hitbox.w));
+    float closestY = fmaxf(p1->y + r1->hitbox.y, fminf(cY, p1->y + r1->hitbox.y + r1->hitbox.h));
+    
+    // Calculate the distance between the circle's center and this closest point
+    float distanceX = cX - closestX;
+    float distanceY = cY - closestY;
+    
+    // Check if the distance is less than or equal to the circle's radius
+    return (distanceX * distanceX + distanceY * distanceY) <= (radius * radius);
+}
+
 void resolveAxis(PositionComponent* position, RigidbodyComponent* body, 
                  PositionComponent* otherPos, RigidbodyComponent* otherBody, 
                  float* velocity, char axis) {

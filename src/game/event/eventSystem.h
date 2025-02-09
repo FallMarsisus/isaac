@@ -12,6 +12,7 @@ typedef enum {
     EVENT_CHEST_OPENED,
     EVENT_STATE_CHANGE,
     EVENT_COLLISION,
+    EVENT_ENTITY_REMOVED,
     EVENT_MAX // Safeguard to know the number of event types
 } EventType;
 

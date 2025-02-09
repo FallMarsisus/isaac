@@ -21,6 +21,10 @@ typedef struct {
 } ChestOpenedEvent;
 
 typedef struct {
+    int entity;
+} EntityRemovedEvent;
+
+typedef struct {
     int id;
     char* new_state;
 } StateChangeEvent;

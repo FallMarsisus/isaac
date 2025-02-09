@@ -2,7 +2,7 @@
 
 State* create_state(char* name, StateCallback on_enter, StateCallback on_update, 
                     StateCallback on_exit, StateCallback on_free) {
-    State* state = (State*)malloc(sizeof(State));
+    State* state = calloc(1, sizeof(State));
     if (!state) {
         printf("Failed to allocate memory for state: %s\n", name);
         exit(1);
@@ -32,6 +32,7 @@ void init_state_machine(StateMachineComponent* sm, uint32_t id) {
 void free_state_machine(StateMachineComponent* sm) {
     iterate_dictionary(sm->state_dict, free_state);
     free_dictionary(sm->state_dict);
+    sm->current_state = NULL;
 }
 
 void add_state(StateMachineComponent* sm, State* state) {

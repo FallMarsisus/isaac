@@ -8,8 +8,10 @@ uint32_t add_enemy(float x, float y, uint32_t pl) {
     RigidbodyComponent* body = ECS_AddComponent(enemy, BODY, sizeof(RigidbodyComponent));
     StateMachineComponent* sm = ECS_AddComponent(enemy, STATE_MACHINE, sizeof(StateMachineComponent));
     HealthComponent* health = ECS_AddComponent(enemy, HEALTH, sizeof(HealthComponent));
+    EnemyAiComponent* ai = ECS_AddComponent(enemy, ENEMYAI, sizeof(EnemyAiComponent));
     
     init_health_component(enemy, 1, 10, 0);
+    init_enemy_ai_component(ai, pl);
     init_state_machine(sm, enemy);
 
     State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);

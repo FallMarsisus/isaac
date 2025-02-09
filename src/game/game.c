@@ -26,6 +26,7 @@ Game* create_game() {
     register_listener(EVENT_PLAYER_MOVED, on_player_move);
     register_listener(EVENT_CHEST_OPENED, on_chest_open);
     register_listener(EVENT_STATE_CHANGE, on_state_change);
+    register_listener(EVENT_COLLISION, on_collision);
     
     return game;
 }
@@ -33,6 +34,7 @@ void free_game(Game* game) {
     unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
     unregister_listener(EVENT_CHEST_OPENED, on_chest_open);
     unregister_listener(EVENT_STATE_CHANGE, on_state_change);
+    register_listener(EVENT_COLLISION, on_collision);
 
     free_map(game->map);
     
@@ -134,18 +136,6 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
             room_pos,
             delta
         );
-
-        // creating another to avoid polluting default function with too many args and return
-        if (ECS_GetComponent(entities[i], ITEM) && 
-            update_item(entities[i], game->player, get_entities(game->current_room), get_entity_amount(game->current_room))
-        ) {
-            free_one_entity(entities[i]);
-            ECS_RemoveEntity(entities[i]);
-            remove_entity(game->current_room, entities[i]);
-            entities = get_entities(game->current_room);
-
-            i--;
-        }
     }
 
     update_elt(

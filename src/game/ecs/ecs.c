@@ -82,9 +82,10 @@ void* ECS_GetComponent(uint32_t entity, ComponentType component_type) {
     return (char*)array->components + (index * array->component_size);
 }
 
-int ECS_HasComponent(uint32_t entity, ComponentType component_type) {
+bool ECS_HasComponent(uint32_t entity, ComponentType component_type) {
     int index = get_index(ecs->st, entity);
-    return ecs->components[component_type].entity_mask[index]; // Check presence of the component
+    if (index == -1) return false; // Entity does not exist
+    return ecs->components[component_type].entity_mask[index] != NULL; // Check presence of the component
 }
 
 void ECS_RemoveEntity(uint32_t entity) {

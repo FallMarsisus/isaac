@@ -17,3 +17,15 @@ void on_state_change(Event event) {
 
     switch_state(sm, stateEvent->new_state);
 }
+
+void on_collision(Event event) {
+    CollisionEvent* collision = (CollisionEvent*) event.data;
+    if (collision->entity1 == collision->entity2) return;
+
+
+    if (handle_collision_item(collision->entity1, collision->entity2)) {
+        return;
+    }   
+
+    // gérer les autres cas après
+}

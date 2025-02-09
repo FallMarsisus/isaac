@@ -28,7 +28,7 @@ ECS_Manager* ECS_GetManager();
 uint32_t ECS_CreateEntity();
 void* ECS_AddComponent(uint32_t entity, ComponentType component_type, int component_size);
 void* ECS_GetComponent(uint32_t entity, ComponentType component_type);
-int ECS_HasComponent(uint32_t entity, ComponentType component_type);
+bool ECS_HasComponent(uint32_t entity, ComponentType component_type);
 void ECS_RemoveEntity(uint32_t entity);
 
 void onEntityRemove(Event event);

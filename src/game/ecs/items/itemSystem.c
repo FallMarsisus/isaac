@@ -8,6 +8,7 @@
 #include "../inventory/inventoryComponent.h"
 #include "../inventory/inventorySystem.h"
 #include "../../../utils/vector.h"
+#include "../systems.h"
 
 SDL_Texture* get_texture_from_Id(enum ItemID id) {
     switch (id)
@@ -114,6 +115,12 @@ void freeAction(Action* act) {
 }
 
 bool update_item(uint32_t entity, uint32_t player, uint32_t* other_entities, int nb_entities) {
+    /**
+     * @deprecated This function is deprecated and may be removed in future versions.
+     * Please use the listeners instead.
+     */
+
+
     ItemComponent* itemComponent = ECS_GetComponent(entity, ITEM);
     if (!itemComponent) {
         // printf("DEBUG: Entity %u is not an item\n", entity);
@@ -165,6 +172,36 @@ bool update_item(uint32_t entity, uint32_t player, uint32_t* other_entities, int
     }
 
     return false;
+}
+
+bool handle_collision_item(uint32_t entity1, uint32_t entity2) {
+    uint32_t receiver, item;
+
+    if (entity1 == entity2) {
+        return false;
+    }
+
+
+    if (ECS_HasComponent(entity1, ITEM) && ECS_HasComponent(entity2, INVENT)) {
+        item = entity1;
+        receiver = entity2;
+
+    } else if (ECS_HasComponent(entity2, ITEM) && ECS_HasComponent(entity1, INVENT)) {
+        item = entity2;
+        receiver = entity1;
+
+    } else {
+        return false;
+    }
+
+    printf("handeling\n");
+    if (!transfer_item_into_inventory(item, receiver)) return false;
+
+    free_one_entity(item);
+    ECS_RemoveEntity(item);
+
+    return true;
+
 }
 
 bool transfer_item_into_inventory(uint32_t itemEntity, uint32_t targetEntity) {

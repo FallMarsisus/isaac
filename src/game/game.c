@@ -98,6 +98,9 @@ void get_keys(Game* game, SDL_Event* event) {
 void test_damage(Game* game) {
     uint32_t nearest_enemy = get_nearest_enemy(game->player);
     static bool attacked = false;
+    static bool sword_used = false;
+    static uint32_t tempSword = SDL_MAX_UINT32;
+
     if(nearest_enemy != -1 && is_colliding_with_enemy(game->player) && attacked == false) {
         attacked = true;
         if(apply_damage(nearest_enemy, game->player) == false) {
@@ -105,15 +108,35 @@ void test_damage(Game* game) {
         } else {
             printf("Player is taking damage from entity %d\n", nearest_enemy);
         }
-    }
-    else if (!is_colliding_with_enemy(game->player)) {
+    } else if (!is_colliding_with_enemy(game->player)) {
         attacked = false;
     }
+    static int sword_counter = 0;
+
     if(SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT]) {
-        // Gestion des dégâts faits par le joueur en utilisant use_sword
-        SwordComponent* sword = ECS_GetComponent(game->player, SWORD_C);
-        use_sword(game->player, get_nearest_enemy(game->player));
+        if (!sword_used) {
+            SwordComponent* sword = ECS_GetComponent(game->player, SWORD_C);
+            tempSword = use_sword(game->player, get_nearest_enemy(game->player));
+            sword_used = true;
+            sword_counter = 0; // reset counter when sword is used
+        } else {
+            sword_counter++;
+            if (sword_counter >= 10) {
+                if (tempSword != SDL_MAX_UINT32) {
+                    ECS_RemoveEntity(tempSword);
+                }
+                sword_used = false;
+                sword_counter = 0;
+            }
+        }
+    } else {
+        sword_used = false;
+        sword_counter = 0;
+        if (tempSword != SDL_MAX_UINT32) {
+            ECS_RemoveEntity(tempSword);
+        }
     }
+
 }
 
 void update_game(Game* game, int win_width, int win_height, float delta) {

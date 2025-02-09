@@ -24,6 +24,15 @@
 uint32_t add_block(float x, float y, SDL_Texture* texture);
 
 /**
+ * @brief Creates a block entity at specified coordinates with a texture
+ * @param x X coordinate for block placement
+ * @param y Y coordinate for block placement
+ * @param texture SDL texture for the block
+ * @return Entity ID of the created block
+ */
+uint32_t add_block_without_rigidbody(float x, float y, SDL_Texture* texture);
+
+/**
  * @brief Creates a background tile entity at specified coordinates
  * @param x X coordinate for block placement
  * @param y Y coordinate for block placement

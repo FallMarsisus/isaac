@@ -20,6 +20,20 @@ uint32_t add_block(float x, float y, SDL_Texture* texture) {
     return block;
 }
 
+uint32_t add_block_without_rigidbody(float x, float y, SDL_Texture* texture) {
+    uint32_t block = ECS_CreateEntity();
+    PositionComponent* position = ECS_AddComponent(block, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(block, SPRITE, sizeof(SpriteComponent));
+
+    position->x = x; position->y = y;
+    position->vx = 0; position->vy = 0;
+    position->camFixed = false;
+
+    init_sprite_component(sprite, 64, 64, texture);
+
+    return block;
+}
+
 uint32_t add_background_tile(float x, float y) {
     uint32_t block = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(block, POSITION, sizeof(PositionComponent));

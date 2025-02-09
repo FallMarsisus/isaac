@@ -8,4 +8,5 @@ typedef struct {
     int damage; 
     int range;
     int cooldown;
+    SDL_Renderer* renderer;
 } SwordComponent;

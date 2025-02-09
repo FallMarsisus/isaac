@@ -11,8 +11,9 @@ uint32_t add_player(float x, float y) {
     RigidbodyComponent* body = ECS_AddComponent(player, BODY, sizeof(RigidbodyComponent));
     ParentComponent* parent = ECS_AddComponent(player, PARENT, sizeof(ParentComponent));
     SwordComponent* sword = ECS_AddComponent(player, SWORD_C, sizeof(SwordComponent));
-    create_sword(player, SWORD, 10, 64, 1);
-    position->x = 640; position->y = 360;
+    
+    create_sword(sword, SWORD, 10, 64, 1);
+    position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
 
     // Initialize components

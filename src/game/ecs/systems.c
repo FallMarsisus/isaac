@@ -2,7 +2,7 @@
 
 // Initialize the game with entities and components
 uint32_t initialize_game() {
-    uint32_t player = add_player(100, 200);
+    uint32_t player = add_player(640, 360);
     add_item_entity(300, 300, apple);
     add_chest(200, 500);
     add_enemy(500, 200, player);

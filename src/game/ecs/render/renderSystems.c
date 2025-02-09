@@ -69,9 +69,10 @@ void stop_anim(AnimationComponent* anim) {
 }
 
 void render_background(SDL_Rect cam, SDL_Renderer* renderer, SDL_Texture* background) {
-    for (int y = 0; y < 720; y += 64) {
-        for (int x = 0; x < 1280; x += 64) {
-            SDL_Rect dest = {x, y, 64, 64};
+    int offsetX = cam.x % 64; int offsetY = cam.y % 64;
+    for (int y = -64; y < 720 + 64; y += 64) {
+        for (int x = -64; x < 1280 + 64; x += 64) {
+            SDL_Rect dest = {x - offsetX, y - offsetY, 64, 64};
             SDL_RenderCopy(renderer, background, NULL, &dest);
         }
     }

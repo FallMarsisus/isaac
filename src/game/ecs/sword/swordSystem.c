@@ -1,9 +1,10 @@
 #include "swordSystem.h"
 #include <stdio.h>
 
-bool create_sword(uint32_t entity, enum ItemID id, int damage, int range, int cooldown)
+bool create_sword(SwordComponent* sword, enum ItemID id, int damage, int range, int cooldown)
 {
-    SwordComponent* sword = ECS_AddComponent(entity, SWORD_C, sizeof(SwordComponent));
+    if(!sword) return false;
+
     sword->id = id;
     sword->damage = damage;
     sword->range = range;

@@ -43,7 +43,10 @@ SDL_Texture* get_texture_from_Id(enum ItemID id) {
 }
 
 Action* get_item_actions(enum ItemID id) {
+    if (id == -1) return NULL;
+
     Action* action = malloc(sizeof(Action));
+
     switch (id) {
     case POTION:
         action->nb_actions = 1;

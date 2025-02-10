@@ -23,7 +23,7 @@
  * @param player Player entity ID that the enemy will target
  * @return Entity ID of the created enemy
  */
-uint32_t add_enemy(float x, float y, uint32_t player);
+uint32_t add_enemy(float x, float y, uint32_t player, ID_array* entities);
 
 /**
  * @brief Checks if an entity is colliding with any enemy

@@ -95,6 +95,14 @@ void ECS_RemoveEntity(uint32_t entity) {
     EntityRemovedEvent* event = malloc(sizeof(EntityRemovedEvent));
     event->entity = entity;
     trigger_event(EVENT_ENTITY_REMOVED, event);
+
+    int index = get_index(ecs->st, entity);
+    if(!index) return;
+
+    for (int i = 0; i < ecs->component_count; ++i) {
+        ComponentArray* comp = &ecs->components[i];
+        comp->entity_mask[index] = 0;
+    }
 }
 
 void onEntityRemove(Event event) {
@@ -123,12 +131,7 @@ void onEntityRemove(Event event) {
             }
         }
     }
-
-    for (int i = 0; i < ecs->component_count; ++i) {
-        ComponentArray* comp = &ecs->components[i];
-        comp->entity_mask[src] = 0;
-    }
-
+    
     // Shrink storage if necessary
     if (prev_len * 4 < prev_capacity) {
         int new_capacity = prev_capacity / 2;

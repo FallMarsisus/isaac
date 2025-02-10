@@ -5,11 +5,11 @@ uint32_t initialize_game() {
     uint32_t player = add_player(640, 360);
     add_item_entity(300, 300, apple);
     add_chest(200, 500);
-    add_enemy(500, 200, player);
+    add_enemy(500, 200, player, NULL);
 
     for(int i = 0; i < 30; i++) {
         add_blocks(i % 5 - 2, i / 5 - 2);
-        add_enemy(random_int(-5000, 5000), random_int(-5000, 5000), player);
+        add_enemy(random_int(-5000, 5000), random_int(-5000, 5000), player, NULL);
         add_chest(random_int(-5000, 5000), random_int(-5000, 5000));
         
         float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
@@ -131,13 +131,13 @@ uint32_t add_item_entity(float x, float y, ItemData itemType) {
     ItemComponent* itemC = ECS_AddComponent(itemEntity, ITEM, sizeof(ItemComponent));
     RigidbodyComponent* body = ECS_AddComponent(itemEntity, BODY, sizeof(RigidbodyComponent));
 
-
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
     position->camFixed = false;
 
     init_sprite_component(sprite, 64, 64, get_texture_from_Id(itemType.id));
     init_rigidbody_component(body, 0, 0, 64, 64);
+    body->is_dynamic = true;
 
     itemC->isGettable = true;
     itemC->item = itemType;

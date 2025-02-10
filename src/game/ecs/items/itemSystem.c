@@ -201,7 +201,6 @@ bool handle_collision_item(uint32_t entity1, uint32_t entity2) {
     if (!transfer_item_into_inventory(item, receiver)) return false;
 
     free_one_entity(item);
-    ECS_RemoveEntity(item);
 
     return true;
 

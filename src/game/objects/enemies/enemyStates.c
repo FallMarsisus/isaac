@@ -49,17 +49,25 @@ void on_idle_update(State* state, uint32_t id) {
     IdleStateVars* vars = (IdleStateVars*) state->vars;
     if(!vars) return;
 
-    PositionComponent* pos = ECS_GetComponent(id, POSITION);
+    PositionComponent* posComp = ECS_GetComponent(id, POSITION);
+    SpriteComponent* spriteComp = ECS_GetComponent(id, SPRITE);
     AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
-    PositionComponent* playerPos = ECS_GetComponent(vars->player, POSITION);
 
-    if(!pos || !playerPos) return;
+    if(!posComp || !spriteComp) return;
+
+    PositionComponent* playerPosCom = ECS_GetComponent(vars->player, POSITION);
+    SpriteComponent* playerSpriteComp = ECS_GetComponent(vars->player, SPRITE);
+    if(!playerPosCom || !playerSpriteComp) return;
+
+    Vector pos = {posComp->x + spriteComp->width / 2, posComp->y + spriteComp->height / 2};
+    Vector playerPos = {playerPosCom->x + playerSpriteComp->width / 2, playerPosCom->y + playerSpriteComp->height / 2};
     
     Vector dir = (Vector) {
-        playerPos->x - pos->x,
-        playerPos->y - pos->y
+        playerPos.x - pos.x,
+        playerPos.y - pos.y
     };
-    if(vectorSize(&dir) < 250) {
+
+    if(vectorSize(&dir) < 250 && raycast(pos, dir, vectorSize(&dir), &vars->player, 1)) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "chase";
         trigger_event(EVENT_STATE_CHANGE, event);
@@ -70,8 +78,8 @@ void on_idle_update(State* state, uint32_t id) {
         vars->wander_time -= 1/60.;
 
         normalize(&vars->direction);
-        pos->vx = vars->direction.x * vars->speed;
-        pos->vy = vars->direction.y * vars->speed;
+        posComp->vx = vars->direction.x * vars->speed;
+        posComp->vy = vars->direction.y * vars->speed;
 
         if(anim) {
             if(vars->direction.y < -0.5) set_active_anim(anim, 1);
@@ -135,12 +143,13 @@ void on_chase_free(State* state, uint32_t id) {
     if(vars) free(vars);
 }
 
-FollowStateVars* create_follow_vars(uint32_t target) {
+FollowStateVars* create_follow_vars(uint32_t target, ID_array* entity_ids) {
     FollowStateVars* vars = malloc(sizeof(FollowStateVars));
     vars->target = target;
     vars->speed = 2;
     vars->prev_pos = create_queue();
     vars->prev_update = SDL_GetTicks();
+    vars->entity_ids = entity_ids;
     return vars;
 }
 void on_follow_enter(State* state, uint32_t id) {

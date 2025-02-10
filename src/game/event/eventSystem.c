@@ -166,6 +166,9 @@ void call_events() {
             system->listeners[i](event);
         }
 
-        if(event.data != NULL) free(event.data);
+        if(event.data != NULL) {
+            free(event.data);
+            event.data = NULL;
+        }
     }
 }

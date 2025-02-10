@@ -15,7 +15,6 @@
 #include "../../event/eventSystem.h"
 
 #include "enemyStates.h"
-#include "enemyAi.h"
 
 /**
  * @brief Creates an enemy entity at specified coordinates

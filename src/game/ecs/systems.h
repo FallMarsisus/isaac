@@ -19,7 +19,6 @@
 #include "items/itemSystem.h"
 #include "damager/damagerSystem.h"
 
-#include "../objects/enemies/enemyAi.h"
 #include "../objects/enemies/enemies.h"
 #include "../objects/player/player.h"
 #include "../objects/blocks/blocks.h"

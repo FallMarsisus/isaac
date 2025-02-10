@@ -14,17 +14,16 @@ typedef struct dict_s {
 } Dictionary;
 
 int hash_function(char* key, int capacity) {
-    //Hash function made by chatGPT
-    int hash = 5381;
+    unsigned long hash = 5381;
     int c;
-    while ((c = *key++))
-        hash = ((hash << 5) + hash) + c;
-    return hash % capacity;
+
+    while (c = *key++) hash = ((hash << 5) + hash) + c;
+    return (hash % capacity) % capacity;
 }
 
 Dictionary* create_dictionary() {
     Dictionary *dict = malloc(sizeof(Dictionary));
-    dict->capacity = 10;
+    dict->capacity = 20;
     dict->array = calloc(dict->capacity, sizeof(Node*));
     dict->size = 0;
     return dict;

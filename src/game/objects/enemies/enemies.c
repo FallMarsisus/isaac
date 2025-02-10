@@ -8,10 +8,8 @@ uint32_t add_enemy(float x, float y, uint32_t pl) {
     RigidbodyComponent* body = ECS_AddComponent(enemy, BODY, sizeof(RigidbodyComponent));
     StateMachineComponent* sm = ECS_AddComponent(enemy, STATE_MACHINE, sizeof(StateMachineComponent));
     HealthComponent* health = ECS_AddComponent(enemy, HEALTH, sizeof(HealthComponent));
-    EnemyAiComponent* ai = ECS_AddComponent(enemy, ENEMYAI, sizeof(EnemyAiComponent));
     
     init_health_component(enemy, 1, 10, 0);
-    init_enemy_ai_component(ai, pl);
     init_state_machine(sm, enemy);
 
     State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
@@ -21,7 +19,11 @@ uint32_t add_enemy(float x, float y, uint32_t pl) {
     State* chase_state = create_state("chase", on_chase_enter, on_chase_update, on_chase_exit, on_chase_free);
     chase_state->vars = create_chase_vars(pl);
     add_state(sm, chase_state);
-
+    
+    State* follow_state = create_state("follow", on_follow_enter, on_follow_update, on_follow_exit, on_follow_free);
+    follow_state->vars = create_follow_vars(pl);
+    add_state(sm, follow_state);
+    
     switch_state(sm, "idle");
     
     create_damager(enemy, (DamagerComponent) {1, 0, false, 0});

@@ -41,6 +41,9 @@ uint32_t ECS_CreateEntity() {
     if (ecs->st->array->len >= capacity) {
         capacity *= 2;
         for (int i = 0; i < ecs->component_count; ++i) {
+            printf("Reallocating component %d to %d\n", i, capacity * ecs->components[i].component_size);
+            fflush(stdout);
+
             ecs->components[i].components = realloc(
                 ecs->components[i].components, 
                 capacity * ecs->components[i].component_size
@@ -52,7 +55,7 @@ uint32_t ECS_CreateEntity() {
             memset(
                 ecs->components[i].entity_mask + ecs->st->array->len, 0, 
                 (capacity - ecs->st->array->len)
-            ); // Clear new mask entries
+            );/**/ // Clear new mask entries
         }
     }
 

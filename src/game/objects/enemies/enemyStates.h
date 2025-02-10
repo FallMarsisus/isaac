@@ -11,6 +11,7 @@
 #include "../../ecs/components.h"
 
 #include "../../ecs/render/renderSystems.h"
+#include "../../ecs/physics/physicsSystems.h"
 
 typedef struct {
     uint32_t player;
@@ -24,6 +25,15 @@ typedef struct {
     float speed;
 } ChaseStateVars;
 
+typedef struct {
+    Queue* prev_pos;
+    int prev_update;
+    Vector currentGoal;
+
+    int speed;
+    uint32_t target;
+} FollowStateVars;
+
 IdleStateVars* create_idle_vars(uint32_t player);
 void on_idle_enter(State* state, uint32_t id);
 void on_idle_update(State* state, uint32_t id);
@@ -35,3 +45,9 @@ void on_chase_enter(State* state, uint32_t id);
 void on_chase_update(State* state, uint32_t id);
 void on_chase_exit(State* state, uint32_t id);
 void on_chase_free(State* state, uint32_t id);
+
+FollowStateVars* create_follow_vars(uint32_t target);
+void on_follow_enter(State* state, uint32_t id);
+void on_follow_update(State* state, uint32_t id);
+void on_follow_exit(State* state, uint32_t id);
+void on_follow_free(State* state, uint32_t id);

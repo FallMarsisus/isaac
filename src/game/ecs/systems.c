@@ -43,8 +43,6 @@ void free_one_entity(uint32_t entity) {
         free_inventory(invent);
     }
 
-    free_enemy_ai(entity);
-
     free_pathfinding_component(ECS_GetComponent(entity, PATHFINDING));
     free_all_other_components(entity);
     free_all_render_components(entity);
@@ -157,7 +155,6 @@ void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Re
     
     update_others(elt, roomPos);
     update_pathfinding_system(elt, grid, roomPos);
-    update_enemy_ai(elt, entities, amount);
     
     update_physics(elt, delta);
     
@@ -206,15 +203,7 @@ void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* 
                     }
                 }
             }
-
-            EnemyAiComponent* ai = ECS_GetComponent(id, ENEMYAI);
-            if(ai) {
-                Vector current;
-                queue_peek(ai->prev_pos, &current, sizeof(Vector));
-                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-                SDL_RenderDrawRect(renderer, &((SDL_Rect) {current.x - cam.x, current.y - cam.y, 16, 16}));
-            }
-
+            
             render_component(id, cam, renderer);
             current = current->next;
         }

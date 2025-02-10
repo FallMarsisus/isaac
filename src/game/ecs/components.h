@@ -18,7 +18,6 @@ typedef enum {
     ANIMATION,
     PLAYER,
     PATHFINDING,
-    ENEMYAI,
     TIMER,
     SCRIPT,
     TELEPORT,
@@ -88,15 +87,6 @@ typedef struct {
     int speed;
     int last_update;
 } PathfindingComponent;
-
-typedef struct {
-    Queue* prev_pos;
-    int prev_update;
-    Vector currentGoal;
-
-    int speed;
-    uint32_t target;
-} EnemyAiComponent;
 
 typedef struct {
     int last;

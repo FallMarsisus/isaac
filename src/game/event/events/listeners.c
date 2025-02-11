@@ -14,7 +14,7 @@ void on_chest_open(Event event) {
 void on_state_change(Event event) {
     StateChangeEvent* stateEvent = (StateChangeEvent*) event.data;
     StateMachineComponent* sm = ECS_GetComponent(stateEvent->id, STATE_MACHINE);
-
+    printf("Changed states : %s\n", stateEvent->new_state);
     switch_state(sm, stateEvent->new_state);
 }
 

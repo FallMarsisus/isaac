@@ -1,29 +1,40 @@
 #include "enemyStates.h"
 
-#define DIRECTION_COUNT 8
-#define RAYCAST_STEP 8.0f
-#define RAYCAST_RADIUS 16.0f
-#define MAX_RAYCAST_DISTANCE 48.0f
+#define RAYCAST_STEP 32.0f
+#define RAYCAST_RADIUS 48.0f
 
-// Raycast function to check if path is clear considering sprite size
-int raycast(Vector start, Vector dir, float distance, uint32_t* entities, int amount) {
+#define ATTACK_RANGE 300
+#define ABANDON_RANGE 600
+
+//Returns True if touch something
+bool raycast(Vector start, Vector dir, float distance) {
     normalize(&dir);
 
-    Vector current = start;
+    Vector pos = start;
     int steps = distance / RAYCAST_STEP;
-    for (int i = 0; i < steps; i++) {
-        current.x += dir.x * RAYCAST_STEP;
-        current.y += dir.y * RAYCAST_STEP;
-        
-        for (int j = 0; j < amount; j++) {
-            PositionComponent* ePos = ECS_GetComponent(entities[j], POSITION);
-            RigidbodyComponent* eRb = ECS_GetComponent(entities[j], BODY);
-            if (!ePos || !eRb || eRb->is_dynamic) continue;
 
-            if(checkCircleCollision(ePos, eRb, current.x, current.y, RAYCAST_RADIUS)) return 0;
+    pos.x += dir.x * RAYCAST_STEP;
+    pos.y += dir.y * RAYCAST_STEP;
+    for (int i = 0; i < steps; i++) {
+        pos.x += dir.x * RAYCAST_STEP;
+        pos.y += dir.y * RAYCAST_STEP;
+
+        for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
+            Node* current = ECS_GetManager()->st->dict->array[i];
+            while (current) {
+                PositionComponent* ePos = ECS_GetComponent(current->key, POSITION);
+                RigidbodyComponent* eRb = ECS_GetComponent(current->key, BODY);
+                if(!ePos || !eRb || eRb->is_dynamic || fabs(ePos->x - pos.x) > 2 * distance || fabs(ePos->y - pos.y) > 2 * distance) {
+                    current = current->next;
+                    continue;
+                }
+    
+                if(checkCircleCollision(ePos, eRb, pos.x, pos.y, RAYCAST_RADIUS)) return true;
+                current = current->next;
+            }
         }
     }
-    return 1;
+    return false;
 }
 
 void randomize_idle_vars(IdleStateVars* vars) {
@@ -61,13 +72,12 @@ void on_idle_update(State* state, uint32_t id) {
 
     Vector pos = {posComp->x + spriteComp->width / 2, posComp->y + spriteComp->height / 2};
     Vector playerPos = {playerPosCom->x + playerSpriteComp->width / 2, playerPosCom->y + playerSpriteComp->height / 2};
-    
+
     Vector dir = (Vector) {
         playerPos.x - pos.x,
         playerPos.y - pos.y
     };
-
-    if(vectorSize(&dir) < 250 && raycast(pos, dir, vectorSize(&dir), &vars->player, 1)) {
+    if(vectorSize(&dir) < ATTACK_RANGE && !raycast(pos, dir, vectorSize(&dir))) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "chase";
         trigger_event(EVENT_STATE_CHANGE, event);
@@ -110,30 +120,45 @@ void on_chase_update(State* state, uint32_t id) {
     ChaseStateVars* vars = (ChaseStateVars*) state->vars;
     if(!vars) return;
 
-    PositionComponent* pos = ECS_GetComponent(id, POSITION);
+    PositionComponent* posComp = ECS_GetComponent(id, POSITION);
+    SpriteComponent* spriteComp = ECS_GetComponent(id, SPRITE);
+    RigidbodyComponent* rb = ECS_GetComponent(id, BODY);
     AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
-    PositionComponent* playerPos = ECS_GetComponent(vars->player, POSITION);
+    if(!posComp || !rb) return;
 
-    if(!pos || !playerPos) return;
+    PositionComponent* targetPosComp = ECS_GetComponent(vars->player, POSITION);
+    SpriteComponent* targetSpriteComp = ECS_GetComponent(vars->player, SPRITE);
+    if(!targetPosComp) return;
+
+    Vector pos = {posComp->x + spriteComp->width / 2, posComp->y + spriteComp->height / 2};
+    Vector targetPos = {targetPosComp->x + targetSpriteComp->width / 2, targetPosComp->y + targetSpriteComp->height / 2};
     
     Vector dir = (Vector) {
-        playerPos->x - pos->x,
-        playerPos->y - pos->y
+        targetPos.x - pos.x,
+        targetPos.y - pos.y
     };
-    if(vectorSize(&dir) > 250) {
+    if(vectorSize(&dir) < ATTACK_RANGE && raycast(pos, dir, vectorSize(&dir))) {
+        StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
+        event->id = id; event->new_state = "follow";
+        trigger_event(EVENT_STATE_CHANGE, event);
+        return;
+    }
+    if(vectorSize(&dir) > ABANDON_RANGE) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "idle";
         trigger_event(EVENT_STATE_CHANGE, event);
+        return;
     }
 
     normalize(&dir);
-    pos->vx = dir.x * vars->speed;
-    pos->vy = dir.y * vars->speed;
+    posComp->vx = dir.x * vars->speed;
+    posComp->vy = dir.y * vars->speed;
+
     if(anim) {
-        if(pos->vy < 0) set_active_anim(anim, 1);
-        else if(pos->vy > 0) set_active_anim(anim, 0);
-        else if(pos->vx < 0) set_active_anim(anim, 2);
-        else if(pos->vx > 0) set_active_anim(anim, 3);
+        if(posComp->vy < 0) set_active_anim(anim, 1);
+        else if(posComp->vy > 0) set_active_anim(anim, 0);
+        else if(posComp->vx < 0) set_active_anim(anim, 2);
+        else if(posComp->vx > 0) set_active_anim(anim, 3);
         play_anim(anim);
     }
 }
@@ -146,7 +171,7 @@ void on_chase_free(State* state, uint32_t id) {
 FollowStateVars* create_follow_vars(uint32_t target, ID_array* entity_ids) {
     FollowStateVars* vars = malloc(sizeof(FollowStateVars));
     vars->target = target;
-    vars->speed = 2;
+    vars->speed = 3;
     vars->prev_pos = create_queue();
     vars->prev_update = SDL_GetTicks();
     vars->entity_ids = entity_ids;
@@ -159,6 +184,8 @@ void on_follow_enter(State* state, uint32_t id) {
     PositionComponent* pos = ECS_GetComponent(id, POSITION);
     PositionComponent* targetPos = ECS_GetComponent(vars->target, POSITION);
     if(!pos || !targetPos) return;
+
+    queue_clear(vars->prev_pos);
 
     vars->currentGoal = (Vector) {
         targetPos->x,
@@ -182,11 +209,27 @@ void on_follow_update(State* state, uint32_t id) {
     Vector pos = {posComp->x + spriteComp->width / 2, posComp->y + spriteComp->height / 2};
     Vector targetPos = {targetPosComp->x + targetSpriteComp->width / 2, targetPosComp->y + targetSpriteComp->height / 2};
 
-    if(vars->prev_update + 100 < SDL_GetTicks() || queue_is_empty(vars->prev_pos)) {
+    Vector dirToTarget = (Vector) {
+        targetPos.x - pos.x,
+        targetPos.y - pos.y
+    };
+    if(vectorSize(&dirToTarget) < ATTACK_RANGE && !raycast(pos, dirToTarget, vectorSize(&dirToTarget))) {
+        StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
+        event->id = id; event->new_state = "chase";
+        trigger_event(EVENT_STATE_CHANGE, event);
+        return;
+    }
+    if(vectorSize(&dirToTarget) > ABANDON_RANGE) {
+        StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
+        event->id = id; event->new_state = "idle";
+        trigger_event(EVENT_STATE_CHANGE, event);
+        return;
+    }
+
+    if(vars->prev_update + 50 < SDL_GetTicks() || queue_is_empty(vars->prev_pos)) {
         vars->prev_update = SDL_GetTicks();
         queue_enqueue(vars->prev_pos, &targetPos, sizeof(Vector));
     }
-
     if(checkCircleCollision(posComp, rb, vars->currentGoal.x, vars->currentGoal.y, 16)) {
         queue_dequeue(vars->prev_pos, &vars->currentGoal, sizeof(Vector));
     }
@@ -206,7 +249,21 @@ void on_follow_update(State* state, uint32_t id) {
         play_anim(anim);
     }
 }
-void on_follow_exit(State* state, uint32_t id) {}
+void on_follow_exit(State* state, uint32_t id) {
+    FollowStateVars* vars = (FollowStateVars*) state->vars;
+    if(!vars) return;
+
+    PositionComponent* pos = ECS_GetComponent(id, POSITION);
+    PositionComponent* targetPos = ECS_GetComponent(vars->target, POSITION);
+    if(!pos || !targetPos) return;
+
+    queue_clear(vars->prev_pos);
+
+    vars->currentGoal = (Vector) {
+        targetPos->x,
+        targetPos->y
+    };
+}
 void on_follow_free(State* state, uint32_t id) {
     FollowStateVars* vars = (FollowStateVars*) state->vars;
     if(vars) {

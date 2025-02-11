@@ -51,6 +51,14 @@ bool remove_item_from_inventory(uint32_t entity, ItemData item) { //faudra mettr
         return false;
     }
 
+    if (inventory->selected_slot != -1 &&  inventory->items[inventory->selected_slot].id == item.id) {
+        freeAction(inventory->selected_slot_actions);
+        free(inventory->selected_slot_actions);
+
+        inventory->selected_slot = -1;
+        inventory->selected_slot_actions = NULL;
+    }
+
     // Remove the element from the array
     for (int i = 0; i < inventory->nb_items; i++) {
         if (inventory->items[i].id == item.id) { // Pour l'instant l'id est pas unique donc ça suppr pas forcément le bon
@@ -59,6 +67,13 @@ bool remove_item_from_inventory(uint32_t entity, ItemData item) { //faudra mettr
             }
             inventory->items[inventory->nb_items].id = -1; // Giga important pour enpêcher de draw un objet vide
             inventory->nb_items--;
+
+
+            // change the selected item
+            if (i < inventory->selected_slot) {
+                inventory->selected_slot--;
+            }
+
             return true;
         }
     }

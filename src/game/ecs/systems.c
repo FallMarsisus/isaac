@@ -49,6 +49,7 @@ void free_one_entity(uint32_t entity) {
 
     ECS_RemoveEntity(entity);
 }
+
 void handle_input_system(SDL_Event* event) {
 
     static bool is_use_sword = false;

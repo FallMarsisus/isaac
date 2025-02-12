@@ -184,7 +184,6 @@ bool handle_collision_item(uint32_t entity1, uint32_t entity2) {
         return false;
     }
 
-
     if (ECS_HasComponent(entity1, ITEM) && ECS_HasComponent(entity2, INVENT)) {
         item = entity1;
         receiver = entity2;

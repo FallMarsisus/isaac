@@ -1,10 +1,5 @@
 #include "game.h"
 
-bool static_cam = false;
-SDL_Rect cam = {
-    0, 0, 1280, 720
-};
-
 typedef struct game_s {
     Map* map;
     Room* current_room;
@@ -12,29 +7,39 @@ typedef struct game_s {
     uint32_t player;
 } Game;
 
-Game* create_game() {
-    Game* game = malloc(sizeof(Game));
+Game* game;
+
+bool static_cam = false;
+SDL_Rect cam = {
+    0, 0, 1280, 720
+};
+
+void create_game() {
+    game = malloc(sizeof(Game));
 
     init_event_system();
 
     ECS_CreateManager(40);
-    game->player = initialize_game();
+    game->player = add_player(640, 360);
 
     game->map = create_map();
-    change_room(game, 0, 0);
+    change_room(0, 0);
 
     register_listener(EVENT_PLAYER_MOVED, on_player_move);
     register_listener(EVENT_CHEST_OPENED, on_chest_open);
     register_listener(EVENT_STATE_CHANGE, on_state_change);
     register_listener(EVENT_COLLISION, on_collision);
-    
-    return game;
+    register_listener(EVENT_ENTITY_CREATED, on_entity_created);
+    //register_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
 }
-void free_game(Game* game) {
+
+void free_game() {
     unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
     unregister_listener(EVENT_CHEST_OPENED, on_chest_open);
     unregister_listener(EVENT_STATE_CHANGE, on_state_change);
-    register_listener(EVENT_COLLISION, on_collision);
+    unregister_listener(EVENT_COLLISION, on_collision);
+    unregister_listener(EVENT_ENTITY_CREATED, on_entity_created);
+    //unregister_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
 
     free_map(game->map);
     
@@ -46,54 +51,55 @@ void free_game(Game* game) {
     free(game);
 }
 
-void change_room(Game* game, int x, int y) {
+void on_entity_created(Event event) {
+    EntityCreatedEvent* e = (EntityCreatedEvent*) event.data;
+    if(!e) return;
+
+    PositionComponent* pos = ECS_GetComponent(e->entity, POSITION);
+    ChildComponent* child = ECS_GetComponent(e->entity, CHILD);
+    RigidbodyComponent* body = ECS_GetComponent(e->entity, BODY);
+    if(!pos) return;
+
+    if(pos->camFixed || 
+    ((int) floor(pos->x / cam.w) == get_x(game->current_room) && (int) floor(pos->y / cam.h) == get_y(game->current_room))) {
+        if(!child) {
+            add_entity(game->current_room, e->entity);
+        }
+
+        int pos_x = floor(pos->x - get_x(game->current_room) * 1280) / 64;
+        int pos_y = floor(pos->y - get_y(game->current_room) * 720) / 64;
+        if(pos_x < 0 || pos_y < 0 || pos_x >= get_grid_width(game->current_room) || pos_y >= get_grid_height(game->current_room)) {
+            return;
+        }
+
+        if(body && !body->is_dynamic) {
+            get_grid(game->current_room)[pos_y][pos_x] = 1;
+        }
+    }
+}
+void on_entity_removed(Event event) {
+    EntityRemovedEvent* rEvent = event.data;
+
+    //remove_entity(game->current_room, rEvent->entity);
+    //onEntityRemove(event);
+}
+
+void change_room(int x, int y) {
     Room* r = get_room(game->map, x, y);
     if(r == NULL) {
         r = create_room(x, y);
         add_room(game->map, r);
+        init_room(x, y, game->player);
 
-        for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-            Node* current = ECS_GetManager()->st->dict->array[i];
-            while (current) {
-                if(current->key == game->player) {
-                    current = current->next;
-                    continue;
-                }
-                PositionComponent* position = ECS_GetComponent(current->key, POSITION);
-                ChildComponent* child = ECS_GetComponent(current->key, CHILD);
-                RigidbodyComponent* body = ECS_GetComponent(current->key, BODY);
-
-                if (position == NULL) {
-                    current = current->next;
-                    continue;
-                }
-
-                if(position->camFixed || 
-                ((int) floor(position->x / cam.w) == x && (int) floor(position->y / cam.h) == y)) {
-                    if(!child) {
-                        add_entity(r, current->key);
-                    }
-
-                    int pos_x = floor(position->x - get_x(r) * 1280) / 64;
-                    int pos_y = floor(position->y - get_y(r) * 720) / 64;
-                    if(pos_x < 0 || pos_y < 0 || pos_x >= get_grid_width(r) || pos_y >= get_grid_height(r)) {
-                        current = current->next;
-                        continue;
-                    }
-
-                    if(body && !body->is_dynamic) {
-                        get_grid(r)[pos_y][pos_x] = 1;
-                    }
-                }
-                current = current->next;
-            }
+        if(x != 0 || y != 0) {
+            add_entity(r, game->player);
         }
     }
     game->current_room = r;
 }
 
-void get_keys(Game* game, SDL_Event* event) {
-    handle_input_system(event);
+void get_keys(SDL_Event* event) {
+    handle_input_system(event, game->player);
 }
 void test_damage(Game* game) {
     uint32_t nearest_enemy = get_nearest_enemy(game->player);
@@ -132,7 +138,7 @@ void test_damage(Game* game) {
     }
 }
 
-void update_game(Game* game, int win_width, int win_height, float delta) {
+void update_game(int win_width, int win_height, float delta) {
     call_events();
 
     SDL_Rect room_pos = {
@@ -142,52 +148,26 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
         cam.y
     };
 
-    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-        Node* current = ECS_GetManager()->st->dict->array[i];
-        while (current) {    
-            u_int32_t id = current->key;
-            //u_int32_t id = entities[i];
-            PositionComponent* position = ECS_GetComponent(id, POSITION);
-            SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
-            if(!position || !sprite) {
-                current = current->next;
-                continue;
-            }
-            if(!(position->x + sprite->width >= cam.x &&
-            position->x <= cam.x + cam.w &&
-            position->y + sprite->height >= cam.y &&
-            position->y <= cam.y + cam.h)) {
-                current = current->next;
-                continue;
-            }
+    for (int i = 0; i < get_entity_amount(game->current_room); i++) {
+        u_int32_t id = get_entities(game->current_room)[i];
+        PositionComponent* position = ECS_GetComponent(id, POSITION);
+        SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
+        if(!position || !sprite) continue;
 
-            update_elt(
-                current->key,
-                get_grid(game->current_room),
-                get_entities(game->current_room),
-                get_entity_amount(game->current_room),
-                room_pos,
-                delta
-            );
+        if(!(position->x + sprite->width >= cam.x &&
+        position->x <= cam.x + cam.w &&
+        position->y + sprite->height >= cam.y &&
+        position->y <= cam.y + cam.h)) continue;
 
-            current = current->next;
-        }
+        update_elt(
+            id,
+            get_grid(game->current_room),
+            get_entities(game->current_room),
+            get_entity_amount(game->current_room),
+            room_pos,
+            delta
+        );
     }
-
-    /*uint32_t* entities = get_entities(game->current_room);
-    for(int i = 0; i < get_entity_amount(game->current_room); i++) {
-        
-    }
-
-    update_elt(
-        game->player,
-        get_grid(game->current_room),
-        get_entities(game->current_room),
-        get_entity_amount(game->current_room),
-        room_pos,
-        delta
-    );
-    */
     
     test_damage(game);
     // is_colliding_with_item(game->player);
@@ -208,13 +188,13 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
                 cam.x = changeX * cam.w;
                 cam.y = changeY * cam.h;
             }
-            change_room(game, changeX, changeY);
+            change_room(changeX, changeY);
             printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, cam.w, pos->y, cam.h, changeX, changeY);
         }
     }
 }
 
-void draw_game(SDL_Renderer* renderer, Game* game) {
+void draw_game(SDL_Renderer* renderer) {
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
 

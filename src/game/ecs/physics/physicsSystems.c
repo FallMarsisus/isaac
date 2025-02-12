@@ -130,44 +130,32 @@ void update_physics(uint32_t id, float delta) {
         // Handle collisions for X-axis first
         if (body) {
             if(!body->is_dynamic) return;
-            for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-                Node* current = ECS_GetManager()->st->dict->array[i];
-                while (current) {
-                    if(current->key == id) {
-                        current = current->next;
-                        continue;
-                    }
+            for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+                if(e == id) continue;
 
-                    PositionComponent* otherPos = ECS_GetComponent(current->key, POSITION);
-                    RigidbodyComponent* otherBody = ECS_GetComponent(current->key, BODY);
-                    if (!otherPos || !otherBody) {
-                        current = current->next;
-                        continue;
-                    }
+                PositionComponent* otherPos = ECS_GetComponent(e, POSITION);
+                RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
+                if (!otherPos || !otherBody) continue;
 
-                    if (isColliding(position, body, otherPos, otherBody)) {
-                        // Case Handling
-                        if (!body->is_dynamic && !otherBody->is_dynamic) {
-                            current = current->next;
-                            continue;
-                        } else if (body->is_dynamic && !otherBody->is_dynamic) {
-                            // Dynamic vs. Static
-                            position->x = originalX; // Revert X movement
-                            resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
-                        } else if (!body->is_dynamic && otherBody->is_dynamic) {
-                        current = current->next;
+                if (isColliding(position, body, otherPos, otherBody)) {
+                    // Case Handling
+                    if (!body->is_dynamic && !otherBody->is_dynamic) {
                         continue;
-                        } else if (body->is_dynamic && otherBody->is_dynamic) {
-                            // Dynamic vs. Dynamic: Apply elastic collision resolution
-                            //resolveDynamicCollision(position, body, otherPos, otherBody);
-                        }
-                        
-                        CollisionEvent* event = malloc(sizeof(CollisionEvent));
-                        event->entity1 = id;
-                        event->entity2 = current->key;
-                        trigger_event(EVENT_COLLISION, event, true);
+                    } else if (body->is_dynamic && !otherBody->is_dynamic) {
+                        // Dynamic vs. Static
+                        position->x = originalX; // Revert X movement
+                        resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
+                    } else if (!body->is_dynamic && otherBody->is_dynamic) {
+                        continue;
+                    } else if (body->is_dynamic && otherBody->is_dynamic) {
+                        // Dynamic vs. Dynamic: Apply elastic collision resolution
+                        //resolveDynamicCollision(position, body, otherPos, otherBody);
                     }
-                    current = current->next;
+                    
+                    CollisionEvent* event = malloc(sizeof(CollisionEvent));
+                    event->entity1 = id;
+                    event->entity2 = e;
+                    trigger_event(EVENT_COLLISION, event, true);
                 }
             }
         }
@@ -177,44 +165,32 @@ void update_physics(uint32_t id, float delta) {
 
         // Handle collisions for Y-axis
         if (body) {
-            for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-                Node* current = ECS_GetManager()->st->dict->array[i];
-                while (current) {
-                    if(current->key == id) {
-                        current = current->next;
-                        continue;
-                    }
+            for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+                if(e == id) continue;
 
-                    PositionComponent* otherPos = ECS_GetComponent(current->key, POSITION);
-                    RigidbodyComponent* otherBody = ECS_GetComponent(current->key, BODY);
-                    if (!otherPos || !otherBody) {
-                        current = current->next;
-                        continue;
-                    }
+                PositionComponent* otherPos = ECS_GetComponent(e, POSITION);
+                RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
+                if (!otherPos || !otherBody) continue;
 
-                    if (isColliding(position, body, otherPos, otherBody)) {
-                        // Case Handling
-                        if (!body->is_dynamic && !otherBody->is_dynamic) {
-                            current = current->next;
-                            continue;
-                        } else if (body->is_dynamic && !otherBody->is_dynamic) {
-                            // Dynamic vs. Static
-                            position->y = originalY; // Revert Y movement
-                            resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
-                        } else if (!body->is_dynamic && otherBody->is_dynamic) {
-                            current = current->next;
-                            continue;
-                        } else if (body->is_dynamic && otherBody->is_dynamic) {
-                            // Dynamic vs. Dynamic: Apply elastic collision resolution
-                            //resolveDynamicCollision(position, body, otherPos, otherBody);
-                        }
-                        
-                        CollisionEvent* event = malloc(sizeof(CollisionEvent));
-                        event->entity1 = id;
-                        event->entity2 = current->key;
-                        trigger_event(EVENT_COLLISION, event, true);
+                if (isColliding(position, body, otherPos, otherBody)) {
+                    // Case Handling
+                    if (!body->is_dynamic && !otherBody->is_dynamic) {
+                        continue;
+                    } else if (body->is_dynamic && !otherBody->is_dynamic) {
+                        // Dynamic vs. Static
+                        position->y = originalY; // Revert Y movement
+                        resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
+                    } else if (!body->is_dynamic && otherBody->is_dynamic) {
+                        continue;
+                    } else if (body->is_dynamic && otherBody->is_dynamic) {
+                        // Dynamic vs. Dynamic: Apply elastic collision resolution
+                        //resolveDynamicCollision(position, body, otherPos, otherBody);
                     }
-                    current = current->next;
+                    
+                    CollisionEvent* event = malloc(sizeof(CollisionEvent));
+                    event->entity1 = id;
+                    event->entity2 = e;
+                    trigger_event(EVENT_COLLISION, event, true);
                 }
             }
         }

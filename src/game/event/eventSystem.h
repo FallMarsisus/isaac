@@ -6,17 +6,6 @@
 
 #include "eventList.h"
 
-typedef enum {
-    EVENT_NONE,
-    EVENT_PLAYER_MOVED,
-    EVENT_PLAYER_DAMAGED,
-    EVENT_CHEST_OPENED,
-    EVENT_STATE_CHANGE,
-    EVENT_COLLISION,
-    EVENT_ENTITY_REMOVED,
-    EVENT_MAX // Safeguard to know the number of event types
-} EventType;
-
 typedef struct {
     EventType type;
     void* data;

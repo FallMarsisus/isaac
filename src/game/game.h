@@ -4,6 +4,7 @@
 
 #include "structure/map.h"
 
+#include "event/eventList.h"
 #include "event/eventSystem.h"
 #include "event/events/listeners.h"
 
@@ -13,13 +14,16 @@
 
 typedef struct game_s Game;
 
-Game* create_game();
-void free_game(Game* game);
+void create_game();
+void free_game();
 
-void change_room(Game* game, int x, int y);
+void on_entity_created(Event event);
+void on_entity_removed(Event event);
 
-void get_keys(Game* game, SDL_Event* event);
+void change_room(int x, int y);
 
-void update_game(Game* game, int win_width, int win_height, float delta);
+void get_keys(SDL_Event* event);
 
-void draw_game(SDL_Renderer* ren, Game* game);
+void update_game(int win_width, int win_height, float delta);
+
+void draw_game(SDL_Renderer* ren);

@@ -1,210 +1,194 @@
 #include "ecs.h"
-#include <string.h>
-#include <stdio.h>
 
-ECS_Manager* ecs;
+static ECS_Manager* ecs_manager = NULL;
+static Entity active_entity_head = -1;    // Index of the first active entity
 
 void ECS_CreateManager(int component_count) {
-    ecs = (ECS_Manager*)malloc(sizeof(ECS_Manager));
-    if (!ecs) {
+    // Allocate memory for the ECS manager
+    ecs_manager = (ECS_Manager*)malloc(sizeof(ECS_Manager));
+    if (!ecs_manager) {
         fprintf(stderr, "Failed to allocate memory for ECS manager\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
-    ecs->st = create_structure();
-    if (!ecs->st) {
-        fprintf(stderr, "Failed to create structure\n");
-        free(ecs);
-        exit(1);
+    // Allocate memory for entities
+    ecs_manager->entities = (EntityRecord*)calloc(MAX_ENTITIES, sizeof(EntityRecord));
+    if (!ecs_manager->entities) {
+        fprintf(stderr, "Failed to allocate memory for entities\n");
+        free(ecs_manager);
+        exit(EXIT_FAILURE);
     }
 
-    ecs->components = (ComponentArray*)malloc(component_count * sizeof(ComponentArray));
-    if (!ecs->components) {
-        fprintf(stderr, "Failed to allocate memory for component arrays\n");
-        free_structure(ecs->st);
-        free(ecs);
-        exit(1);
-    }
-    ecs->component_count = component_count;
-
-    for (int i = 0; i < component_count; ++i) {
-        ecs->components[i].components = calloc(ecs->st->array->capacity, sizeof(void*));
-        ecs->components[i].entity_mask = calloc(ecs->st->array->capacity, sizeof(uint8_t));
-
-        if (!ecs->components[i].entity_mask) {
-            fprintf(stderr, "Failed to allocate memory for entity mask\n");
-            for (int j = 0; j < i; ++j) {
-                free(ecs->components[j].entity_mask);
-            }
-            free(ecs->components);
-            free_structure(ecs->st);
-            free(ecs);
-            exit(1);
-        }
-        ecs->components[i].component_size = 0; // Initialize to 0
+    // Allocate memory for component sizes
+    ecs_manager->component_sizes = (int*)calloc(MAX_COMPONENT_TYPES, sizeof(int));
+    if (!ecs_manager->component_sizes) {
+        fprintf(stderr, "Failed to allocate memory for component sizes\n");
+        free(ecs_manager->entities);
+        free(ecs_manager);
+        exit(EXIT_FAILURE);
     }
 
-    register_listener(EVENT_ENTITY_REMOVED, onEntityRemove);
+    // Initialize manager state
+    ecs_manager->entity_count = 0;
+    ecs_manager->component_count = component_count;
+    active_entity_head = -1; // Initialize the linked list
 }
 
 void ECS_DestroyManager() {
-    unregister_listener(EVENT_ENTITY_REMOVED, onEntityRemove);
+    if (!ecs_manager) return;
 
-    for (int i = 0; i < ecs->component_count; ++i) {
-        if (ecs->components[i].components) {
-            for(int j = 0; j < ecs->st->array->len; j++) {
-                if(ecs->components[i].entity_mask[j] == 1 && ecs->components[i].components[j]) {
-                    free(ecs->components[i].components[j]);
-                }
+    // Free all component data
+    for (int i = 0; i < MAX_ENTITIES; ++i) {
+        for (int j = 0; j < MAX_COMPONENT_TYPES; ++j) {
+            if (ecs_manager->entities[i].components[j]) {
+                free(ecs_manager->entities[i].components[j]);
             }
-            free(ecs->components[i].components);
-        }
-        free(ecs->components[i].entity_mask);
-    }
-
-    free_structure(ecs->st);
-
-    free(ecs->components);
-    free(ecs);
-}
-
-ECS_Manager* ECS_GetManager() {
-    return ecs;
-}
-
-uint32_t ECS_CreateEntity() {
-    int capacity = ecs->st->array->capacity;
-    if (ecs->st->array->len >= capacity) {
-        capacity *= 2;
-        for (int i = 0; i < ecs->component_count; ++i) {
-            ecs->components[i].components = realloc(ecs->components[i].components, capacity * sizeof(void*));
-            ecs->components[i].entity_mask = realloc(ecs->components[i].entity_mask, capacity * sizeof(uint8_t));
-
-            memset(ecs->components[i].entity_mask + ecs->st->array->len, 0, capacity - ecs->st->array->len);
         }
     }
 
-    return create_element(ecs->st);
+    // Free allocated memory
+    free(ecs_manager->entities);
+    free(ecs_manager->component_sizes);
+    free(ecs_manager);
+    ecs_manager = NULL;
 }
 
-void ECS_RemoveEntity(uint32_t entity) {
-    EntityRemovedEvent* event = malloc(sizeof(EntityRemovedEvent));
-    event->entity = entity;
-    trigger_event(EVENT_ENTITY_REMOVED, event, true);
+Entity ECS_CreateEntity() {
+    if (!ecs_manager) return -1;
 
-    int index = get_index(ecs->st, entity);
-    if (index == -1) {
-        fprintf(stderr, "Invalid entity ID: %u\n", entity);
+    for (Entity i = 0; i < MAX_ENTITIES; ++i) {
+        if (!ecs_manager->entities[i].active) {
+            ecs_manager->entities[i].active = true;
+            ecs_manager->entity_count++;
+
+            // Add the new entity to the linked list
+            ecs_manager->entities[i].next = active_entity_head;
+            active_entity_head = i;
+
+
+            EntityCreatedEvent* event = malloc(sizeof(EntityCreatedEvent));
+            event->entity = i;
+            trigger_event(EVENT_ENTITY_CREATED, event, true);
+
+            return i;
+        }
+    }
+
+    return -1; // No more entities available
+}
+
+void ECS_RemoveEntity(Entity entity) {
+    if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active) {
         return;
     }
 
-    for(int i = 0; i < ecs->component_count; i++) {
-        ecs->components[i].entity_mask[index] = 0;
-    }
-}
-
-void onEntityRemove(Event event) {
-    EntityRemovedEvent* e = (EntityRemovedEvent*)event.data;
-    uint32_t entity = e->entity;
-
-    int dest = get_index(ecs->st, entity);
-    int src = remove_element(ecs->st, entity); // Returns index of the last element
-
-    if (src != dest) { // Only move if necessary
-        for (int i = 0; i < ecs->component_count; ++i) {
-            ComponentArray* comp = &ecs->components[i];
-            if (comp && comp->entity_mask && comp->entity_mask[src]) { // Move component data if it exists
-                comp->components[dest] = comp->components[src];
-                comp->entity_mask[dest] = 1;
-            }
-            comp->entity_mask[src] = 0; // Clear the source mask
+    // Free all components associated with the entity
+    for (int i = 0; i < MAX_COMPONENT_TYPES; ++i) {
+        if (ecs_manager->entities[entity].components[i]) {
+            free(ecs_manager->entities[entity].components[i]);
+            ecs_manager->entities[entity].components[i] = NULL;
         }
     }
 
-    // Shrink storage if necessary
-    int prev_len = ecs->st->array->len;
-    int prev_capacity = ecs->st->array->capacity;
-    if (prev_len * 4 < prev_capacity) {
-        int new_capacity = prev_capacity / 2;
-        for (int i = 0; i < ecs->component_count; ++i) {
-            ecs->components[i].components = realloc(ecs->components[i].components, new_capacity * sizeof(void*));
-            ecs->components[i].entity_mask = realloc(ecs->components[i].entity_mask, new_capacity * sizeof(uint8_t));
+    // Remove the entity from the linked list
+    if (entity == active_entity_head) {
+        // If the entity is the head, update the head
+        active_entity_head = ecs_manager->entities[entity].next;
+    } else {
+        // Otherwise, find the previous entity in the linked list
+        Entity prev = active_entity_head;
+        while (prev != -1 && ecs_manager->entities[prev].next != entity) {
+            prev = ecs_manager->entities[prev].next;
+        }
+        if (prev != -1) {
+            ecs_manager->entities[prev].next = ecs_manager->entities[entity].next;
         }
     }
+
+    // Mark the entity as inactive
+    ecs_manager->entities[entity].active = false;
+    ecs_manager->entity_count--;
 }
 
-void* ECS_AddComponent(uint32_t entity, ComponentType component_type, int component_size) {
-    if (component_type < 0 || component_type >= ecs->component_count) {
-        fprintf(stderr, "Invalid component type: %d\n", component_type);
+
+void* ECS_AddComponent(Entity entity, ComponentType component_type, int component_size) {
+    if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active || component_type >= MAX_COMPONENT_TYPES) {
         return NULL;
     }
 
-    if (component_size <= 0) {
-        fprintf(stderr, "Invalid component size: %d\n", component_size);
-        return NULL;
+    // Allocate memory for the component if it doesn't already exist
+    if (!ecs_manager->entities[entity].components[component_type]) {
+        ecs_manager->entities[entity].components[component_type] = malloc(component_size);
+        if (!ecs_manager->entities[entity].components[component_type]) {
+            fprintf(stderr, "Failed to allocate memory for component\n");
+            return NULL;
+        }
+        ecs_manager->component_sizes[component_type] = component_size;
     }
 
-    ComponentArray* array = &ecs->components[component_type];
-    if(component_size > 0) {
-        array->component_size = component_size; // Set the component size
-        printf("Component type %d: component_size = %d\n", component_type, array->component_size);
-    }
-
-    int index = get_index(ecs->st, entity);
-    if(index == -1) return NULL;
-    array->entity_mask[index] = 1; // Mark the component as present for this entity
-
-    array->components[index] = calloc(1, array->component_size);
-
-    return array->components[index];
+    return ecs_manager->entities[entity].components[component_type];
 }
 
-void* ECS_GetComponent(uint32_t entity, ComponentType component_type) {
-    if (component_type < 0 || component_type >= ecs->component_count) {
-        fprintf(stderr, "Invalid component type: %d\n", component_type);
+void* ECS_GetComponent(Entity entity, ComponentType component_type) {
+    if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active || component_type >= MAX_COMPONENT_TYPES) {
         return NULL;
     }
 
-    int index = get_index(ecs->st, entity);
-    if (index == -1) {
-        fprintf(stderr, "Invalid entity ID: %u\n", entity);
-        return NULL;
-    }
-
-    ComponentArray* array = &ecs->components[component_type];
-    if (!array->entity_mask[index]) {
-        return NULL; // Component not present for this entity
-    }
-
-    return array->components[index];
+    return ecs_manager->entities[entity].components[component_type];
 }
 
-bool ECS_HasComponent(uint32_t entity, ComponentType component_type) {
-    if (component_type < 0 || component_type >= ecs->component_count) {
-        fprintf(stderr, "Invalid component type: %d\n", component_type);
+bool ECS_HasComponent(Entity entity, ComponentType component_type) {
+    if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active || component_type >= MAX_COMPONENT_TYPES) {
         return false;
     }
 
-    int index = get_index(ecs->st, entity);
-    if (index == -1) {
-        fprintf(stderr, "Invalid entity ID: %u\n", entity);
-        return false;
-    }
-
-    return ecs->components[component_type].entity_mask[index] == 1;
+    return ecs_manager->entities[entity].components[component_type] != NULL;
 }
 
-void ECS_ClearComponent(uint32_t entity, ComponentType component_type) {
-    if (component_type < 0 || component_type >= ecs->component_count) {
-        fprintf(stderr, "Invalid component type: %d\n", component_type);
+void ECS_ClearComponent(Entity entity, ComponentType component_type) {
+    if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active || component_type >= MAX_COMPONENT_TYPES) {
         return;
     }
 
-    int index = get_index(ecs->st, entity);
-    if (index == -1) {
-        fprintf(stderr, "Invalid entity ID: %u\n", entity);
-        return;
+    if (ecs_manager->entities[entity].components[component_type]) {
+        free(ecs_manager->entities[entity].components[component_type]);
+        ecs_manager->entities[entity].components[component_type] = NULL;
+    }
+}
+
+void ECS_IterateEntities(void (*action)(Entity entity, void* user_data), void* user_data) {
+    if (!ecs_manager) return;
+
+    for (Entity i = 0; i < MAX_ENTITIES; ++i) {
+        if (ecs_manager->entities[i].active) {
+            action(i, user_data); // Call the action function for each active entity
+        }
+    }
+}
+
+Entity ECS_GetFirstEntity() {
+    return active_entity_head; // Directly return the head of the linked list
+}
+
+Entity ECS_GetNextEntity(Entity current_entity) {
+    if (!ecs_manager || current_entity >= MAX_ENTITIES) return -1;
+    return ecs_manager->entities[current_entity].next; // Directly return the next entity
+}
+
+/*
+int main() {
+    ECS_CreateManager(10);
+
+    Entity entity1 = ECS_CreateEntity();
+    Entity entity2 = ECS_CreateEntity();
+    Entity entity3 = ECS_CreateEntity();
+
+    // Iterate over all entities using a for loop
+    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+        printf("Entity %d is active\n", e);
     }
 
-    ecs->components[component_type].entity_mask[index] = 0;
+    ECS_DestroyManager();
+    return 0;
 }
+    */

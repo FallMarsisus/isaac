@@ -176,9 +176,7 @@ void unregister_listener(EventType type, EventListener listener) {
 
     for (int i = 0; i < system->listener_count; ++i) {
         if (system->listeners[i] == listener) {
-            for (int j = i; j < system->listener_count - 1; ++j) {
-                system->listeners[j] = system->listeners[j + 1];
-            }
+            system->listeners[i] = system->listeners[system->listener_count - 1];
             system->listener_count--;
             return;
         }
@@ -214,8 +212,10 @@ void call_events() {
         EventSystem* system = &event_system[event.type];
         if (!system) continue;
 
-        for (int i = 0; i < system->listener_count; ++i) {
-            system->listeners[i](event);
+        for (int i = 0; i < system->listener_count; i++) {
+            if(system->listeners[i]) {
+                system->listeners[i](event);
+            }
         }
 
         // Free event data if required

@@ -1,13 +1,12 @@
 #include "systems.h"
 
 // Initialize the game with entities and components
-uint32_t initialize_game() {
-    uint32_t player = add_player(640, 360);
-    add_item_entity(300, 300, apple, -1, false);
-    add_chest(200, 500);
-    add_enemy(500, 200, player, NULL);
+void init_room(int x, int y, uint32_t player) {
+    add_item_entity(300 + 1280 * x, 300 + 720 * y, apple, -1, false);
+    add_chest(200 + 1280 * x, 500 + 720 * y);
+    add_enemy(500 + 1280 * x, 200 + 720 * y, player, NULL);
 
-    /**/
+    /*
     for(int i = 0; i < 30; i++) {
         add_blocks(i % 5 - 2, i / 5 - 2);
         add_enemy(random_int(-5000, 5000), random_int(-5000, 5000), player, NULL);
@@ -18,20 +17,15 @@ uint32_t initialize_game() {
         add_teleporter(x1, y1, x2, y2);
         add_teleporter(x2, y2, x1, y1);
     }
-    
-    return player;
+        */
+}
+
+void free_entity_component(uint32_t entity, void* nothing) {
+    free_one_entity(entity);
 }
 
 void free_components() {
-    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-        Node* current = ECS_GetManager()->st->dict->array[i];
-        while (current) {
-            free_one_entity(current->key);
-            
-            if(current == NULL) break;
-            current = current->next;
-        }
-    }
+    ECS_IterateEntities(free_entity_component, NULL);
 }
 
 void free_one_entity(uint32_t entity) {
@@ -54,8 +48,7 @@ void free_one_entity(uint32_t entity) {
     ECS_RemoveEntity(entity);
 }
 
-void handle_input_system(SDL_Event* event) {
-
+void handle_input_system(SDL_Event* event, uint32_t player) {
     static bool is_use_sword = false;
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
@@ -70,61 +63,52 @@ void handle_input_system(SDL_Event* event) {
         SDL_PushEvent(&quit);
     }
     
-
     float distance = sqrt(pow(dx, 2) + pow(dy, 2));
-    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-        Node* current = ECS_GetManager()->st->dict->array[i];
-        while (current) {
-            PlayerMovementComponent* movement = ECS_GetComponent(current->key, PLAYER);
-            PositionComponent* position = ECS_GetComponent(current->key, POSITION);
-            AnimationComponent* anim = ECS_GetComponent(current->key, ANIMATION);
-            InventoryComponent* inv = ECS_GetComponent(current->key, INVENT);
-            SwordComponent* sword = ECS_GetComponent(current->key, SWORD_C);
 
-            if (movement && position) {
-                static bool is_it_wanting_to_display = false;
-                if (state[SDL_SCANCODE_E] && !is_it_wanting_to_display) {
-                    is_it_wanting_to_display = true;
-                    inv->isDisplayed = !inv->isDisplayed;
-                }
-                else if (!state[SDL_SCANCODE_E]) {
-                    is_it_wanting_to_display = false;
-                }
+    PlayerMovementComponent* movement = ECS_GetComponent(player, PLAYER);
+    PositionComponent* position = ECS_GetComponent(player, POSITION);
+    AnimationComponent* anim = ECS_GetComponent(player, ANIMATION);
+    InventoryComponent* inv = ECS_GetComponent(player, INVENT);
+    SwordComponent* sword = ECS_GetComponent(player, SWORD_C);
 
-                // temp
-                static bool mouseClicked = false;
-                int x, y;
-                Uint32 mouseState = SDL_GetMouseState(&x, &y);
-                
-                if ((mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouseClicked && inv != NULL) {
-                    printf("mouse is in slot n° %d\n", onClic(current->key, x, y));
-                    mouseClicked = true;
-                } else if (!(mouseState & SDL_BUTTON(SDL_BUTTON_LEFT))) {
-                    mouseClicked = false;
-                }
+    if (movement && position) {
+        static bool is_it_wanting_to_display = false;
+        if (state[SDL_SCANCODE_E] && !is_it_wanting_to_display) {
+            is_it_wanting_to_display = true;
+            inv->isDisplayed = !inv->isDisplayed;
+        }
+        else if (!state[SDL_SCANCODE_E]) {
+            is_it_wanting_to_display = false;
+        }
 
-                if(distance > 0.01) {
-                    position->vx = (dx / distance) * movement->speed;
-                    position->vy = (dy / distance) * movement->speed;
-                    if(anim) {
-                        if(dy < 0) set_active_anim(anim, 1);
-                        else if(dy > 0) set_active_anim(anim, 0);
-                        else if(dx < 0) set_active_anim(anim, 2);
-                        else if(dx > 0) set_active_anim(anim, 3);
-                        play_anim(anim);
-                    }
-                }
-                else {
-                    position->vx = 0; position->vy = 0;
-                    if(anim) {
-                        stop_anim(anim);
-                    }
-                }
+        // temp
+        static bool mouseClicked = false;
+        int x, y;
+        Uint32 mouseState = SDL_GetMouseState(&x, &y);
+        
+        if ((mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouseClicked && inv != NULL) {
+            printf("mouse is in slot n° %d\n", onClic(player, x, y));
+            mouseClicked = true;
+        } else if (!(mouseState & SDL_BUTTON(SDL_BUTTON_LEFT))) {
+            mouseClicked = false;
+        }
+
+        if(distance > 0.01) {
+            position->vx = (dx / distance) * movement->speed;
+            position->vy = (dy / distance) * movement->speed;
+            if(anim) {
+                if(dy < 0) set_active_anim(anim, 1);
+                else if(dy > 0) set_active_anim(anim, 0);
+                else if(dx < 0) set_active_anim(anim, 2);
+                else if(dx > 0) set_active_anim(anim, 3);
+                play_anim(anim);
             }
-
-            
-
-            current = current->next;
+        }
+        else {
+            position->vx = 0; position->vy = 0;
+            if(anim) {
+                stop_anim(anim);
+            }
         }
     }
 }
@@ -153,43 +137,32 @@ void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Re
 // Render all entities
 void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* renderer) {
     render_background(cam, renderer, get_sprites()->background_texture);
-    //for(int i = 0; i < amount; i++) {
-    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-        Node* current = ECS_GetManager()->st->dict->array[i];
-        while (current) {    
-            u_int32_t id = current->key;
-            //u_int32_t id = entities[i];
-            PositionComponent* position = ECS_GetComponent(id, POSITION);
-            SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
-            if(!position || !sprite) {
-                current = current->next;
-                continue;
-            }
-            if(!(position->x + sprite->width >= cam.x &&
-            position->x <= cam.x + cam.w &&
-            position->y + sprite->height >= cam.y &&
-            position->y <= cam.y + cam.h)) {
-                current = current->next;
-                continue;
-            }
+    for(int i = 0; i < amount; i++) {
+        u_int32_t id = entities[i];
+        PositionComponent* position = ECS_GetComponent(id, POSITION);
+        SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
+        if(!position || !sprite) continue;
 
-            PathfindingComponent* targetComp = ECS_GetComponent(id, PATHFINDING);
-            if(targetComp) {
-                PositionComponent* targetPos = ECS_GetComponent(targetComp->target, POSITION);
-                if(targetPos) {
-                    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-                    for(int j = 0; j < targetComp->path_length - 1; j++) {
-                        SDL_RenderDrawRect(renderer, &(SDL_Rect) {
-                            targetComp->path[2 * j] - cam.x + 16,
-                            targetComp->path[2 * j + 1] - cam.y + 16,
-                            32, 32
-                        });
-                    }
+        if(!(position->x + sprite->width >= cam.x &&
+        position->x <= cam.x + cam.w &&
+        position->y + sprite->height >= cam.y &&
+        position->y <= cam.y + cam.h)) continue;
+
+        PathfindingComponent* targetComp = ECS_GetComponent(id, PATHFINDING);
+        if(targetComp) {
+            PositionComponent* targetPos = ECS_GetComponent(targetComp->target, POSITION);
+            if(targetPos) {
+                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+                for(int j = 0; j < targetComp->path_length - 1; j++) {
+                    SDL_RenderDrawRect(renderer, &(SDL_Rect) {
+                        targetComp->path[2 * j] - cam.x + 16,
+                        targetComp->path[2 * j + 1] - cam.y + 16,
+                        32, 32
+                    });
                 }
             }
-            
-            render_component(id, cam, renderer);
-            current = current->next;
         }
+        
+        render_component(id, cam, renderer);
     }
 }

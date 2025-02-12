@@ -56,25 +56,18 @@ uint32_t get_nearest_enemy(uint32_t entity) {
     int min_dist = 1000;
     int nearest_enemy = -1;
 
-    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-        Node* current = ECS_GetManager()->st->dict->array[i];
-        while (current) {
-            if(current->key == entity) {
-                current = current->next;
-                continue;
+    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+        if(e == entity) continue;
+        
+        PositionComponent* enemy_pos = ECS_GetComponent(e, POSITION);
+        HealthComponent* health_comp = ECS_GetComponent(e, HEALTH);
+        
+        if (enemy_pos && health_comp) {
+            int dist = sqrt(pow(pos->x - enemy_pos->x, 2) + pow(pos->y - enemy_pos->y, 2));
+            if (dist < min_dist) {
+                min_dist = dist;
+                nearest_enemy = e;
             }
-            
-            PositionComponent* enemy_pos = ECS_GetComponent(current->key, POSITION);
-            HealthComponent* health_comp = ECS_GetComponent(current->key, HEALTH);
-            
-            if (enemy_pos && health_comp) {
-                int dist = sqrt(pow(pos->x - enemy_pos->x, 2) + pow(pos->y - enemy_pos->y, 2));
-                if (dist < min_dist) {
-                    min_dist = dist;
-                    nearest_enemy = current->key;
-                }
-            }
-            current = current->next;
         }
     }
     return nearest_enemy;
@@ -85,24 +78,15 @@ bool is_colliding_with_enemy(uint32_t entity) {
     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
     if(!pos || !body) return false;
     
-    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-        Node* current = ECS_GetManager()->st->dict->array[i];
-        while (current) {
-            if(current->key == entity) {
-                current = current->next;
-                continue;
-            }
-            PositionComponent* enemy_pos = ECS_GetComponent(current->key, POSITION);
-            RigidbodyComponent* enemy_body = ECS_GetComponent(current->key, BODY);
-            DamagerComponent* damager = ECS_GetComponent(current->key, DAMAGER);
-            if( damager == NULL) {
-                current = current->next;
-                continue;
-            }
-            if (isColliding(pos, body, enemy_pos, enemy_body)) return true;
-            
-            current = current->next;
-        }
+    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+        if(e == entity) continue;
+        PositionComponent* enemy_pos = ECS_GetComponent(e, POSITION);
+        RigidbodyComponent* enemy_body = ECS_GetComponent(e, BODY);
+        DamagerComponent* damager = ECS_GetComponent(e, DAMAGER);
+        if(!enemy_body || !enemy_pos || !damager) continue;
+        
+        if (isColliding(pos, body, enemy_pos, enemy_body)) return true;
+        
     }
     return false ;
 }

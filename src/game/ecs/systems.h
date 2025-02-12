@@ -34,7 +34,7 @@
  * @brief Initializes the game systems and components
  * @return ID of the initialized game state
  */
-uint32_t initialize_game();
+void init_room(int x, int y, uint32_t player);
 
 /**
  * @brief Frees all components from the ECS_GetManager() manager
@@ -51,7 +51,7 @@ void free_one_entity(uint32_t entity);
  * @brief Processes input events for the game systems
  * @param event SDL event to process
  */
-void handle_input_system(SDL_Event* event);
+void handle_input_system(SDL_Event* event, uint32_t player);
 
 /**
  * @brief Updates all systems for a single entity

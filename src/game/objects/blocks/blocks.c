@@ -65,67 +65,33 @@ uint32_t add_chest(float x, float y) {
     return chest;
 }
 
-
-/*
-bool is_colliding_with_item(uint32_t entity) {
-    PositionComponent* pos = ECS_GetComponent(entity, POSITION);
-    for (size_t i = 0; i < ECS_GetManager()->count; ++i) {
-        if (ECS_GetManager()->entity_ids[i] == entity) continue;
-        PositionComponent* item_pos = ECS_GetComponent(ECS_GetManager()->entity_ids[i], POSITION);
-        SpriteComponent* item_sprite = ECS_GetComponent(ECS_GetManager()->entity_ids[i], SPRITE);
-        
-        if (item_sprite) {
-            if (pos && item_pos) {
-                float dx = pos->x - item_pos->x;
-                float dy = pos->y - item_pos->y;
-                float distance = sqrt(dx*dx + dy*dy);
-                
-                if (distance < 32) { // Assuming 64 is collision radius
-                    
-                    free_sprite_component(item_sprite);
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-*/
-
 bool is_colliding_with_chest(uint32_t entity) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
 
-    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-        Node* current = ECS_GetManager()->st->dict->array[i];
-        while (current) {
-            if(current->key == entity) {
-                current = current->next;
-                continue;
-            }
-            PositionComponent* chest_pos = ECS_GetComponent(current->key, POSITION);
-            SpriteComponent* chest_sprite = ECS_GetComponent(current->key, SPRITE);
-            
-            // Check if entity is a chest by checking its texture
-            if (chest_sprite && chest_sprite->texture == get_sprites()->chest_closed_texture) {
-                if (pos && chest_pos) {
-                    // Simple distance check for collision
-                    float dx = pos->x - chest_pos->x;
-                    float dy = pos->y - chest_pos->y;
-                    float distance = sqrt(dx*dx + dy*dy);
-                    
-                    if (distance < 64) { // Assuming 64 is collision radius
-                        // Change chest texture to opened
-                        chest_sprite->texture = get_sprites()->chest_opened_texture;
-                        ChestOpenedEvent* event = malloc(sizeof(ChestOpenedEvent));
-                        event->chest_id = current->key;
-                        event->player_id = entity;
-                        event->x = chest_pos->x; event->y = chest_pos->y;
-                        trigger_event(EVENT_CHEST_OPENED, event, true);
-                        return true;
-                    }
+    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+        if(e == entity) continue;
+        PositionComponent* chest_pos = ECS_GetComponent(e, POSITION);
+        SpriteComponent* chest_sprite = ECS_GetComponent(e, SPRITE);
+        
+        // Check if entity is a chest by checking its texture
+        if (chest_sprite && chest_sprite->texture == get_sprites()->chest_closed_texture) {
+            if (pos && chest_pos) {
+                // Simple distance check for collision
+                float dx = pos->x - chest_pos->x;
+                float dy = pos->y - chest_pos->y;
+                float distance = sqrt(dx*dx + dy*dy);
+                
+                if (distance < 64) { // Assuming 64 is collision radius
+                    // Change chest texture to opened
+                    chest_sprite->texture = get_sprites()->chest_opened_texture;
+                    ChestOpenedEvent* event = malloc(sizeof(ChestOpenedEvent));
+                    event->chest_id = e;
+                    event->player_id = entity;
+                    event->x = chest_pos->x; event->y = chest_pos->y;
+                    trigger_event(EVENT_CHEST_OPENED, event, true);
+                    return true;
                 }
             }
-            current = current->next;
         }
     }
     return false;

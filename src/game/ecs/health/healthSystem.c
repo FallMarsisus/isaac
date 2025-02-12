@@ -7,6 +7,7 @@ bool init_health_component(uint32_t entity, int max_health, int max_mana, int sh
 	health->max_health = max_health;
 	health->max_mana = max_mana;
 	health->isDisplayed = false;
+	health->shield = 0;
 
 	return true;
 }

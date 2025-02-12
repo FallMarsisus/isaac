@@ -50,7 +50,7 @@ int main() {
     double current_time = SDL_GetTicks() / 1000.;
     double accumulator = 0.;
 
-    Game* game = create_game();
+    create_game();
 
     while (running) {
         while(SDL_PollEvent(&event)) {
@@ -58,7 +58,7 @@ int main() {
                 running = 0;
             }
         }
-        get_keys(game, &event);
+        get_keys(&event);
 
         double new_time = SDL_GetTicks() / 1000.;
         double frame_time = new_time - current_time;
@@ -68,15 +68,15 @@ int main() {
         accumulator += frame_time;
 
         while(accumulator >= dt) {
-            update_game(game, win_width, win_height, dt);
+            update_game(win_width, win_height, dt);
             t += dt;
             accumulator -= dt;
         }
         
-        draw_game(ren, game);
+        draw_game(ren);
     }
 
-    free_game(game);
+    free_game();
     
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);

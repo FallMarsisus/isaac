@@ -21,8 +21,7 @@ void on_state_change(Event event) {
 void on_collision(Event event) {
     CollisionEvent* collision = (CollisionEvent*) event.data;
     if (collision->entity1 == collision->entity2) return;
-
-
+    
     if (handle_collision_item(collision->entity1, collision->entity2)) {
         return;
     }   

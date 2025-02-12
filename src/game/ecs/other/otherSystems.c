@@ -60,7 +60,6 @@ void update_others(uint32_t id, SDL_Rect cam) {
     EffectComponent* effectComp = ECS_GetComponent(id, EFFECT);
     if(effectComp) {
         if(SDL_GetTicks() > effectComp->end_time) {
-            printf("%d - %d\n", SDL_GetTicks(), effectComp->end_time);
             ECS_RemoveEntity(id);
         }
     }

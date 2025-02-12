@@ -19,19 +19,13 @@ bool raycast(Vector start, Vector dir, float distance) {
         pos.x += dir.x * RAYCAST_STEP;
         pos.y += dir.y * RAYCAST_STEP;
 
-        for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
-            Node* current = ECS_GetManager()->st->dict->array[i];
-            while (current) {
-                PositionComponent* ePos = ECS_GetComponent(current->key, POSITION);
-                RigidbodyComponent* eRb = ECS_GetComponent(current->key, BODY);
-                if(!ePos || !eRb || eRb->is_dynamic || fabs(ePos->x - pos.x) > 2 * distance || fabs(ePos->y - pos.y) > 2 * distance) {
-                    current = current->next;
-                    continue;
-                }
-    
-                if(checkCircleCollision(ePos, eRb, pos.x, pos.y, RAYCAST_RADIUS)) return true;
-                current = current->next;
-            }
+        for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+            PositionComponent* ePos = ECS_GetComponent(e, POSITION);
+            RigidbodyComponent* eRb = ECS_GetComponent(e, BODY);
+            if(!ePos || !eRb || eRb->is_dynamic || fabs(ePos->x - pos.x) > 2 * distance || fabs(ePos->y - pos.y) > 2 * distance)
+                continue;
+
+            if(checkCircleCollision(ePos, eRb, pos.x, pos.y, RAYCAST_RADIUS)) return true;
         }
     }
     return false;

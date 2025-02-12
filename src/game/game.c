@@ -121,7 +121,7 @@ void test_damage(Game* game) {
             sword_counter = 0; // reset counter when sword is used
         } else {
             sword_counter++;
-            if (sword_counter >= 100) {
+            if (sword_counter >= 0.1) {
                 sword_used = false;
                 sword_counter = 0;
             }

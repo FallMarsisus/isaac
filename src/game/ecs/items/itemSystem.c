@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "itemSystem.h"
 #include "itemList.h"
 #include "../health/healthSystem.h"
@@ -119,17 +120,18 @@ void freeAction(Action* act) {
 
 
 void timer_make_item_grabbable_by_dropper(void* arguments) {
-    printf("pourquoi il veut pas marcher ce con ?????? \n");
     void** args = arguments;
     Timer* self = args[0];
+	
     uint32_t* entityAdress = args[1];
     ItemComponent* item = ECS_GetComponent(*entityAdress, ITEM);
-
 
     free_timer(self);
     free(arguments);
 
-    if (!item) return;
+    if (!item) {
+		return;
+	}
 
     item->isDropperLocked = false;
 }
@@ -151,7 +153,9 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
         printf("adding timer !!\n");
     
         void** arguments = malloc(sizeof(void*)*2);
-        arguments[1] = &itemEntity;  
+		
+		arguments[1] = malloc(sizeof(uint32_t));
+		*(uint32_t*)arguments[1] = itemEntity;
 
         Timer* timer = create_timer(timer_make_item_grabbable_by_dropper, arguments);
 
@@ -159,7 +163,7 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
 
 
         itemC->makeDropperUnlocked = timer;
-        play_timer(timer, 1);
+        play_timer(timer, 2);
     }
 
     position->x = x; position->y = y;
@@ -183,12 +187,14 @@ bool update_item(uint32_t entity) {
 
     // Update item logic here
     if (item->makeDropperUnlocked) {
-        printf("updating timer\n");
         update_timer(item->makeDropperUnlocked);
     }
 
     return true;
+    return true;
 }
+
+
 
 
 
@@ -212,12 +218,12 @@ bool handle_collision_item(uint32_t entity1, uint32_t entity2) {
     }
 
 
-    ItemComponent* iteme = ECS_GetComponent(item, ITEM);
-    if (!iteme || (iteme->isDropperLocked && iteme->dropper == receiver) || !iteme->isGettable) {
+    ItemComponent* itemComp = ECS_GetComponent(item, ITEM);
+    if (!itemComp || (itemComp->isDropperLocked && itemComp->dropper == receiver) || !itemComp->isGettable) {
         return false;
     }
 
-    printf("Transfert ID de dropper: %u, receiver: %u\n", iteme->dropper, receiver);
+    printf("Transfert ID de dropper: %u, receiver: %u\n", itemComp->dropper, receiver);
 
     if (!transfer_item_into_inventory(item, receiver)) return false;
 

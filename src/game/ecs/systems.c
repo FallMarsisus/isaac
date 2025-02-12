@@ -99,6 +99,27 @@ void handle_input_system(SDL_Event* event, uint32_t player) {
     }
 }
 
+// uint32_t add_item_entity(float x, float y, ItemData itemType) {
+//     uint32_t itemEntity = ECS_CreateEntity();
+//     PositionComponent* position = ECS_AddComponent(itemEntity, POSITION, sizeof(PositionComponent));
+//     SpriteComponent* sprite = ECS_AddComponent(itemEntity, SPRITE, sizeof(SpriteComponent));
+//     ItemComponent* itemC = ECS_AddComponent(itemEntity, ITEM, sizeof(ItemComponent));
+//     RigidbodyComponent* body = ECS_AddComponent(itemEntity, BODY, sizeof(RigidbodyComponent));
+
+//     position->x = x; position->y = y;
+//     position->vx = 0; position->vy = 0;
+//     position->camFixed = false;
+
+//     init_sprite_component(sprite, 64, 64, get_texture_from_Id(itemType.id));
+//     init_rigidbody_component(body, 0, 0, 64, 64);
+//     body->is_dynamic = true;
+
+//     itemC->isGettable = true;
+//     itemC->item = itemType;
+
+//     return itemEntity;
+// }
+
 void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Rect roomPos, float delta) {
     StateMachineComponent* sm = ECS_GetComponent(elt, STATE_MACHINE);
     ParentComponent* parent = ECS_GetComponent(elt, PARENT);
@@ -109,6 +130,7 @@ void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Re
     
     update_others(elt, roomPos);
     update_pathfinding_system(elt, grid, roomPos);
+    update_item(elt);
     update_item(elt);
     update_physics(elt, delta);
     

@@ -209,7 +209,12 @@ void update_physics(uint32_t id, float delta) {
                             //resolveDynamicCollision(position, body, otherPos, otherBody);
                         }
                         
+                        printf("Before malloc\n");
+                        fflush(stdout);
                         CollisionEvent* event = malloc(sizeof(CollisionEvent));
+                        printf("After malloc\n");
+                        fflush(stdout);
+
                         event->entity1 = id;
                         event->entity2 = current->key;
                         trigger_event(EVENT_COLLISION, event, true);

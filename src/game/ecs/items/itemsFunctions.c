@@ -28,7 +28,7 @@ void dropItem(uint32_t entity, ItemData currentItem) {
 
 	if (pos == NULL || !remove_item_from_inventory(entity, currentItem)) return;
 
-	add_item_entity(pos->x, pos->y, currentItem);
+	add_item_entity(pos->x, pos->y, currentItem, entity, true);
 }
 
 ActionFunction get_constant_functions(int i) {

@@ -16,6 +16,15 @@ void init_child_component(ChildComponent* child, float x, float y, bool relative
     child->is_relative = relative;
     child->parent = parent;
 }
+void init_effect_component(EffectComponent* effect, uint32_t id, int total_frames, float timeLeft) {
+    effect->id = id;
+
+    effect->current_frame = 0;
+    effect->total_frames = total_frames;
+
+    effect->time = timeLeft * 1000;
+    effect->end_time = SDL_GetTicks() + effect->time;
+}
 
 void add_child(ParentComponent* parent, uint32_t id) {
     add_id(parent->children, id);
@@ -26,15 +35,15 @@ void free_parent_component(ParentComponent* parent) {
 }
 void free_all_other_components(uint32_t id) {
     ParentComponent* parent = ECS_GetComponent(id, PARENT);
-    if(parent) free_parent_component(parent);
+    if(parent) {
+        free_parent_component(parent);
+        ECS_ClearComponent(id, PARENT);
+    }
 }
 
 void update_others(uint32_t id, SDL_Rect cam) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
-    ScriptComponent* script = ECS_GetComponent(id, SCRIPT);
-
     ChildComponent* childComp = ECS_GetComponent(id, CHILD);
-
     if(childComp && position) {
         PositionComponent* posParent = ECS_GetComponent(childComp->parent, POSITION);
         if(posParent && childComp->is_relative) {
@@ -43,7 +52,16 @@ void update_others(uint32_t id, SDL_Rect cam) {
         }
     }
 
+    ScriptComponent* script = ECS_GetComponent(id, SCRIPT);
     if(script) {
         script->update(id, cam);
+    }
+
+    EffectComponent* effectComp = ECS_GetComponent(id, EFFECT);
+    if(effectComp) {
+        if(SDL_GetTicks() > effectComp->end_time) {
+            printf("%d - %d\n", SDL_GetTicks(), effectComp->end_time);
+            ECS_RemoveEntity(id);
+        }
     }
 }

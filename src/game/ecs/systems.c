@@ -7,6 +7,7 @@ uint32_t initialize_game() {
     add_chest(200, 500);
     add_enemy(500, 200, player, NULL);
 
+    /**/
     for(int i = 0; i < 30; i++) {
         add_blocks(i % 5 - 2, i / 5 - 2);
         add_enemy(random_int(-5000, 5000), random_int(-5000, 5000), player, NULL);
@@ -26,6 +27,7 @@ void free_components() {
         Node* current = ECS_GetManager()->st->dict->array[i];
         while (current) {
             free_one_entity(current->key);
+            
             if(current == NULL) break;
             current = current->next;
         }
@@ -36,17 +38,19 @@ void free_one_entity(uint32_t entity) {
     StateMachineComponent* sm = ECS_GetComponent(entity, STATE_MACHINE);
     if(sm) {
         free_state_machine(sm);
+        ECS_ClearComponent(entity, STATE_MACHINE);
     }
 
     InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
     if(invent) {
         free_inventory(invent);
+        ECS_ClearComponent(entity, INVENT);
     }
 
     free_pathfinding_component(ECS_GetComponent(entity, PATHFINDING));
     free_all_other_components(entity);
     free_all_render_components(entity);
-
+    
     ECS_RemoveEntity(entity);
 }
 

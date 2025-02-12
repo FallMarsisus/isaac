@@ -17,6 +17,7 @@ typedef struct queue_s {
 Queue* create_queue() {
     Queue *q = (Queue *)malloc(sizeof(Queue));
     if (!q) return NULL;
+
     q->front = q->rear = NULL;
     q->size = 0;
     return q;
@@ -24,11 +25,14 @@ Queue* create_queue() {
 
 // Function to check if the queue is empty
 bool queue_is_empty(Queue *q) {
+    if (!q) return true; // Treat NULL queue as empty
     return q->size == 0;
 }
 
 // Function to enqueue an element
 bool queue_enqueue(Queue *q, void *data, size_t data_size) {
+    if (!q || !data || data_size == 0) return false;
+
     QueueNode *new_node = (QueueNode *)malloc(sizeof(QueueNode));
     if (!new_node) return false;
 
@@ -53,14 +57,14 @@ bool queue_enqueue(Queue *q, void *data, size_t data_size) {
 
 // Function to dequeue an element
 bool queue_dequeue(Queue *q, void *out_data, size_t data_size) {
-    if (queue_is_empty(q)) return false;
+    if (!q || !out_data || data_size == 0 || queue_is_empty(q)) return false;
 
     QueueNode *temp = q->front;
     memcpy(out_data, temp->data, data_size);
     
     q->front = temp->next;
     if (!q->front) {
-        q->rear = NULL;
+        q->rear = NULL; // Queue is now empty
     }
 
     free(temp->data);
@@ -71,20 +75,24 @@ bool queue_dequeue(Queue *q, void *out_data, size_t data_size) {
 
 // Function to peek at the front element
 bool queue_peek(Queue *q, void *out_data, size_t data_size) {
-    if (queue_is_empty(q)) return false;
+    if (!q || !out_data || data_size == 0 || queue_is_empty(q)) return false;
+
     memcpy(out_data, q->front->data, data_size);
     return true;
 }
 
 // Function to get the queue size
 size_t queue_size(Queue *q) {
+    if (!q) return 0; // Treat NULL queue as having size 0
     return q->size;
 }
 
 // Function to clear the queue
 void queue_clear(Queue *q) {
+    if (!q) return;
+
     while (q->front) {
-        QueueNode *temp = q->front;
+        QueueNode* temp = q->front;
         q->front = q->front->next;
         free(temp->data);
         free(temp);
@@ -95,6 +103,8 @@ void queue_clear(Queue *q) {
 
 // Function to destroy the queue
 void queue_destroy(Queue *q) {
+    if (!q) return;
+
     queue_clear(q);
     free(q);
 }

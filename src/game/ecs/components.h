@@ -28,7 +28,8 @@ typedef enum {
     ITEM,
     DAMAGER,
     STATE_MACHINE,
-    SWORD_C
+    SWORD_C,
+    EFFECT
 } ComponentType;
 
 // Position and velocity component
@@ -113,4 +114,12 @@ typedef struct {
     uint32_t parent;
 } ChildComponent;
 
+typedef struct {
+    uint32_t id;
 
+    int time;
+    int end_time;
+
+    int total_frames;
+    int current_frame;
+} EffectComponent;

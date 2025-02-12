@@ -17,7 +17,7 @@ Game* create_game() {
 
     init_event_system();
 
-    ECS_CreateManager(30);
+    ECS_CreateManager(40);
     game->player = initialize_game();
 
     game->map = create_map();
@@ -121,10 +121,7 @@ void test_damage(Game* game) {
             sword_counter = 0; // reset counter when sword is used
         } else {
             sword_counter++;
-            if (sword_counter >= 10) {
-                if (tempSword != SDL_MAX_UINT32) {
-                    ECS_RemoveEntity(tempSword);
-                }
+            if (sword_counter >= 100) {
                 sword_used = false;
                 sword_counter = 0;
             }
@@ -132,11 +129,7 @@ void test_damage(Game* game) {
     } else {
         sword_used = false;
         sword_counter = 0;
-        if (tempSword != SDL_MAX_UINT32) {
-            ECS_RemoveEntity(tempSword);
-        }
     }
-
 }
 
 void update_game(Game* game, int win_width, int win_height, float delta) {
@@ -149,16 +142,41 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
         cam.y
     };
 
-    uint32_t* entities = get_entities(game->current_room);
+    for (int i = 0; i < ECS_GetManager()->st->dict->capacity; i++) {
+        Node* current = ECS_GetManager()->st->dict->array[i];
+        while (current) {    
+            u_int32_t id = current->key;
+            //u_int32_t id = entities[i];
+            PositionComponent* position = ECS_GetComponent(id, POSITION);
+            SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
+            if(!position || !sprite) {
+                current = current->next;
+                continue;
+            }
+            if(!(position->x + sprite->width >= cam.x &&
+            position->x <= cam.x + cam.w &&
+            position->y + sprite->height >= cam.y &&
+            position->y <= cam.y + cam.h)) {
+                current = current->next;
+                continue;
+            }
+
+            update_elt(
+                current->key,
+                get_grid(game->current_room),
+                get_entities(game->current_room),
+                get_entity_amount(game->current_room),
+                room_pos,
+                delta
+            );
+
+            current = current->next;
+        }
+    }
+
+    /*uint32_t* entities = get_entities(game->current_room);
     for(int i = 0; i < get_entity_amount(game->current_room); i++) {
-        update_elt(
-            entities[i],
-            get_grid(game->current_room),
-            get_entities(game->current_room),
-            get_entity_amount(game->current_room),
-            room_pos,
-            delta
-        );
+        
     }
 
     update_elt(
@@ -169,6 +187,7 @@ void update_game(Game* game, int win_width, int win_height, float delta) {
         room_pos,
         delta
     );
+    */
     
     test_damage(game);
     // is_colliding_with_item(game->player);

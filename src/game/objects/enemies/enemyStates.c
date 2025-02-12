@@ -80,7 +80,7 @@ void on_idle_update(State* state, uint32_t id) {
     if(vectorSize(&dir) < ATTACK_RANGE && !raycast(pos, dir, vectorSize(&dir))) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "chase";
-        trigger_event(EVENT_STATE_CHANGE, event);
+        trigger_event(EVENT_STATE_CHANGE, event, true);
         return;
     }
 
@@ -140,13 +140,13 @@ void on_chase_update(State* state, uint32_t id) {
     if(vectorSize(&dir) < ATTACK_RANGE && raycast(pos, dir, vectorSize(&dir))) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "follow";
-        trigger_event(EVENT_STATE_CHANGE, event);
+        trigger_event(EVENT_STATE_CHANGE, event, true);
         return;
     }
     if(vectorSize(&dir) > ABANDON_RANGE) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "idle";
-        trigger_event(EVENT_STATE_CHANGE, event);
+        trigger_event(EVENT_STATE_CHANGE, event, true);
         return;
     }
 
@@ -216,17 +216,17 @@ void on_follow_update(State* state, uint32_t id) {
     if(vectorSize(&dirToTarget) < ATTACK_RANGE && !raycast(pos, dirToTarget, vectorSize(&dirToTarget))) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "chase";
-        trigger_event(EVENT_STATE_CHANGE, event);
+        trigger_event(EVENT_STATE_CHANGE, event, true);
         return;
     }
     if(vectorSize(&dirToTarget) > ABANDON_RANGE) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "idle";
-        trigger_event(EVENT_STATE_CHANGE, event);
+        trigger_event(EVENT_STATE_CHANGE, event, true);
         return;
     }
 
-    if(vars->prev_update + 50 < SDL_GetTicks() || queue_is_empty(vars->prev_pos)) {
+    if(vars->prev_update + 200 < SDL_GetTicks() || queue_is_empty(vars->prev_pos)) {
         vars->prev_update = SDL_GetTicks();
         queue_enqueue(vars->prev_pos, &targetPos, sizeof(Vector));
     }

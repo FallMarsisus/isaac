@@ -36,9 +36,15 @@ void free_anim_component(AnimationComponent* animation) {
 }
 void free_all_render_components(uint32_t id) {
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
-    if(sprite) free_sprite_component(sprite);
+    if(sprite) {
+        free_sprite_component(sprite);
+        ECS_ClearComponent(id, SPRITE);
+    }
     AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
-    if(anim) free_anim_component(anim);
+    if(anim) {
+        free_anim_component(anim);
+        ECS_ClearComponent(id, ANIMATION);
+    }
 }
 int add_anim(AnimationComponent* animation, float interval, int amount) {
 

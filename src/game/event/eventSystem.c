@@ -1,20 +1,22 @@
 #include "eventSystem.h"
 
+// Global event system and queue
 EventSystem* event_system;
 EventQueue* event_queue;
 
+// Implementation
 EventQueue* create_event_queue(int initial_capacity) {
     EventQueue* queue = (EventQueue*)malloc(sizeof(EventQueue));
     if (!queue) {
-        printf("Failed to allocate memory for event queue\n");
-        exit(1);
+        fprintf(stderr, "Failed to allocate memory for event queue\n");
+        return NULL;
     }
 
-    queue->events = (Event*)malloc(initial_capacity * sizeof(Event));
+    queue->events = (Event*)calloc(initial_capacity, sizeof(Event));
     if (!queue->events) {
-        printf("Failed to allocate memory for events\n");
+        fprintf(stderr, "Failed to allocate memory for events\n");
         free(queue);
-        exit(1);
+        return NULL;
     }
 
     queue->front = 0;
@@ -23,46 +25,13 @@ EventQueue* create_event_queue(int initial_capacity) {
     queue->capacity = initial_capacity;
     return queue;
 }
-void enqueue_event(EventQueue* queue, EventType type, void* data) {
-    if (queue->size == queue->capacity) {
-        // Double the capacity
-        queue->capacity *= 2;
-        queue->events = (Event*)realloc(queue->events, queue->capacity * sizeof(Event));
-        if (!queue->events) {
-            printf("Failed to resize event queue\n");
-            exit(1);
-        }
 
-        // Adjust for circular behavior after resizing
-        if (queue->front > queue->rear) {
-            for (int i = 0; i < queue->front; i++) {
-                queue->events[queue->size + i] = queue->events[i];
-            }
-            queue->rear = queue->size + queue->front - 1;
-        }
-    }
-
-    queue->rear = (queue->rear + 1) % queue->capacity;
-    queue->events[queue->rear].type = type;
-    queue->events[queue->rear].data = data;
-    queue->size++;
-}
-Event dequeue_event(EventQueue* queue) {
-    if (queue->size == 0) {
-        printf("Event queue is empty, cannot dequeue\n");
-        return (Event){EVENT_NONE, NULL};
-    }
-
-    Event event = queue->events[queue->front];
-    queue->front = (queue->front + 1) % queue->capacity;
-    queue->size--;
-    return event;
-}
 void free_event_queue(EventQueue* queue) {
     if (queue) {
-        for(int i = 0; i < queue->size; i++) {
-            if(queue->events[queue->front + i].data != NULL) {
-                free(queue->events[queue->front + i].data);
+        for (int i = 0; i < queue->size; i++) {
+            int index = (queue->front + i) % queue->capacity;
+            if (queue->events[index].free_data && queue->events[index].data) {
+                free(queue->events[index].data);
             }
         }
         free(queue->events);
@@ -70,43 +39,111 @@ void free_event_queue(EventQueue* queue) {
     }
 }
 
+void enqueue_event(EventQueue* queue, EventType type, void* data, bool free_data) {
+    if (!queue) {
+        fprintf(stderr, "Event queue is NULL\n");
+        return;
+    }
+
+    if (queue->size == queue->capacity) {
+        // Double the capacity
+        int new_capacity = queue->capacity * 2;
+        Event* new_events = (Event*)realloc(queue->events, new_capacity * sizeof(Event));
+        if (!new_events) {
+            fprintf(stderr, "Failed to resize event queue\n");
+            return;
+        }
+
+        // Adjust for circular behavior after resizing
+        if (queue->front > queue->rear) {
+            for (int i = 0; i < queue->front; i++) {
+                new_events[queue->size + i] = new_events[i];
+            }
+            queue->rear = queue->size + queue->front - 1;
+        }
+
+        queue->events = new_events;
+        queue->capacity = new_capacity;
+    }
+
+    queue->rear = (queue->rear + 1) % queue->capacity;
+    queue->events[queue->rear].type = type;
+    queue->events[queue->rear].data = data;
+    queue->events[queue->rear].free_data = free_data;
+    queue->size++;
+}
+
+Event dequeue_event(EventQueue* queue) {
+    if (!queue) {
+        fprintf(stderr, "Event queue is NULL\n");
+        return (Event){EVENT_NONE, NULL, false};
+    }
+
+    if (queue->size == 0) {
+        fprintf(stderr, "Event queue is empty, cannot dequeue\n");
+        return (Event){EVENT_NONE, NULL, false};
+    }
+
+    Event event = queue->events[queue->front];
+    queue->front = (queue->front + 1) % queue->capacity;
+    queue->size--;
+    
+    return event;
+}
+
 void init_event_system() {
-    event_system = malloc(EVENT_MAX * sizeof(EventSystem));
+    event_system = (EventSystem*)calloc(EVENT_MAX, sizeof(EventSystem));
     if (!event_system) {
-        printf("Failed to allocate memory for event system\n");
-        exit(1);
+        fprintf(stderr, "Failed to allocate memory for event system\n");
+        return;
     }
 
     for (int i = 0; i < EVENT_MAX; ++i) {
         event_system[i].listener_count = 0;
         event_system[i].listener_capacity = 4;
-        event_system[i].listeners = malloc(event_system[i].listener_capacity * sizeof(EventListener));
+        event_system[i].listeners = (EventListener*)calloc(event_system[i].listener_capacity, sizeof(EventListener));
         if (!event_system[i].listeners) {
-            printf("Failed to allocate memory for event listeners\n");
-            exit(1);
+            fprintf(stderr, "Failed to allocate memory for event listeners\n");
+            // Free previously allocated listeners
+            for (int j = 0; j < i; ++j) {
+                free(event_system[j].listeners);
+            }
+            free(event_system);
+            return;
         }
     }
 
     event_queue = create_event_queue(10);
     if (!event_queue) {
-        printf("Failed to allocate memory for event queue\n");
-        exit(1);
+        fprintf(stderr, "Failed to allocate memory for event queue\n");
+        for (int i = 0; i < EVENT_MAX; ++i) {
+            free(event_system[i].listeners);
+        }
+        free(event_system);
+        return;
     }
 }
 
 void free_event_system() {
-    for (int i = 0; i < EVENT_MAX; ++i) {
-        free(event_system[i].listeners);
+    if (event_system) {
+        for (int i = 0; i < EVENT_MAX; ++i) {
+            free(event_system[i].listeners);
+        }
+        free(event_system);
+        event_system = NULL;
     }
     free_event_queue(event_queue);
-    free(event_system);
-    event_system = NULL;
+    event_queue = NULL;
 }
 
-// Register a listener
 void register_listener(EventType type, EventListener listener) {
     if (!event_system || type >= EVENT_MAX) {
-        printf("Invalid event type %d\n", type);
+        fprintf(stderr, "Invalid event type %d\n", type);
+        return;
+    }
+
+    if (!listener) {
+        fprintf(stderr, "Invalid listener (NULL)\n");
         return;
     }
 
@@ -116,18 +153,22 @@ void register_listener(EventType type, EventListener listener) {
         system->listener_capacity *= 2;
         system->listeners = (EventListener*)realloc(system->listeners, system->listener_capacity * sizeof(EventListener));
         if (!system->listeners) {
-            printf("Failed to resize event listeners\n");
-            exit(1);
+            fprintf(stderr, "Failed to resize event listeners\n");
+            return;
         }
     }
 
     system->listeners[system->listener_count++] = listener;
 }
 
-// Unregister a listener
 void unregister_listener(EventType type, EventListener listener) {
     if (!event_system || type >= EVENT_MAX) {
-        printf("Invalid event type %d\n", type);
+        fprintf(stderr, "Invalid event type %d\n", type);
+        return;
+    }
+
+    if (!listener) {
+        fprintf(stderr, "Invalid listener (NULL)\n");
         return;
     }
 
@@ -143,30 +184,42 @@ void unregister_listener(EventType type, EventListener listener) {
         }
     }
 
-    printf("Listener not found for event type %d\n", type);
+    fprintf(stderr, "Listener not found for event type %d\n", type);
 }
 
-void trigger_event(EventType type, void* data) {
+void trigger_event(EventType type, void* data, bool free_data) {
     if (!event_queue) {
-        printf("Event queue not initialized\n");
+        fprintf(stderr, "Event queue not initialized\n");
         return;
     }
 
-    enqueue_event(event_queue, type, data);
+    if (!data) {
+        fprintf(stderr, "Warning: Attempted to trigger event with NULL data\n");
+        return;
+    }
+
+    enqueue_event(event_queue, type, data, free_data);
 }
 
 void call_events() {
-    while (event_queue->size > 0) {
+    if (!event_queue) {
+        fprintf(stderr, "Event queue not initialized\n");
+        return;
+    }
+
+    while(event_queue->size > 0) {
         Event event = dequeue_event(event_queue);
 
         // Call listeners for the event type
         EventSystem* system = &event_system[event.type];
-        if(!system) continue;
+        if (!system) continue;
+
         for (int i = 0; i < system->listener_count; ++i) {
             system->listeners[i](event);
         }
 
-        if(event.data != NULL) {
+        // Free event data if required
+        if (event.free_data && event.data) {
             free(event.data);
             event.data = NULL;
         }

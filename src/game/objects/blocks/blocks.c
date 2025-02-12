@@ -20,10 +20,13 @@ uint32_t add_block(float x, float y, SDL_Texture* texture) {
     return block;
 }
 
-uint32_t add_block_without_rigidbody(float x, float y, SDL_Texture* texture) {
-    uint32_t block = ECS_CreateEntity();
-    PositionComponent* position = ECS_AddComponent(block, POSITION, sizeof(PositionComponent));
-    SpriteComponent* sprite = ECS_AddComponent(block, SPRITE, sizeof(SpriteComponent));
+uint32_t add_effect(float x, float y, SDL_Texture* texture) {
+    uint32_t effect = ECS_CreateEntity();
+    PositionComponent* position = ECS_AddComponent(effect, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(effect, SPRITE, sizeof(SpriteComponent));
+    EffectComponent* effectComp = ECS_AddComponent(effect, EFFECT, sizeof(EffectComponent));
+
+    init_effect_component(effectComp, effect, 10, 0.5);
 
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;
@@ -31,7 +34,7 @@ uint32_t add_block_without_rigidbody(float x, float y, SDL_Texture* texture) {
 
     init_sprite_component(sprite, 64, 64, texture);
 
-    return block;
+    return effect;
 }
 
 uint32_t add_background_tile(float x, float y) {
@@ -117,7 +120,7 @@ bool is_colliding_with_chest(uint32_t entity) {
                         event->chest_id = current->key;
                         event->player_id = entity;
                         event->x = chest_pos->x; event->y = chest_pos->y;
-                        trigger_event(EVENT_CHEST_OPENED, event);
+                        trigger_event(EVENT_CHEST_OPENED, event, true);
                         return true;
                     }
                 }

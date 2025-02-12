@@ -36,7 +36,7 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
     int sword_x = pos1->x + floor(pos1->vx)*(1280/64);
     int sword_y = pos1->y + floor(pos1->vy)*(1280/64);
 
-    uint32_t sword_temp = add_block_without_rigidbody(sword_x, sword_y, sword->renderer);
+    uint32_t sword_temp = add_effect(sword_x, sword_y, sword->renderer);
 
     if(enemy == -1) return sword_temp;
     PositionComponent* pos2 = ECS_GetComponent(enemy, POSITION);

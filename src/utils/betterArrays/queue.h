@@ -1,10 +1,10 @@
 #ifndef DYNAMIC_QUEUE_H
 #define DYNAMIC_QUEUE_H
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 // Queue structure
 typedef struct queue_s Queue;

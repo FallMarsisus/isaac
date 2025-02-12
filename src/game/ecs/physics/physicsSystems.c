@@ -165,7 +165,7 @@ void update_physics(uint32_t id, float delta) {
                         CollisionEvent* event = malloc(sizeof(CollisionEvent));
                         event->entity1 = id;
                         event->entity2 = current->key;
-                        trigger_event(EVENT_COLLISION, event);
+                        trigger_event(EVENT_COLLISION, event, true);
                     }
                     current = current->next;
                 }
@@ -212,7 +212,7 @@ void update_physics(uint32_t id, float delta) {
                         CollisionEvent* event = malloc(sizeof(CollisionEvent));
                         event->entity1 = id;
                         event->entity2 = current->key;
-                        trigger_event(EVENT_COLLISION, event);
+                        trigger_event(EVENT_COLLISION, event, true);
                     }
                     current = current->next;
                 }

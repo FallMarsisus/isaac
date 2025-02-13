@@ -113,6 +113,26 @@ void setRight(Room* r, Room* right) {
     right->left = r;
 }
 
+Room* getUp(Room* r) {
+    assert(r != NULL);
+    return r->up;
+}
+
+Room* getDown(Room* r) {
+    assert(r != NULL);
+    return r->down;
+}
+
+Room* getLeft(Room* r) {
+    assert(r != NULL);
+    return r->left;
+}
+
+Room* getRight(Room* r) {
+    assert(r != NULL);
+    return r->right;
+}
+
 void clearUp(Room* r, Room* up) {
     assert(r != NULL && up != NULL);
     r->up = NULL;

@@ -235,13 +235,13 @@ void update_game(int win_width, int win_height, float delta) {
     }
 }
 
-void draw_game(SDL_Renderer* renderer) {
+void draw_game(SDL_Renderer* renderer, int win_width, int win_height) {
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
 
     render_systems(get_entities(game->current_room), get_entity_amount(game->current_room), cam, renderer);
     
-    draw_inventory(game->player, renderer);
+    draw_inventory(game->player, renderer, win_width, win_height);
     display_health(game->player, renderer);
 
     SDL_Rect rec = {0, 0, 8, 8};

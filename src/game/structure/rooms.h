@@ -28,6 +28,11 @@ void setDown(Room* r, Room* down);
 void setLeft(Room* r, Room* left);
 void setRight(Room* r, Room* right);
 
+Room* getUp(Room* r);
+Room* getDown(Room* r);
+Room* getLeft(Room* r);
+Room* getRight(Room* r);
+
 void clearUp(Room* r, Room* up);
 void clearDown(Room* r, Room* down);
 void clearLeft(Room* r, Room* left);

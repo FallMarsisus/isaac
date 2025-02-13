@@ -17,8 +17,10 @@ void update_teleporter(u_int32_t id, SDL_Rect cam) {
                     position->y < otherPos->y + otherSprite->height &&
                     position->y + sprite->height > otherPos->y) {
                     
-                    otherPos->x = teleport->posX + otherPos->vx * 20;
-                    otherPos->y = teleport->posY + otherPos->vy * 20;
+                    int dx = (otherPos->vx > 0) - (otherPos->vx < 0);
+                    int dy = (otherPos->vy > 0) - (otherPos->vy < 0);
+                    otherPos->x = teleport->posX + dx * 100;
+                    otherPos->y = teleport->posY + dy * 100;
                     return;
                 }
             }

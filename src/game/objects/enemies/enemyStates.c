@@ -106,7 +106,7 @@ void on_idle_free(State* state, uint32_t id) {
 ChaseStateVars* create_chase_vars(uint32_t player) {
     ChaseStateVars* vars = malloc(sizeof(ChaseStateVars));
     vars->player = player;
-    vars->speed = 3;
+    vars->speed = 2;
     return vars;
 }
 void on_chase_enter(State* state, uint32_t id) {}
@@ -165,7 +165,7 @@ void on_chase_free(State* state, uint32_t id) {
 FollowStateVars* create_follow_vars(uint32_t target, ID_array* entity_ids) {
     FollowStateVars* vars = malloc(sizeof(FollowStateVars));
     vars->target = target;
-    vars->speed = 3;
+    vars->speed = 2;
     vars->prev_pos = create_queue();
     vars->prev_update = SDL_GetTicks();
     vars->entity_ids = entity_ids;

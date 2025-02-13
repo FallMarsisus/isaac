@@ -11,11 +11,14 @@ Game* game;
 
 bool static_cam = false;
 SDL_Rect cam = {
-    0, 0, 1280, 720
+    32, 32, 640, 360
 };
 
-void create_game() {
+void create_game(int win_width, int win_height) {
     game = malloc(sizeof(Game));
+
+    cam.w = win_width;
+    cam.h = win_height;
 
     init_event_system();
 
@@ -24,6 +27,13 @@ void create_game() {
 
     game->map = create_map();
     change_room(0, 0);
+
+    for(int i = 0; i < 30; i++) {
+        float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
+              x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
+        add_teleporter(x1, y1, x2, y2);
+        add_teleporter(x2, y2, x1, y1);
+    }
 
     register_listener(EVENT_PLAYER_MOVED, on_player_move);
     register_listener(EVENT_CHEST_OPENED, on_chest_open);
@@ -60,28 +70,26 @@ void on_entity_created(Event event) {
     RigidbodyComponent* body = ECS_GetComponent(e->entity, BODY);
     if(!pos) return;
 
-    if(pos->camFixed || 
-    ((int) floor(pos->x / cam.w) == get_x(game->current_room) && (int) floor(pos->y / cam.h) == get_y(game->current_room))) {
-        if(!child) {
-            add_entity(game->current_room, e->entity);
-        }
+    int room_x = floor(pos->x / 1280); int room_y = floor(pos->y / 720);
 
-        int pos_x = floor(pos->x - get_x(game->current_room) * 1280) / 64;
-        int pos_y = floor(pos->y - get_y(game->current_room) * 720) / 64;
-        if(pos_x < 0 || pos_y < 0 || pos_x >= get_grid_width(game->current_room) || pos_y >= get_grid_height(game->current_room)) {
-            return;
-        }
+    Room* room = get_room(game->map, room_x, room_y);
+    if(!room) {
+        room = game->current_room;
+    }
 
-        if(body && !body->is_dynamic) {
-            get_grid(game->current_room)[pos_y][pos_x] = 1;
-        }
+    int pos_x = floor(pos->x - get_x(room) * 1280) / 64;
+    int pos_y = floor(pos->y - get_y(room) * 720) / 64;
+
+    add_entity(room, e->entity);
+    
+    if(body && !body->is_dynamic && (pos_x >= 0 && pos_y >= 0 && pos_x < get_grid_width(room) && pos_y < get_grid_height(room))) {
+        get_grid(room)[pos_y][pos_x] = 1;
     }
 }
 void on_entity_removed(Event event) {
     EntityRemovedEvent* rEvent = event.data;
 
-    //remove_entity(game->current_room, rEvent->entity);
-    //onEntityRemove(event);
+    remove_entity(game->current_room, rEvent->entity);
 }
 
 void change_room(int x, int y) {
@@ -89,11 +97,35 @@ void change_room(int x, int y) {
     if(r == NULL) {
         r = create_room(x, y);
         add_room(game->map, r);
-        init_room(x, y, game->player);
 
-        if(x != 0 || y != 0) {
-            add_entity(r, game->player);
+        for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+            PositionComponent* position = ECS_GetComponent(e, POSITION);
+            ChildComponent* child = ECS_GetComponent(e, CHILD);
+            RigidbodyComponent* body = ECS_GetComponent(e, BODY);
+
+            if(x == 0 && y == 0 && e == game->player) {
+                continue;
+            }
+
+            if (!position) continue;
+
+            if(position->camFixed || 
+            ((int) floor(position->x / 1280) == x && (int) floor(position->y / 720) == y)) {
+                if(!child) {
+                    add_entity(r, e);
+                }
+
+                int pos_x = floor(position->x - get_x(r) * 1280) / 64;
+                int pos_y = floor(position->y - get_y(r) * 720) / 64;
+                if(pos_x < 0 || pos_y < 0 || pos_x >= get_grid_width(r) || pos_y >= get_grid_height(r)) continue;
+
+                if(body && !body->is_dynamic) {
+                    get_grid(r)[pos_y][pos_x] = 1;
+                }
+            }
         }
+
+        init_room(x, y, game->player);
     }
     game->current_room = r;
 }
@@ -142,10 +174,10 @@ void update_game(int win_width, int win_height, float delta) {
     call_events();
 
     SDL_Rect room_pos = {
-        get_x(game->current_room) * cam.w,
-        get_y(game->current_room) * cam.h,
-        cam.w,
-        cam.y
+        get_x(game->current_room) * 1280,
+        get_y(game->current_room) * 720,
+        1280,
+        720
     };
 
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
@@ -154,10 +186,12 @@ void update_game(int win_width, int win_height, float delta) {
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
         if(!position || !sprite) continue;
 
+        /*
         if(!(position->x + sprite->width >= cam.x &&
         position->x <= cam.x + cam.w &&
         position->y + sprite->height >= cam.y &&
         position->y <= cam.y + cam.h)) continue;
+        */
 
         update_elt(
             id,
@@ -177,19 +211,26 @@ void update_game(int win_width, int win_height, float delta) {
     SpriteComponent* sprite = ECS_GetComponent(game->player, SPRITE);
 
     if(pos) {
-        int changeX = floor(pos->x / cam.w);
-        int changeY = floor(pos->y / cam.h);
+        int changeX = floor(pos->x / 1280);
+        int changeY = floor(pos->y / 720);
         if(!static_cam) {
-            cam.x = pos->x - cam.w / 2;
-            cam.y = pos->y - cam.h / 2;
+            cam.x = pos->x + (sprite->width - cam.w) / 2;
+            cam.y = pos->y + (sprite->height - cam.h) / 2;
+            if(cam.x < get_x(game->current_room) * 1280 + 32) cam.x = get_x(game->current_room) * 1280 + 32;
+            if(cam.y < get_y(game->current_room) * 720 + 32) cam.y = get_y(game->current_room) * 720 + 32;
+            if(cam.x + cam.w > (get_x(game->current_room) + 1) * 1280 + 32)
+                cam.x = 1280 * (get_x(game->current_room) + 1) - cam.w + 32;
+            if(cam.y + cam.h > (get_y(game->current_room) + 1) * 720 + 32)
+                cam.y = 720 * (get_y(game->current_room) + 1) - cam.h + 32;
         }
+
         if(changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {
             if(static_cam) {
-                cam.x = changeX * cam.w;
-                cam.y = changeY * cam.h;
+                cam.x = changeX * 1280 + 32;
+                cam.y = changeY * 720 + 32;
             }
             change_room(changeX, changeY);
-            printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, cam.w, pos->y, cam.h, changeX, changeY);
+            printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, 1280, pos->y, 720, changeX, changeY);
         }
     }
 }

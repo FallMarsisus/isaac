@@ -30,7 +30,7 @@ typedef struct {
     int prev_update;
     Vector currentGoal;
 
-    int speed;
+    float speed;
     uint32_t target;
 
     ID_array* entity_ids;

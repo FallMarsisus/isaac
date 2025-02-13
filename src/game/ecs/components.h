@@ -85,7 +85,7 @@ typedef struct {
     int current_step;   // Current step in the path
     uint32_t target;
 
-    int speed;
+    float speed;
     int last_update;
 } PathfindingComponent;
 

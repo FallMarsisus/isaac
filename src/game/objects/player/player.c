@@ -48,7 +48,7 @@ uint32_t add_player(float x, float y) {
     set_active_anim(animation, 0);
     play_anim(animation);
 
-    movement->speed = 5;
+    movement->speed = 3.5;
 
     return player;
 }

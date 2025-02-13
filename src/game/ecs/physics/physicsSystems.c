@@ -11,108 +11,40 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
 bool isColliding(PositionComponent* p1, RigidbodyComponent* r1, 
                  PositionComponent* p2, RigidbodyComponent* r2) {
     return (p1->x + r1->hitbox.x < p2->x + r2->hitbox.x + r2->hitbox.w &&
-            p1->x + r1->hitbox.x + r1->hitbox.w > p2->x + r2->hitbox.x&&
+            p1->x + r1->hitbox.x + r1->hitbox.w > p2->x + r2->hitbox.x &&
             p1->y + r1->hitbox.y < p2->y + r2->hitbox.y + r2->hitbox.h &&
             p1->y + r1->hitbox.y + r1->hitbox.h > p2->y + r2->hitbox.y);
 }
 
 bool checkCircleCollision(PositionComponent* p1, RigidbodyComponent* r1, 
                           float cX, float cY, float radius) {
-    // Find the closest point on the rectangle to the circle's center
     float closestX = fmaxf(p1->x + r1->hitbox.x, fminf(cX, p1->x + r1->hitbox.x + r1->hitbox.w));
     float closestY = fmaxf(p1->y + r1->hitbox.y, fminf(cY, p1->y + r1->hitbox.y + r1->hitbox.h));
-    
-    // Calculate the distance between the circle's center and this closest point
     float distanceX = cX - closestX;
     float distanceY = cY - closestY;
-    
-    // Check if the distance is less than or equal to the circle's radius
     return (distanceX * distanceX + distanceY * distanceY) <= (radius * radius);
 }
 
 void resolveAxis(PositionComponent* position, RigidbodyComponent* body, 
-                 PositionComponent* otherPos, RigidbodyComponent* otherBody, 
-                 float* velocity, char axis) {
+    PositionComponent* otherPos, RigidbodyComponent* otherBody, 
+    float* velocity, char axis) {
     if (*velocity == 0) return;
 
     if (axis == 'x') {
         if (*velocity > 0) {
-            position->x = otherPos->x - body->hitbox.w;
+            position->x = otherPos->x + otherBody->hitbox.x - body->hitbox.w - body->hitbox.x;
         } else if (*velocity < 0) {
-            position->x = otherPos->x + otherBody->hitbox.w;
+            position->x = otherPos->x + otherBody->hitbox.x + otherBody->hitbox.w - body->hitbox.x;
         }
     } else if (axis == 'y') {
         if (*velocity > 0) {
-            position->y = otherPos->y - body->hitbox.h;
+            position->y = otherPos->y + otherBody->hitbox.y - body->hitbox.h - body->hitbox.y;
         } else if (*velocity < 0) {
-            position->y = otherPos->y + otherBody->hitbox.h;
+            position->y = otherPos->y + otherBody->hitbox.y + otherBody->hitbox.h - body->hitbox.y;
         }
     }
 
-    *velocity = 0; // Stop movement along this axis
-}
-
-void resolveDynamicCollision(
-    PositionComponent* p1, RigidbodyComponent* r1,
-    PositionComponent* p2, RigidbodyComponent* r2
-) {
-    // Step 1: Calculate collision normal
-    float dx = (p2->x + r2->hitbox.w / 2) - (p1->x + r1->hitbox.w / 2);
-    float dy = (p2->y + r2->hitbox.h / 2) - (p1->y + r1->hitbox.h / 2);
-    float distance = sqrt(dx * dx + dy * dy);
-
-    if (distance == 0) return; // Prevent division by zero
-
-    // Normalize the collision normal
-    float nx = dx / distance;
-    float ny = dy / distance;
-
-    // Step 2: Resolve overlap (push entities apart)
-    float overlap = 0.5f * (distance - r1->hitbox.w / 2 - r2->hitbox.w / 2);
-    p1->x -= nx * overlap;
-    p1->y -= ny * overlap;
-    p2->x += nx * overlap;
-    p2->y += ny * overlap;
-
-    // Step 3: Relative velocity
-    float vx = p2->vx - p1->vx;
-    float vy = p2->vy - p1->vy;
-
-    // Step 4: Calculate relative velocity along the normal
-    float vn = vx * nx + vy * ny;
-
-    // If velocities are separating, no impulse is needed
-    if (vn > 0) return;
-
-    // Step 5: Calculate impulse scalar based on the masses and restitution
-    float mass1 = r1->mass;
-    float mass2 = r2->mass;
-    float restitution = fminf(r1->restitution, r2->restitution); // Use the lower restitution value
-    float j = -(1 + restitution) * vn / (1 / mass1 + 1 / mass2);
-
-    // Step 6: Apply impulse to velocities
-    float impulseX = j * nx;
-    float impulseY = j * ny;
-
-    p1->vx -= impulseX / mass1;
-    p1->vy -= impulseY / mass1;
-    p2->vx += impulseX / mass2;
-    p2->vy += impulseY / mass2;
-
-    // Step 7: Frictional force (apply friction to reduce velocity along the tangent)
-    float fx = vx - (vx * nx + vy * ny) * nx;
-    float fy = vy - (vx * nx + vy * ny) * ny;
-    float frictionMagnitude = sqrt(fx * fx + fy * fy) * fminf(r1->friction, r2->friction);
-
-    if (frictionMagnitude > 0) {
-        float frictionForceX = frictionMagnitude * (fx / sqrt(fx * fx + fy * fy));
-        float frictionForceY = frictionMagnitude * (fy / sqrt(fx * fx + fy * fy));
-
-        p1->vx -= frictionForceX / mass1;
-        p1->vy -= frictionForceY / mass1;
-        p2->vx += frictionForceX / mass2;
-        p2->vy += frictionForceY / mass2;
-    }
+    *velocity = 0;
 }
 
 void update_physics(uint32_t id, float delta) {

@@ -14,7 +14,7 @@
 
 typedef struct game_s Game;
 
-void create_game();
+void create_game(int win_width, int win_height);
 void free_game();
 
 void on_entity_created(Event event);

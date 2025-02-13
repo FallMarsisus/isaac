@@ -22,6 +22,8 @@ typedef struct {
     SDL_Texture* sword_item_texture;
     SDL_Texture* background_texture;
 
+    SDL_Texture* slime_texture;
+    SDL_Texture* slime_jump_texture;
 } sprite_list;
 
 void load_sprites(SDL_Renderer* ren);

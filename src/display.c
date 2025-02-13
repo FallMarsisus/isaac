@@ -33,6 +33,9 @@ void load_sprites(SDL_Renderer* ren) {
     sl->unknown_item_texture = load_texture("assets/inventory/unknown_item.bmp", ren);
     sl->sword_item_texture = load_texture("assets/inventory/sword_item.bmp", ren);
     sl->background_texture = load_texture("assets/tilemap/background.bmp", ren);
+
+    sl->slime_texture = load_texture("assets/alien/slime.bmp", ren);
+    sl->slime_jump_texture = load_texture("assets/alien/slime.bmp", ren);
 }
 
 sprite_list* get_sprites() {

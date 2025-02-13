@@ -4,28 +4,14 @@
 void init_room(int x, int y, uint32_t player) {
     add_item_entity(300 + 1280 * x, 300 + 720 * y, apple);
     add_chest(200 + 1280 * x, 500 + 720 * y);
-    add_enemy(500 + 1280 * x, 200 + 720 * y, player, NULL);
-
-    /*
-    for(int i = 0; i < 30; i++) {
-        add_blocks(i % 5 - 2, i / 5 - 2);
-        add_enemy(random_int(-5000, 5000), random_int(-5000, 5000), player, NULL);
-        add_chest(random_int(-5000, 5000), random_int(-5000, 5000));
-        
-        float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000), 
-              x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
-        add_teleporter(x1, y1, x2, y2);
-        add_teleporter(x2, y2, x1, y1);
-    }
-        */
-}
-
-void free_entity_component(uint32_t entity, void* nothing) {
-    free_one_entity(entity);
+    add_slime(500 + 1280 * x, 200 + 720 * y, player, NULL);
+    add_blocks(x, y);
 }
 
 void free_components() {
-    ECS_IterateEntities(free_entity_component, NULL);
+    for(Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+        free_one_entity(e);
+    }
 }
 
 void free_one_entity(uint32_t entity) {
@@ -158,8 +144,10 @@ void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Re
 // Render all entities
 void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* renderer) {
     render_background(cam, renderer, get_sprites()->background_texture);
-    for(int i = 0; i < amount; i++) {
-        u_int32_t id = entities[i];
+    //for(int i = 0; i < amount; i++) {
+    for(Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+        //u_int32_t id = entities[i];
+        u_int32_t id = e;
         PositionComponent* position = ECS_GetComponent(id, POSITION);
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
         if(!position || !sprite) continue;

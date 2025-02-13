@@ -35,8 +35,8 @@ int main() {
         return 1;
     }
 
-    int win_width = 1280, win_height = 720;
-    //SDL_RenderSetLogicalSize(ren, win_width, win_height);
+    int win_width = 854, win_height = 480;
+    SDL_RenderSetLogicalSize(ren, win_width, win_height);
 
     load_sprites(ren);
 
@@ -50,7 +50,7 @@ int main() {
     double current_time = SDL_GetTicks() / 1000.;
     double accumulator = 0.;
 
-    create_game();
+    create_game(win_width, win_height);
 
     while (running) {
         while(SDL_PollEvent(&event)) {

@@ -6,4 +6,6 @@
 
 bool mouseInRect(int x, int y, SDL_Rect rect);
 
+bool mouseInRectFixDrift(int x, int y, SDL_Rect* rect, int trueWidth, int renderWidth);
+
 #endif

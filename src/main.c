@@ -73,7 +73,7 @@ int main() {
             accumulator -= dt;
         }
         
-        draw_game(ren);
+        draw_game(ren, win_width, win_height);
     }
 
     free_game();

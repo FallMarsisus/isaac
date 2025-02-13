@@ -178,6 +178,7 @@ void executeAction(uint32_t entity, InventoryComponent* invent, int selectedActi
 }
 
 int onClic(uint32_t entity, int x, int y) {
+
     InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
     if (!invent)
         return -1;
@@ -194,7 +195,6 @@ int onClic(uint32_t entity, int x, int y) {
 
     // pour gérer le cas si y'a déjà un slot sélectionné
     int action = get_clicked_acion(invent, x, y);
-    printf("Action selected: %d\n", action);
 
     if (invent->selected_slot_actions && invent->selected_slot != -1 && action >= invent->selected_slot_actions->nb_actions) {
         get_constant_functions(action - invent->selected_slot_actions->nb_actions)(entity, invent->items[invent->selected_slot]);
@@ -215,19 +215,22 @@ int onClic(uint32_t entity, int x, int y) {
 
 
 
-void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer) {
+void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, int trueWidth, int renderWidth) {
+
+    float scaleFactor = (float)renderWidth / trueWidth;
+
 
     // si pas besoin d'iter à afficher
-	if (!inventory || inventory->selected_slot == -1 || inventory->selected_slot_actions == NULL) return;
+    if (!inventory || inventory->selected_slot == -1 || inventory->selected_slot_actions == NULL) return;
 
     // si pas d'item dans la case
-	if (inventory->selected_slot >= inventory->nb_items || inventory->items[inventory->selected_slot].id == -1) return;
+    if (inventory->selected_slot >= inventory->nb_items || inventory->items[inventory->selected_slot].id == -1) return;
 
     int nbRows = NB_ROWS;
     int widthPos = inventory->selected_slot % nbRows;
     int heightPos = inventory->selected_slot / nbRows;
 
-    int xPos = (MARGIN + SPACING + SLOT_SIZE) + heightPos * (SPACING + SLOT_SIZE); // fixeds
+    int xPos = ((MARGIN + SPACING + SLOT_SIZE) + heightPos * (SPACING + SLOT_SIZE)) * scaleFactor; // fixeds
     SDL_Rect actions_rect;
 
     int mouseX, mouseY;
@@ -235,16 +238,16 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer) {
 
     for (int i = 0; i < inventory->selected_slot_actions->nb_actions; i++) {
 
-        int yPos = (MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE);
+        int yPos = ((MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE)) * scaleFactor;
 
         actions_rect = (SDL_Rect) {
             xPos,
             yPos,
-            160,
-            SPACING + SLOT_SIZE
+            160 * scaleFactor,
+            (SPACING + SLOT_SIZE) * scaleFactor
         };
 
-        if (mouseInRect(mouseX, mouseY, actions_rect)) {
+        if (mouseInRectFixDrift(mouseX, mouseY, &actions_rect, trueWidth, renderWidth)) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         } else {
             SDL_SetRenderDrawColor(renderer, 255, 200, 255, 255);
@@ -256,15 +259,15 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer) {
     // techniquemement ça marche de deux manières donc je préfère faire deux boucles
     for (int i = inventory->selected_slot_actions->nb_actions; i < inventory->selected_slot_actions->nb_actions + 2; i++) {
 
-        int yPos = (MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE);
+        int yPos = ((MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE)) * scaleFactor;
         actions_rect = (SDL_Rect) {
             xPos,
             yPos,
-            160,
-            SPACING + SLOT_SIZE
+            160 * scaleFactor,
+            (SPACING + SLOT_SIZE) * scaleFactor
         };
 
-        if (mouseInRect(mouseX, mouseY, actions_rect)) {
+        if (mouseInRectFixDrift(mouseX, mouseY, &actions_rect, trueWidth, renderWidth)) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         } else {
             SDL_SetRenderDrawColor(renderer, 255, 200, 255, 255);
@@ -274,7 +277,7 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer) {
     }
 }
 
-void draw_inventory(uint32_t entity, SDL_Renderer* renderer) {
+void draw_inventory(uint32_t entity, SDL_Renderer* renderer, int win_width, int win_height) {
     InventoryComponent* inventory = ECS_GetComponent(entity, INVENT);
     if (!inventory || !inventory->isDisplayed) {
         return;
@@ -290,10 +293,10 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer) {
 
     // trust me ça marche ça
     SDL_Rect backgroundRect = {
-        MARGIN,
-        MARGIN,
-        (inventory->max_nb_items + nbRows - 1) / nbRows * (SLOT_SIZE + SPACING) + (MARGIN + SPACING),
-        nbRows * (SLOT_SIZE + SPACING) + (MARGIN + SPACING)
+        MARGIN * win_width/1280,
+        MARGIN * win_height/720,
+        ((inventory->max_nb_items + nbRows - 1) / nbRows * (SLOT_SIZE + SPACING) + (MARGIN + SPACING)) * win_width / 1280,
+        (nbRows * (SLOT_SIZE + SPACING) + (MARGIN + SPACING)) * win_height/720
     }; // retirer le + nb - 1 si ça fait de la merde
 
     SDL_RenderFillRect(renderer, &backgroundRect);
@@ -308,17 +311,17 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer) {
 
         // 42 = 10 (margin) + 32 (size of slot)
         SDL_Rect itemRect = {
-            (MARGIN + SPACING) + heightPos * (SPACING + SLOT_SIZE),
-            (MARGIN + SPACING) + widthPos * (SPACING + SLOT_SIZE),
-            SLOT_SIZE,
-            SLOT_SIZE
+            ((MARGIN + SPACING) + heightPos * (SPACING + SLOT_SIZE)) * win_width / 1280,
+            ((MARGIN + SPACING) + widthPos * (SPACING + SLOT_SIZE)) * win_height / 720,
+            SLOT_SIZE * win_width / 1280,
+            SLOT_SIZE * win_height / 720
         }; // Position and size of each item
 
         // change the color according to pos of mouse and if slot is full
         if (i < inventory->nb_items && inventory->items[i].id != -1) {
 
             // change the color according to pos of mouse
-            if (mouseInRect(mouseX, mouseY, itemRect)) {
+            if (mouseInRectFixDrift(mouseX, mouseY, &itemRect, 1280, win_width)) {
                 SDL_SetRenderDrawColor(renderer, 200, 200, 255, 255);
             } else {
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -329,7 +332,7 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer) {
         } else {
 
             // change color if mouse in slot
-            if (mouseInRect(mouseX, mouseY, itemRect)) {
+            if (mouseInRectFixDrift(mouseX, mouseY, &itemRect, 1280, win_width)) {
                 SDL_SetRenderDrawColor(renderer, 200, 200, 255, 128);
             } else {
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
@@ -339,7 +342,7 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer) {
         }
     }
 
-    draw_item_actions(inventory, renderer);
+    draw_item_actions(inventory, renderer, 1280, win_width);
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }

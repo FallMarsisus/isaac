@@ -1,4 +1,5 @@
 #include "timer.h"
+#include <stdio.h>
 
 Timer* create_timer(void (*on_end)(void* elt), void* elt) {
     Timer* timer = malloc(sizeof(Timer));
@@ -33,6 +34,7 @@ void update_timer(Timer* timer) {
     if(!timer->running) return;
     if(get_current_time(timer) >= timer->time) {
         timer->running = false;
+        printf("calling func\n");
         timer->on_end(timer->elt);
     }
 }

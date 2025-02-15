@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "itemSystem.h"
 #include "itemList.h"
 #include "../health/healthSystem.h"
@@ -117,65 +118,85 @@ void freeAction(Action* act) {
     free(act->functions);
 }
 
-bool update_item(uint32_t entity, uint32_t player, uint32_t* other_entities, int nb_entities) {
-    /**
-     * @deprecated This function is deprecated and may be removed in future versions.
-     * Please use the listeners instead.
-     */
 
+void timer_make_item_grabbable_by_dropper(void* arguments) {
+    void** args = arguments;
+    Timer* self = args[0];
+	
+    uint32_t* entityAdress = args[1];
+    ItemComponent* item = ECS_GetComponent(*entityAdress, ITEM);
 
-    ItemComponent* itemComponent = ECS_GetComponent(entity, ITEM);
-    if (!itemComponent) {
-        // printf("DEBUG: Entity %u is not an item\n", entity);
-        return false;
-    }
+    free_timer(self);
+    free(arguments);
 
-    PositionComponent* selfPosition = ECS_GetComponent(entity, POSITION);
+    if (!item) {
+		return;
+	}
 
-    if (!selfPosition) {
-        // printf("DEBUG: Item entity %u has no position\n", entity);
-        return false;
-    }
-
-    // printf("DEBUG: Checking item at position (%.2f, %.2f)\n", selfPosition->x, selfPosition->y);
-
-    for (int i = 0; i < nb_entities + 1; i++) {
-        int id;
-        if(i = nb_entities) id = player;
-        else id = other_entities[i];
-
-        if (id == entity) {
-            // printf("DEBUG: Entity %u skipped (self)\n", id);
-            continue;
-        }
-
-        InventoryComponent* invent = ECS_GetComponent(id, INVENT);
-        PositionComponent* position = ECS_GetComponent(id, POSITION);
-        
-        if (!invent || !position) {
-            // printf("DEBUG: Entity %u skipped (no inventory or position)\n", id);
-            continue;
-        }
-
-        float dx = position->x - selfPosition->x;
-        float dy = position->y - selfPosition->y;
-        float distance = sqrt(dx * dx + dy * dy);
-
-        // printf("DEBUG: Distance to entity %u: %.2f\n", id, distance);
-
-        if (distance <= 50.0f) {
-            // printf("DEBUG: Attempting transfer to entity %u\n", id);
-            if (transfer_item_into_inventory(entity, id)) {
-                // printf("DEBUG: Transfer successful\n");
-                return true;
-            } else {
-                // printf("DEBUG: Transfer failed\n");
-            }
-        }
-    }
-
-    return false;
+    item->isDropperLocked = false;
 }
+
+
+uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, bool playerLocked) {
+    uint32_t itemEntity = ECS_CreateEntity();
+    PositionComponent* position = ECS_AddComponent(itemEntity, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(itemEntity, SPRITE, sizeof(SpriteComponent));
+    ItemComponent* itemC = ECS_AddComponent(itemEntity, ITEM, sizeof(ItemComponent));
+    RigidbodyComponent* body = ECS_AddComponent(itemEntity, BODY, sizeof(RigidbodyComponent));
+    
+
+    itemC->makeDropperUnlocked = NULL;
+    itemC->isDropperLocked = playerLocked;
+    itemC->dropper = dropper;
+    if (dropper != -1 && playerLocked) {
+
+        printf("adding timer !!\n");
+    
+        void** arguments = malloc(sizeof(void*)*2);
+		
+		arguments[1] = malloc(sizeof(uint32_t));
+		*(uint32_t*)arguments[1] = itemEntity;
+
+        Timer* timer = create_timer(timer_make_item_grabbable_by_dropper, arguments);
+
+        arguments[0] = timer;
+
+
+        itemC->makeDropperUnlocked = timer;
+        play_timer(timer, 2);
+    }
+
+    position->x = x; position->y = y;
+    position->vx = 0; position->vy = 0;
+    position->camFixed = false;
+
+    init_sprite_component(sprite, 64, 64, get_texture_from_Id(itemType.id));
+    init_rigidbody_component(body, 0, 0, 64, 64);
+    body->is_dynamic = true;
+
+    itemC->isGettable = true;
+    itemC->item = itemType;
+
+    return itemEntity;
+}
+
+
+bool update_item(uint32_t entity) {
+    ItemComponent* item = ECS_GetComponent(entity, ITEM);
+    if (!item) return false;
+
+    // Update item logic here
+    if (item->makeDropperUnlocked) {
+        update_timer(item->makeDropperUnlocked);
+    }
+
+    return true;
+    return true;
+}
+
+
+
+
 
 bool handle_collision_item(uint32_t entity1, uint32_t entity2) {
     uint32_t receiver, item;
@@ -196,7 +217,14 @@ bool handle_collision_item(uint32_t entity1, uint32_t entity2) {
         return false;
     }
 
-    printf("handeling\n");
+
+    ItemComponent* itemComp = ECS_GetComponent(item, ITEM);
+    if (!itemComp || (itemComp->isDropperLocked && itemComp->dropper == receiver) || !itemComp->isGettable) {
+        return false;
+    }
+
+    printf("Transfert ID de dropper: %u, receiver: %u\n", itemComp->dropper, receiver);
+
     if (!transfer_item_into_inventory(item, receiver)) return false;
 
     free_one_entity(item);

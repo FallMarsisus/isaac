@@ -70,15 +70,15 @@ void on_entity_created(Event event) {
     RigidbodyComponent* body = ECS_GetComponent(e->entity, BODY);
     if(!pos) return;
 
-    int room_x = floor(pos->x / 1280); int room_y = floor(pos->y / 720);
+    int room_x = (pos->x / 1920); int room_y = (pos->y / 1080);
 
     Room* room = get_room(game->map, room_x, room_y);
     if(!room) {
         room = game->current_room;
     }
 
-    int pos_x = floor(pos->x - get_x(room) * 1280) / 64;
-    int pos_y = floor(pos->y - get_y(room) * 720) / 64;
+    int pos_x = (pos->x - get_x(room) * 1920) / 64;
+    int pos_y = (pos->y - get_y(room) * 1080) / 64;
 
     add_entity(room, e->entity);
     
@@ -110,13 +110,13 @@ void change_room(int x, int y) {
             if (!position) continue;
 
             if(position->camFixed || 
-            ((int) floor(position->x / 1280) == x && (int) floor(position->y / 720) == y)) {
+            ((int) floor(position->x / 1920) == x && (int) floor(position->y / 1080) == y)) {
                 if(!child) {
                     add_entity(r, e);
                 }
 
-                int pos_x = floor(position->x - get_x(r) * 1280) / 64;
-                int pos_y = floor(position->y - get_y(r) * 720) / 64;
+                int pos_x = floor(position->x - get_x(r) * 1920) / 64;
+                int pos_y = floor(position->y - get_y(r) * 1080) / 64;
                 if(pos_x < 0 || pos_y < 0 || pos_x >= get_grid_width(r) || pos_y >= get_grid_height(r)) continue;
 
                 if(body && !body->is_dynamic) {
@@ -174,10 +174,10 @@ void update_game(int win_width, int win_height, float delta) {
     call_events();
 
     SDL_Rect room_pos = {
-        get_x(game->current_room) * 1280,
-        get_y(game->current_room) * 720,
-        1280,
-        720
+        get_x(game->current_room) * 1920,
+        get_y(game->current_room) * 1080,
+        1920,
+        1080
     };
 
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
@@ -204,8 +204,8 @@ void update_game(int win_width, int win_height, float delta) {
     SpriteComponent* sprite = ECS_GetComponent(game->player, SPRITE);
 
     if(pos) {
-        int changeX = floor(pos->x / 1280);
-        int changeY = floor(pos->y / 720);
+        int changeX = floor(pos->x / 1920);
+        int changeY = floor(pos->y / 1080);
         if(!static_cam) {
             cam.x = pos->x + (sprite->width - cam.w) / 2;
             cam.y = pos->y + (sprite->height - cam.h) / 2;
@@ -216,17 +216,17 @@ void update_game(int win_width, int win_height, float delta) {
             int room_y = get_y(game->current_room);
             
             // Clamp camera position
-            cam.x = fmax(room_x * 1280 + 32, fmin(cam.x, room_x * 1280 + 1280 - cam.w + 32));
-            cam.y = fmax(room_y * 720 + 32, fmin(cam.y, room_y * 720 + 720 - cam.h + 32));
+            cam.x = fmax(room_x * 1920 + 32, fmin(cam.x, room_x * 1920 + 1920 - cam.w + 32));
+            cam.y = fmax(room_y * 1080 + 32, fmin(cam.y, room_y * 1080 + 1080 - cam.h + 32));
         }
 
         if(changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {
             if(static_cam) {
-                cam.x = changeX * 1280 + 32;
-                cam.y = changeY * 720 + 32;
+                cam.x = changeX * 1920 + 32;
+                cam.y = changeY * 1080 + 32;
             }
             change_room(changeX, changeY);
-            printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, 1280, pos->y, 720, changeX, changeY);
+            printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, 1920, pos->y, 1080, changeX, changeY);
         }
     }
 }
@@ -241,8 +241,8 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height) {
     display_health(game->player, renderer);
 
     SDL_Rect rec = {0, 0, 8, 8};
-    int offsetX = get_x(game->current_room) * 1280 - cam.x + 28;
-    int offsetY = get_y(game->current_room) * 720 - cam.y + 28;
+    int offsetX = get_x(game->current_room) * 1920 - cam.x + 28;
+    int offsetY = get_y(game->current_room) * 1080 - cam.y + 28;
     for(rec.x = offsetX; rec.x < offsetX + get_grid_width(game->current_room) * 64; rec.x += 64) {
         for(rec.y = offsetY; rec.y < offsetY + get_grid_height(game->current_room) * 64; rec.y += 64) {
             switch(get_grid(game->current_room)[(rec.y - offsetY) / 64][(rec.x - offsetX) / 64]) {

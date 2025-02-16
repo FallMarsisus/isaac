@@ -61,14 +61,6 @@ bool is_colliding_with_item(uint32_t entity);
 bool is_colliding_with_chest(uint32_t entity);
 
 /**
- * @brief Creates multiple blocks in a rectangular area
- * @param rX Width of the rectangular area
- * @param rY Height of the rectangular area
- * @return Entity ID of the last created block
- */
-uint32_t add_blocks(int rX, int rY);
-
-/**
  * @brief Creates a teleporter entity linking two positions
  * @param x Source X coordinate
  * @param y Source Y coordinate

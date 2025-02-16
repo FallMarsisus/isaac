@@ -33,8 +33,8 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
 
     // Display sword sprite next to the player
     
-    int sword_x = pos1->x + floor(pos1->vx)*(1280/64);
-    int sword_y = pos1->y + floor(pos1->vy)*(1280/64);
+    int sword_x = pos1->x + floor(pos1->vx)*(1920/64);
+    int sword_y = pos1->y + floor(pos1->vy)*(1920/64);
 
     uint32_t sword_temp = add_effect(sword_x, sword_y, sword->renderer);
 

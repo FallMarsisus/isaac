@@ -35,11 +35,11 @@ int main() {
         return 1;
     }
 
-    int win_width = 854, win_height = 480;
+    int win_width = 1024, win_height = 576;
     SDL_RenderSetLogicalSize(ren, win_width, win_height);
 
     load_sprites(ren);
-
+    
     SDL_Event event;
     
     int running = 1;

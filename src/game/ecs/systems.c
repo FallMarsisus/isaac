@@ -1,11 +1,82 @@
 #include "systems.h"
 
 // Initialize the game with entities and components
-void init_room(int x, int y, uint32_t player) {
-    add_item_entity(300 + 1280 * x, 300 + 720 * y, apple, -1, false);
-    add_chest(200 + 1280 * x, 500 + 720 * y);
-    add_slime(500 + 1280 * x, 200 + 720 * y, player, NULL);
-    add_blocks(x, y);
+void init_room(int rX, int rY, uint32_t player) {
+    int start_x = rX * 1920; int start_y = rY * 1080;
+    
+    // Fixed door positions - centered on each wall
+    int north_door = 14; // (1920/64)/2 - 1 = 14 (center of north wall)
+    int south_door = 14; // Same as north for symmetry
+    int east_door = 8;   // (1080/64)/2 - 1 = 8 (center of east wall)
+    int west_door = 8;   // Same as east for symmetry
+    
+    // Add outer walls with fixed holes in each direction
+    for(int x = 0; x < 30; x++) {
+        // Skip north door (2 blocks wide hole)
+        if(x < north_door || x >= north_door + 2) {
+            add_block(start_x + x * 64, start_y, get_sprites()->cobble_texture);
+        }
+        // Skip south door (2 blocks wide hole)
+        if(x < south_door || x >= south_door + 2) {
+            add_block(start_x + x * 64, start_y + 1024, get_sprites()->cobble_texture);
+        }
+    }
+    for(int y = 0; y < 17; y++) {
+        // Skip west door (2 blocks tall hole)
+        if(y < west_door || y >= west_door + 2) {
+            add_block(start_x, start_y + y * 64, get_sprites()->cobble_texture);
+        }
+        // Skip east door (2 blocks tall hole)
+        if(y < east_door || y >= east_door + 2) {
+            add_block(start_x + 1856, start_y + y * 64, get_sprites()->cobble_texture);
+        }
+    }
+    
+    // Add random decorative elements
+    int item_x = start_x + ((4 + rand() % 20) * 64); // Between 4-24 blocks in
+    int item_y = start_y + ((4 + rand() % 12) * 64); // Between 4-16 blocks in
+    add_item_entity(item_x, item_y, apple, -1, false);
+    
+    int chest_x = start_x + ((3 + rand() % 24) * 64); // Between 3-27 blocks in
+    int chest_y = start_y + ((7 + rand() % 4) * 64); // Between 7-11 blocks in
+    add_chest(chest_x, chest_y);
+    
+    // Add multiple slimes in random positions
+    int num_slimes = rand() % 3 + 1; // 1-3 slimes
+    for(int i = 0; i < num_slimes; i++) {
+        int slime_x = start_x + ((3 + rand() % 24) * 64);
+        int slime_y = start_y + ((3 + rand() % 11) * 64);
+        add_slime(slime_x, slime_y, player, NULL);
+    }
+    
+    // Create a more complex room layout with pillars and inner walls
+    // Add corner pillars
+    add_block(start_x + 128, start_y + 128, get_sprites()->cobble_texture);
+    add_block(start_x + 1728, start_y + 128, get_sprites()->cobble_texture);
+    add_block(start_x + 128, start_y + 896, get_sprites()->cobble_texture);
+    add_block(start_x + 1728, start_y + 896, get_sprites()->cobble_texture);
+    
+    // Add random inner structures
+    int num_structures = rand() % 4 + 2;
+    for(int i = 0; i < num_structures; i++) {
+        int struct_x = start_x + ((4 + rand() % 22) * 64); // Keep away from walls
+        int struct_y = start_y + ((4 + rand() % 11) * 64);
+        
+        // Create L-shaped walls
+        for(int j = 0; j < 3; j++) {
+            add_block(struct_x + j * 64, struct_y, get_sprites()->cobble_texture);
+            add_block(struct_x, struct_y + j * 64, get_sprites()->cobble_texture);
+        }
+    }
+    
+    // Add some teleporters with random destinations within the room
+    if(rand() % 3 == 0) { // 33% chance for teleporters
+        int x1 = start_x + ((6 + rand() % 18) * 64);
+        int y1 = start_y + ((6 + rand() % 5) * 64);
+        int x2 = start_x + ((6 + rand() % 18) * 64);
+        int y2 = start_y + ((6 + rand() % 5) * 64);
+        add_teleporter(x1, y1, x2, y2);
+    }
 }
 
 void free_components() {

@@ -84,7 +84,7 @@ void add_to_int_dictionary(IntDictionary* dict, int key, void* value) {
 }
 
 bool remove_from_int_dictionary(IntDictionary* dict, int key) {
-    int index = hash_int_function(key, dict->size);
+    int index = hash_int_function(key, dict->capacity);
     Node* current = dict->array[index];
     Node* previous = NULL;
 

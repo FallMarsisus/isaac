@@ -97,7 +97,7 @@ bool display_health(uint32_t entity, SDL_Renderer *renderer)
 	if(!health) return false;
 
 	int screenWidth;
-	SDL_GetRendererOutputSize(renderer, &screenWidth, NULL);
+	SDL_RenderGetLogicalSize(renderer, &screenWidth, NULL);
 
 	for (int i = (health->max_health / 2 + health->max_health % 2) - 1; i >= 0; i--) {
 		SDL_Rect heartRect = { screenWidth - 50 - ((health->max_health / 2 + health->max_health % 2) - 1 - i) * 50, 10, 40, 40 }; // Position and size of each heart

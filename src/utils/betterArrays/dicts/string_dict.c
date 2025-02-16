@@ -90,7 +90,7 @@ void add_to_dictionary(Dictionary* dict, char* key, void* value) {
     dict->size++;
 }
 bool remove_from_dictionary(Dictionary* dict, char* key) {
-    int index = hash_function(key, dict->size);
+    int index = hash_function(key, dict->capacity);
     Node* current = dict->array[index];
     Node* previous = NULL;
 

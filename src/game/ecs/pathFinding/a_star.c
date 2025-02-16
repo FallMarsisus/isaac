@@ -106,7 +106,7 @@ void a_star(int start_x, int start_y, int goal_x, int goal_y, int** path, int* p
         }
 
         // Process neighbors
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 4; i++) {
             int nx = current->x + neighbor_offsets[i][0];
             int ny = current->y + neighbor_offsets[i][1];
 
@@ -119,7 +119,7 @@ void a_star(int start_x, int start_y, int goal_x, int goal_y, int** path, int* p
 
             if (neighbor->in_closed) continue;
 
-            float tentative_g_cost = current->g_cost + ((i < 4) ? 1 : 1.414);
+            float tentative_g_cost = current->g_cost + 1.0f;
 
             if (!neighbor->in_open || tentative_g_cost < neighbor->g_cost) {
                 neighbor->g_cost = tentative_g_cost;

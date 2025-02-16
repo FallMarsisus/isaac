@@ -185,14 +185,7 @@ void update_game(int win_width, int win_height, float delta) {
         PositionComponent* position = ECS_GetComponent(id, POSITION);
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
         if(!position || !sprite) continue;
-
-        /*
-        if(!(position->x + sprite->width >= cam.x &&
-        position->x <= cam.x + cam.w &&
-        position->y + sprite->height >= cam.y &&
-        position->y <= cam.y + cam.h)) continue;
-        */
-
+        
         update_elt(
             id,
             get_grid(game->current_room),
@@ -216,12 +209,15 @@ void update_game(int win_width, int win_height, float delta) {
         if(!static_cam) {
             cam.x = pos->x + (sprite->width - cam.w) / 2;
             cam.y = pos->y + (sprite->height - cam.h) / 2;
-            if(cam.x < get_x(game->current_room) * 1280 + 32) cam.x = get_x(game->current_room) * 1280 + 32;
-            if(cam.y < get_y(game->current_room) * 720 + 32) cam.y = get_y(game->current_room) * 720 + 32;
-            if(cam.x + cam.w > (get_x(game->current_room) + 1) * 1280 + 32)
-                cam.x = 1280 * (get_x(game->current_room) + 1) - cam.w + 32;
-            if(cam.y + cam.h > (get_y(game->current_room) + 1) * 720 + 32)
-                cam.y = 720 * (get_y(game->current_room) + 1) - cam.h + 32;
+
+            
+            // Cache room boundaries
+            int room_x = get_x(game->current_room);
+            int room_y = get_y(game->current_room);
+            
+            // Clamp camera position
+            cam.x = fmax(room_x * 1280 + 32, fmin(cam.x, room_x * 1280 + 1280 - cam.w + 32));
+            cam.y = fmax(room_y * 720 + 32, fmin(cam.y, room_y * 720 + 720 - cam.h + 32));
         }
 
         if(changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {

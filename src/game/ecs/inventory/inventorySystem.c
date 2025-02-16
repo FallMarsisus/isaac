@@ -30,8 +30,10 @@ void initialize_inventory(InventoryComponent* invent, int maxItems, bool isDispl
 }
 void free_inventory(InventoryComponent* invent) {
     free(invent->items);
-    freeAction(invent->selected_slot_actions);
-    free(invent->selected_slot_actions);
+    if (invent->selected_slot_actions != NULL) {
+        freeAction(invent->selected_slot_actions);
+        invent->selected_slot_actions = NULL;
+    }
 }
 
 bool add_item_to_inventory(uint32_t entity, ItemData item) {

@@ -32,8 +32,6 @@ typedef struct {
 
     float speed;
     uint32_t target;
-
-    ID_array* entity_ids;
 } FollowStateVars;
 
 IdleStateVars* create_idle_vars(uint32_t player);
@@ -48,7 +46,7 @@ void on_chase_update(State* state, uint32_t id);
 void on_chase_exit(State* state, uint32_t id);
 void on_chase_free(State* state, uint32_t id);
 
-FollowStateVars* create_follow_vars(uint32_t target, ID_array* entity_ids);
+FollowStateVars* create_follow_vars(uint32_t target);
 void on_follow_enter(State* state, uint32_t id);
 void on_follow_update(State* state, uint32_t id);
 void on_follow_exit(State* state, uint32_t id);

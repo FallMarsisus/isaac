@@ -23,9 +23,9 @@
  * @param player Player entity ID that the enemy will target
  * @return Entity ID of the created enemy
  */
-uint32_t add_goblin(float x, float y, uint32_t player, ID_array* entities);
+uint32_t add_goblin(float x, float y, uint32_t player);
 
-uint32_t add_slime(float x, float y, uint32_t player, ID_array* entities);
+uint32_t add_slime(float x, float y, uint32_t player);
 
 /**
  * @brief Checks if an entity is colliding with any enemy

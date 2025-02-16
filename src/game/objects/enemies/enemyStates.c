@@ -162,13 +162,12 @@ void on_chase_free(State* state, uint32_t id) {
     if(vars) free(vars);
 }
 
-FollowStateVars* create_follow_vars(uint32_t target, ID_array* entity_ids) {
+FollowStateVars* create_follow_vars(uint32_t target) {
     FollowStateVars* vars = malloc(sizeof(FollowStateVars));
     vars->target = target;
     vars->speed = 2;
     vars->prev_pos = create_queue();
     vars->prev_update = SDL_GetTicks();
-    vars->entity_ids = entity_ids;
     return vars;
 }
 void on_follow_enter(State* state, uint32_t id) {

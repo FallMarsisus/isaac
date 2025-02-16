@@ -30,6 +30,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "rooms/roomGeneration.h"
+
 /**
  * @brief Initializes the game systems and components
  * @return ID of the initialized game state

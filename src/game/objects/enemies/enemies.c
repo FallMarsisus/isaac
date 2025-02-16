@@ -1,6 +1,6 @@
 #include "enemies.h"
 
-uint32_t add_goblin(float x, float y, uint32_t pl, ID_array* entities) {
+uint32_t add_goblin(float x, float y, uint32_t pl) {
     uint32_t enemy = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(enemy, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(enemy, SPRITE, sizeof(SpriteComponent));
@@ -21,7 +21,7 @@ uint32_t add_goblin(float x, float y, uint32_t pl, ID_array* entities) {
     add_state(sm, chase_state);
     
     State* follow_state = create_state("follow", on_follow_enter, on_follow_update, on_follow_exit, on_follow_free);
-    follow_state->vars = create_follow_vars(pl, entities);
+    follow_state->vars = create_follow_vars(pl);
     add_state(sm, follow_state);
     
     switch_state(sm, "idle");
@@ -49,7 +49,7 @@ uint32_t add_goblin(float x, float y, uint32_t pl, ID_array* entities) {
     return enemy;
 }
 
-uint32_t add_slime(float x, float y, uint32_t pl, ID_array* entities) {
+uint32_t add_slime(float x, float y, uint32_t pl) {
     uint32_t enemy = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(enemy, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(enemy, SPRITE, sizeof(SpriteComponent));
@@ -70,7 +70,7 @@ uint32_t add_slime(float x, float y, uint32_t pl, ID_array* entities) {
     add_state(sm, chase_state);
     
     State* follow_state = create_state("follow", on_follow_enter, on_follow_update, on_follow_exit, on_follow_free);
-    follow_state->vars = create_follow_vars(pl, entities);
+    follow_state->vars = create_follow_vars(pl);
     add_state(sm, follow_state);
     
     switch_state(sm, "idle");

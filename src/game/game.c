@@ -40,7 +40,7 @@ void create_game(int win_width, int win_height) {
     register_listener(EVENT_STATE_CHANGE, on_state_change);
     register_listener(EVENT_COLLISION, on_collision);
     register_listener(EVENT_ENTITY_CREATED, on_entity_created);
-    //register_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
+    register_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
 }
 
 void free_game() {
@@ -49,7 +49,7 @@ void free_game() {
     unregister_listener(EVENT_STATE_CHANGE, on_state_change);
     unregister_listener(EVENT_COLLISION, on_collision);
     unregister_listener(EVENT_ENTITY_CREATED, on_entity_created);
-    //unregister_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
+    unregister_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
 
     free_map(game->map);
     
@@ -70,17 +70,16 @@ void on_entity_created(Event event) {
     RigidbodyComponent* body = ECS_GetComponent(e->entity, BODY);
     if(!pos) return;
 
-    int room_x = (pos->x / 1920); int room_y = (pos->y / 1080);
+    int room_x = floor(pos->x / 1920); int room_y = floor(pos->y / 1080);
 
     Room* room = get_room(game->map, room_x, room_y);
-    if(!room) {
-        room = game->current_room;
-    }
+    if(!room) return;
 
     int pos_x = (pos->x - get_x(room) * 1920) / 64;
     int pos_y = (pos->y - get_y(room) * 1080) / 64;
 
     add_entity(room, e->entity);
+    printf("Entity created in room %d - %d\n", room_x, room_y);
     
     if(body && !body->is_dynamic && (pos_x >= 0 && pos_y >= 0 && pos_x < get_grid_width(room) && pos_y < get_grid_height(room))) {
         get_grid(room)[pos_y][pos_x] = 1;

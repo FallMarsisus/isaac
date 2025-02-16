@@ -19,7 +19,8 @@ int main() {
     }
 
     // Create a window
-    SDL_Window* win = SDL_CreateWindow("Hello SDL2", 100, 100, 1280, 720, SDL_WINDOW_SHOWN);
+	int true_width = 1280, true_height = 720;
+    SDL_Window* win = SDL_CreateWindow("Hello SDL2", 100, 100, true_width, true_height, SDL_WINDOW_SHOWN);
     if (win == NULL) {
         printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
         SDL_Quit();
@@ -35,7 +36,7 @@ int main() {
         return 1;
     }
 
-    int win_width = 1024, win_height = 576;
+    int win_width = 960, win_height = 540;
     SDL_RenderSetLogicalSize(ren, win_width, win_height);
 
     load_sprites(ren);
@@ -73,7 +74,7 @@ int main() {
             accumulator -= dt;
         }
         
-        draw_game(ren, win_width, win_height);
+        draw_game(ren, win_width, win_height, true_width, true_height);
     }
 
     free_game();

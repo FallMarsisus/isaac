@@ -26,4 +26,4 @@ void get_keys(SDL_Event* event);
 
 void update_game(int win_width, int win_height, float delta);
 
-void draw_game(SDL_Renderer* ren, int win_width, int win_height);
+void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_width , int true_height);

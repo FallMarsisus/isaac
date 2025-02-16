@@ -11,12 +11,15 @@ Game* game;
 
 bool static_cam = false;
 SDL_Rect cam = {
-    32, 32, 640, 360
+    0, 0, 0, 0  // Initialize to 0, will be set in create_game
 };
 
 void create_game(int win_width, int win_height) {
     game = malloc(sizeof(Game));
 
+    // Set camera dimensions based on window size
+    cam.x = 32;
+    cam.y = 32;
     cam.w = win_width;
     cam.h = win_height;
 
@@ -79,7 +82,6 @@ void on_entity_created(Event event) {
     int pos_y = (pos->y - get_y(room) * 1080) / 64;
 
     add_entity(room, e->entity);
-    printf("Entity created in room %d - %d\n", room_x, room_y);
     
     if(body && !body->is_dynamic && (pos_x >= 0 && pos_y >= 0 && pos_x < get_grid_width(room) && pos_y < get_grid_height(room))) {
         get_grid(room)[pos_y][pos_x] = 1;

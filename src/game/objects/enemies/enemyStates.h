@@ -17,12 +17,25 @@ typedef struct {
     uint32_t player;
     Vector direction;
     float speed;
+
     float wander_time;
+
+    bool is_dancing;
+    float dance_timer;
+    float spin_timer;
+
+    bool is_sleeping;
+    float sleep_timer;
+
+    bool is_sneaking;
+    float sneak_timer;
 } IdleStateVars;
 
 typedef struct {
     uint32_t player;
     float speed;
+
+    float excitement;
 } ChaseStateVars;
 
 typedef struct {

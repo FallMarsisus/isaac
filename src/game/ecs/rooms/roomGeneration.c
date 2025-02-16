@@ -12,44 +12,41 @@ void generate_room(int rX, int rY, uint32_t player_id) {
     int east_door = 8;   // (1080/64)/2 - 1 = 8 (center of east wall)
     int west_door = 8;   // Same as east for symmetry
     
-    // Add outer walls with fixed holes in each direction
+    // Add outer walls with fixed doors
     for(int x = 0; x < 30; x++) {
-        // Skip north door (2 blocks wide hole)
         if(x < north_door || x >= north_door + 2) {
             add_block(start_x + x * 64, start_y, get_sprites()->cobble_texture);
         }
-        // Skip south door (2 blocks wide hole)
         if(x < south_door || x >= south_door + 2) {
             add_block(start_x + x * 64, start_y + 1024, get_sprites()->cobble_texture);
         }
     }
     for(int y = 0; y < 17; y++) {
-        // Skip west door (2 blocks tall hole)
         if(y < west_door || y >= west_door + 2) {
             add_block(start_x, start_y + y * 64, get_sprites()->cobble_texture);
         }
-        // Skip east door (2 blocks tall hole)
         if(y < east_door || y >= east_door + 2) {
             add_block(start_x + 1856, start_y + y * 64, get_sprites()->cobble_texture);
         }
     }
     
-    // Add random decorative elements, ensuring they stay within room bounds
-    // 29 blocks max (29 * 64 = 1856) to ensure entities stay within bounds
-    int item_x = start_x + ((2 + rand() % 24) * 64);
-    int item_y = start_y + ((2 + rand() % 14) * 64);
-    if(item_x < max_x && item_y < max_y) {
-        add_item_entity(item_x, item_y, apple, -1, false);
+    // Add a cluster of items rather than just one
+    int num_items = rand() % 4 + 1; // 1-4 items in a cluster
+    for(int i = 0; i < num_items; i++) {
+        int item_x = start_x + ((2 + rand() % 24) * 64);
+        int item_y = start_y + ((2 + rand() % 14) * 64);
+        if(item_x < max_x && item_y < max_y) {
+            // Randomly choose between different item types
+            if(rand() % 2 == 0) {
+                add_item_entity(item_x, item_y, apple, -1, false);
+            } else {
+                add_chest(item_x, item_y);
+            }
+        }
     }
     
-    int chest_x = start_x + ((2 + rand() % 24) * 64);
-    int chest_y = start_y + ((2 + rand() % 14) * 64);
-    if(chest_x < max_x && chest_y < max_y) {
-        add_chest(chest_x, chest_y);
-    }
-    
-    // Add multiple slimes in random positions
-    int num_slimes = rand() % 3 + 1; // 1-3 slimes
+    // Add slimes with varying behavior
+    int num_slimes = rand() % 5 + 2; // 2-6 slimes for more challenge
     for(int i = 0; i < num_slimes; i++) {
         int slime_x = start_x + ((2 + rand() % 24) * 64);
         int slime_y = start_y + ((2 + rand() % 14) * 64);
@@ -58,37 +55,22 @@ void generate_room(int rX, int rY, uint32_t player_id) {
         }
     }
     
-    // Create a more complex room layout with pillars and inner walls
-    // Add corner pillars
-    add_block(start_x + 128, start_y + 128, get_sprites()->cobble_texture);
-    add_block(start_x + 1728, start_y + 128, get_sprites()->cobble_texture);
-    add_block(start_x + 128, start_y + 896, get_sprites()->cobble_texture);
-    add_block(start_x + 1728, start_y + 896, get_sprites()->cobble_texture);
-    
-    // Add random inner structures
-    int num_structures = rand() % 4 + 2;
-    for(int i = 0; i < num_structures; i++) {
-        int struct_x = start_x + ((2 + rand() % 24) * 64);
-        int struct_y = start_y + ((2 + rand() % 14) * 64);
+    // Create maze-like structures instead of simple pillars
+    int num_maze_segments = rand() % 6 + 3; // 3-8 maze segments
+    for(int i = 0; i < num_maze_segments; i++) {
+        int maze_x = start_x + ((2 + rand() % 24) * 64);
+        int maze_y = start_y + ((2 + rand() % 14) * 64);
         
-        // Only create structure if it will fit entirely within room bounds
-        if(struct_x + (3 * 64) < max_x && struct_y + (3 * 64) < max_y) {
-            // Create L-shaped walls
-            for(int j = 0; j < 3; j++) {
-                add_block(struct_x + j * 64, struct_y, get_sprites()->cobble_texture);
-                add_block(struct_x, struct_y + j * 64, get_sprites()->cobble_texture);
+        if(maze_x + (4 * 64) < max_x && maze_y + (4 * 64) < max_y) {
+            // Create random zigzag patterns
+            int length = rand() % 4 + 2;
+            for(int j = 0; j < length; j++) {
+                if(rand() % 2 == 0) {
+                    add_block(maze_x + j * 64, maze_y + j * 64, get_sprites()->cobble_texture);
+                } else {
+                    add_block(maze_x + j * 64, maze_y + (length-j) * 64, get_sprites()->cobble_texture);
+                }
             }
-        }
-    }
-    
-    // Add some teleporters with random destinations within the room
-    if(rand() % 3 == 0) { // 33% chance for teleporters
-        int x1 = start_x + ((2 + rand() % 24) * 64);
-        int y1 = start_y + ((2 + rand() % 14) * 64);
-        int x2 = start_x + ((2 + rand() % 24) * 64);
-        int y2 = start_y + ((2 + rand() % 14) * 64);
-        if(x1 < max_x && y1 < max_y && x2 < max_x && y2 < max_y) {
-            add_teleporter(x1, y1, x2, y2);
         }
     }
 }

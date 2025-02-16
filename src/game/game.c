@@ -254,5 +254,8 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
         }
     }
 
+
+	displayText("yo", renderer, getFonts()->calibri, 250, 250, 40);
+
     SDL_RenderPresent(renderer);
 }

@@ -1,4 +1,5 @@
 #include "../../../utils/mouse.h"
+#include "../../../utils/displayText.h"
 #include "../ecs.h"
 #include "../items/itemSystem.h"
 #include "./inventoryComponent.h"

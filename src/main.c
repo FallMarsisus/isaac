@@ -40,6 +40,7 @@ int main() {
     SDL_RenderSetLogicalSize(ren, win_width, win_height);
 
     load_sprites(ren);
+	load_fonts(ren);
     
     SDL_Event event;
     
@@ -78,7 +79,8 @@ int main() {
     }
 
     free_game();
-    
+	free_fonts();
+
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     SDL_Quit();

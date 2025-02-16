@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
 
-fontName = "calibri"
+fontName = "test_font" #don't put .ttf
 font_size = 40
 padding = 0
 
@@ -59,5 +59,10 @@ def saveASCII_Table(fontName):
         text = chr(i)
         output_path = os.path.join(output_dir, f"{i}.png")
         text_to_bitmap(text, font_path, font_size, output_path)
+        
+    for file_name in os.listdir(output_dir):
+        if file_name.endswith(".png"):
+            base = os.path.splitext(file_name)[0]
+            os.rename(os.path.join(output_dir, file_name), os.path.join(output_dir, base + ".bmp"))
 
 saveASCII_Table(fontName)

@@ -1,46 +1,45 @@
 from PIL import Image, ImageDraw, ImageFont
+from wand.image import Image as WandImage
 import os
 
-fontName = "test_font" #don't put .ttf
+fontName = "test_font"  # Ne pas mettre .ttf
 font_size = 40
-padding = 0
+padding = 10
 
-def text_to_bitmap(text, font_path, font_size, output_path):
+def text_to_bitmap(text, font_path, font_size, output_path_png, output_path_bmp):
     try:
         font = ImageFont.truetype(font_path, font_size)
 
         if not text.isprintable():
             print(f"Skipping non-printable character: {repr(text)}")
             return
-        
-        # Bounding box réelle du caractère
-        mask = font.getmask(text)
-        bbox = mask.getbbox()
 
-        if not bbox:
-            print(f"Skipping empty character: {repr(text)}")
-            return
+        # Calculer la taille du texte
+        bbox = font.getbbox(text)
+        text_width = bbox[2] + padding
+        text_height = bbox[3] + padding
 
-        width, height = bbox[2] - bbox[0], bbox[3] - bbox[1]
-
-        # Hauteur standardisée pour éviter le décalage
-        ascent, descent = font.getmetrics()
-        total_height = ascent + descent + 2 # Hauteur totale de la ligne standard
-
-        # Création de l'image avec padding
-        image = Image.new('RGBA', (width + padding, total_height + padding), (255, 255, 255, 0))
+        # Création de l'image avec un fond transparent
+        image = Image.new('RGBA', (text_width, text_height), (255, 255, 255, 0))
         draw = ImageDraw.Draw(image)
 
-        # Calcul du décalage vertical
-        y_offset = ascent - bbox[3]  # Ajustement par rapport à la ligne de base
+        # Calculer les coordonnées pour centrer le texte
+        x = (image.width - (bbox[2] - bbox[0])) // 2
+        y = (image.height - (bbox[3] - bbox[1])) // 2
 
         # Dessin du texte
-        draw.text((-bbox[0] + padding // 2, y_offset + padding // 2), text, font=font, fill=(0, 0, 0, 255))
+        draw.text((x, y), text, font=font, fill='black')
 
-        # Crop 5 px en haut et en bas
-        image = image.crop((0, 5, image.width, image.height - 5))
+        # Enregistrer l'image avec un fond transparent
+        image.save(output_path_png, format='PNG')
 
-        image.save(output_path)
+        # Convertir l'image PNG en BMP avec wand
+        with WandImage(filename=output_path_png) as img:
+            img.format = 'bmp'
+            img.save(filename=output_path_bmp)
+            os.remove(output_path_png)
+            img.save(filename=output_path_bmp)
+
     except Exception as e:
         print(f"Error processing {repr(text)}: {e}")
 
@@ -57,12 +56,8 @@ def saveASCII_Table(fontName):
 
     for i in range(256):
         text = chr(i)
-        output_path = os.path.join(output_dir, f"{i}.png")
-        text_to_bitmap(text, font_path, font_size, output_path)
-        
-    for file_name in os.listdir(output_dir):
-        if file_name.endswith(".png"):
-            base = os.path.splitext(file_name)[0]
-            os.rename(os.path.join(output_dir, file_name), os.path.join(output_dir, base + ".bmp"))
+        output_path_png = os.path.join(output_dir, f"{i}.png")
+        output_path_bmp = os.path.join(output_dir, f"{i}.bmp")
+        text_to_bitmap(text, font_path, font_size, output_path_png, output_path_bmp)
 
 saveASCII_Table(fontName)

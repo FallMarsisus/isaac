@@ -48,10 +48,21 @@ void generate_room(int rX, int rY, uint32_t player_id) {
     // Add slimes with varying behavior
     int num_slimes = rand() % 5 + 2; // 2-6 slimes for more challenge
     for(int i = 0; i < num_slimes; i++) {
-        int slime_x = start_x + ((2 + rand() % 24) * 64);
-        int slime_y = start_y + ((2 + rand() % 14) * 64);
-        if(slime_x < max_x && slime_y < max_y) {
-            add_slime(slime_x, slime_y, player_id);
+        int enemy_x = start_x + ((2 + rand() % 24) * 64);
+        int enemy_y = start_y + ((2 + rand() % 14) * 64);
+        if(enemy_x < max_x && enemy_y < max_y) {
+            int enemy_type = rand() % 3;
+            switch(enemy_type) {
+                case 0:
+                    add_slime(enemy_x, enemy_y, player_id);
+                    break;
+                case 1:
+                    add_alien(enemy_x, enemy_y, player_id);
+                    break;
+                case 2:
+                    add_goblin(enemy_x, enemy_y, player_id);
+                    break;
+            }
         }
     }
     

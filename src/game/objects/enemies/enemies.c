@@ -1,6 +1,6 @@
 #include "enemies.h"
 
-uint32_t add_goblin(float x, float y, uint32_t pl) {
+uint32_t add_standard_enemy(float x, float y, uint32_t pl, SDL_Texture* texture) {
     uint32_t enemy = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(enemy, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(enemy, SPRITE, sizeof(SpriteComponent));
@@ -35,64 +35,43 @@ uint32_t add_goblin(float x, float y, uint32_t pl) {
     init_rigidbody_component(body, 2, 2, 60, 60);
     body->is_dynamic = true;
 
-    init_sprite_component(sprite, 64, 64, get_sprites()->goblin_texture);
+    init_sprite_component(sprite, 64, 64, texture);
     init_anim_component(animation, 16, 16);
-
-    add_anim(animation, 0.1, 4);
-    add_anim(animation, 0.1, 4);
-    add_anim(animation, 0.1, 2);
-    add_anim(animation, 0.1, 2);
-
-    set_active_anim(animation, 0);
-    play_anim(animation);
 
     return enemy;
 }
 
+uint32_t add_goblin(float x, float y, uint32_t pl) {
+    uint32_t goblin = add_standard_enemy(x, y, pl, get_sprites()->goblin_texture);
+    AnimationComponent* animation = ECS_GetComponent(goblin, ANIMATION);
+    add_anim(animation, 0.1, 4);
+    add_anim(animation, 0.1, 4);
+    add_anim(animation, 0.1, 2);
+    add_anim(animation, 0.1, 2);
+
+    set_active_anim(animation, 0);
+    return goblin;
+}
+
 uint32_t add_slime(float x, float y, uint32_t pl) {
-    uint32_t enemy = ECS_CreateEntity();
-    PositionComponent* position = ECS_AddComponent(enemy, POSITION, sizeof(PositionComponent));
-    SpriteComponent* sprite = ECS_AddComponent(enemy, SPRITE, sizeof(SpriteComponent));
-    AnimationComponent* animation = ECS_AddComponent(enemy, ANIMATION, sizeof(AnimationComponent));
-    RigidbodyComponent* body = ECS_AddComponent(enemy, BODY, sizeof(RigidbodyComponent));
-    StateMachineComponent* sm = ECS_AddComponent(enemy, STATE_MACHINE, sizeof(StateMachineComponent));
-    HealthComponent* health = ECS_AddComponent(enemy, HEALTH, sizeof(HealthComponent));
-    
-    init_health_component(enemy, 1, 10, 0);
-    init_state_machine(sm, enemy);
-
-    State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
-    idle_state->vars = create_idle_vars(pl);
-    add_state(sm , idle_state);
-
-    State* chase_state = create_state("chase", on_chase_enter, on_chase_update, on_chase_exit, on_chase_free);
-    chase_state->vars = create_chase_vars(pl);
-    add_state(sm, chase_state);
-    
-    State* follow_state = create_state("follow", on_follow_enter, on_follow_update, on_follow_exit, on_follow_free);
-    follow_state->vars = create_follow_vars(pl);
-    add_state(sm, follow_state);
-    
-    switch_state(sm, "idle");
-    
-    create_damager(enemy, (DamagerComponent) {1, 0, false, 0});
-    // Initialize components
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
-
-    init_rigidbody_component(body, 8, 8, 48, 48);
-    body->is_dynamic = true;
-
-    init_sprite_component(sprite, 64, 64, get_sprites()->slime_texture);
-    init_anim_component(animation, 16, 16);
-
+    uint32_t slime = add_standard_enemy(x, y, pl, get_sprites()->slime_texture);
+    AnimationComponent* animation = ECS_GetComponent(slime, ANIMATION);
     add_anim(animation, 0.1, 4);
 
     set_active_anim(animation, 0);
-    play_anim(animation);
+    return slime;
+}
 
-    return enemy;
+uint32_t add_alien(float x, float y, uint32_t pl) {
+    uint32_t alien = add_standard_enemy(x, y, pl, get_sprites()->alien_texture);
+    AnimationComponent* animation = ECS_GetComponent(alien, ANIMATION);
+    add_anim(animation, 0.1, 4);
+    add_anim(animation, 0.1, 4);
+    add_anim(animation, 0.1, 2);
+    add_anim(animation, 0.1, 2);
+
+    set_active_anim(animation, 0);
+    return alien;
 }
 
 uint32_t get_nearest_enemy(uint32_t entity) {

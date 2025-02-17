@@ -1,14 +1,14 @@
 #include "enemyStates.h"
 
 #define RAYCAST_STEP 32.0f
-#define RAYCAST_RADIUS 48.0f
+#define RAYCAST_RADIUS 16.0f
 
 #define ATTACK_RANGE 300
 #define ABANDON_RANGE 600
 #define CHASE_OFFSET_RANGE 50.0f // Maximum offset from player position
 #define FRAME_TIME (1.0f/60.0f) // Consistent time delta for 60 FPS
 
-//Returns True if touch something
+//Returns False if touch something
 bool raycast(Vector start, Vector dir, float distance) {
     normalize(&dir);
 
@@ -27,10 +27,10 @@ bool raycast(Vector start, Vector dir, float distance) {
             if(!ePos || !eRb || eRb->is_dynamic || fabs(ePos->x - pos.x) > 2 * distance || fabs(ePos->y - pos.y) > 2 * distance)
                 continue;
 
-            if(checkCircleCollision(ePos, eRb, pos.x, pos.y, RAYCAST_RADIUS)) return true;
+            if(checkCircleCollision(ePos, eRb, pos.x, pos.y, RAYCAST_RADIUS)) return false;
         }
     }
-    return false;
+    return true;
 }
 
 void randomize_idle_vars(IdleStateVars* vars) {
@@ -73,7 +73,7 @@ void on_idle_update(State* state, uint32_t id) {
         playerPos.x - pos.x,
         playerPos.y - pos.y
     };
-    if(vectorSize(&dir) < ATTACK_RANGE && !raycast(pos, dir, vectorSize(&dir))) {
+    if(vectorSize(&dir) < ATTACK_RANGE && raycast(pos, dir, vectorSize(&dir))) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "chase";
         trigger_event(EVENT_STATE_CHANGE, event, true);
@@ -140,7 +140,7 @@ void on_chase_update(State* state, uint32_t id) {
         targetPos.x - pos.x,
         targetPos.y - pos.y
     };
-    if(vectorSize(&dir) < ATTACK_RANGE && raycast(pos, dir, vectorSize(&dir))) {
+    if(2 * RAYCAST_RADIUS < vectorSize(&dir) && vectorSize(&dir) < ATTACK_RANGE && !raycast(pos, dir, vectorSize(&dir))) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "follow";
         trigger_event(EVENT_STATE_CHANGE, event, true);
@@ -163,10 +163,10 @@ void on_chase_update(State* state, uint32_t id) {
     posComp->vy = chase_dir.y * vars->speed;
 
     if(anim) {
-        if(posComp->vy < 0) set_active_anim(anim, 1);
-        else if(posComp->vy > 0) set_active_anim(anim, 0);
-        else if(posComp->vx < 0) set_active_anim(anim, 2);
-        else if(posComp->vx > 0) set_active_anim(anim, 3);
+        if(posComp->vy < -0.5) set_active_anim(anim, 1);
+        else if(posComp->vy > 0.5) set_active_anim(anim, 0);
+        else if(posComp->vx < -0.5) set_active_anim(anim, 2);
+        else if(posComp->vx > 0.5) set_active_anim(anim, 3);
         play_anim(anim);
     }
 }
@@ -276,7 +276,7 @@ void on_follow_update(State* state, uint32_t id) {
         targetPos.x - pos.x,
         targetPos.y - pos.y
     };
-    if(vectorSize(&dirToTarget) < ATTACK_RANGE && !raycast(pos, dirToTarget, vectorSize(&dirToTarget))) {
+    if(vectorSize(&dirToTarget) < ATTACK_RANGE && raycast(pos, dirToTarget, vectorSize(&dirToTarget))) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "chase";
         trigger_event(EVENT_STATE_CHANGE, event, true);
@@ -310,10 +310,10 @@ void on_follow_update(State* state, uint32_t id) {
     }
 
     if(anim) {
-        if(posComp->vy < 0) set_active_anim(anim, 1);
-        else if(posComp->vy > 0) set_active_anim(anim, 0);
-        else if(posComp->vx < 0) set_active_anim(anim, 2);
-        else if(posComp->vx > 0) set_active_anim(anim, 3);
+        if(posComp->vy < -0.5) set_active_anim(anim, 1);
+        else if(posComp->vy > 0.5) set_active_anim(anim, 0);
+        else if(posComp->vx < -0.5) set_active_anim(anim, 2);
+        else if(posComp->vx > 0.5) set_active_anim(anim, 3);
         play_anim(anim);
     }
 }

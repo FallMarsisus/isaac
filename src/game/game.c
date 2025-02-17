@@ -144,6 +144,9 @@ void test_damage(Game* game) {
 
     PositionComponent* player_pos = ECS_GetComponent(game->player, POSITION);
     SwordComponent* player_sword = ECS_GetComponent(game->player, SWORD_C);
+
+    if(!player_sword || !player_pos) return;
+    
     if(nearest_enemy != -1 && is_colliding_with_enemy(game->player) && attacked == false) {
         attacked = true;
         if(apply_damage(nearest_enemy, game->player) == false) {

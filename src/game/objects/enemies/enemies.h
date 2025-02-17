@@ -27,6 +27,8 @@ uint32_t add_goblin(float x, float y, uint32_t player);
 
 uint32_t add_slime(float x, float y, uint32_t player);
 
+uint32_t add_alien(float x, float y, uint32_t player);
+
 /**
  * @brief Checks if an entity is colliding with any enemy
  * @param entity Entity ID to check collisions for

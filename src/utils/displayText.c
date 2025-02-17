@@ -55,21 +55,21 @@ void free_fonts() {
 	free(allFonts);
 }
 
-void displayText(const char* text, SDL_Renderer* ren, SDL_Texture** font, int x, int y, int fontSize) {
+void displayText(const char* text, SDL_Renderer* ren, SDL_Texture** font, SDL_Color* color, int x, int y, int fontSize) {
 
 	while (*text != '\0') {
 		SDL_Texture* texture = font[(unsigned char)*text];
 		if (texture) {
-			printf("Displaying character: %c\n", *text);
-			int texW = 20;
-			int texH = 20;
+			int texW, texH;
 			SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-			SDL_Rect dstrect = { x, y, texW * fontSize, texH * fontSize };
+			SDL_SetTextureColorMod(texture, color->r, color->g, color->b);  // Sets RGB values
+			SDL_SetTextureAlphaMod(texture, color->a);  // Sets alpha transparency
+			float scale = 2 * (float)fontSize / texH;  // Calculate scale based on desired height
+			SDL_Rect dstrect = { x, y, (int)(texW * scale), 2 * fontSize }; 
 			SDL_RenderCopy(ren, texture, NULL, &dstrect);
-			x += texW * fontSize;
+			x += (int)(texW * scale);
 		}
-
-		text = &text[1];
+		text++;
 	}
 
 }

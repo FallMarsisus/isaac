@@ -254,8 +254,10 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
         }
     }
 
+	// SDL_Color color = {255, 255, 255, 255};
+	// displayText("abcdefg hijklmnopqrstuvwxyz", renderer, getFonts()->calibri, &color, 10, 50, 10);
+	// displayText("lll", renderer, getFonts()->calibri, &color, 10, 70, 10);
 
-	displayText("yo", renderer, getFonts()->calibri, 250, 250, 40);
 
     SDL_RenderPresent(renderer);
 }

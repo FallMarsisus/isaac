@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+typedef struct queue_node_s QueueNode;
+
 // Queue structure
 typedef struct queue_s Queue;
 
@@ -18,5 +20,9 @@ bool queue_peek(Queue *q, void *out_data, size_t data_size);
 size_t queue_size(Queue *q);
 void queue_clear(Queue *q);
 void queue_destroy(Queue *q);
+
+QueueNode* get_first_queue_node(Queue* q);
+QueueNode* get_next_queue_node(QueueNode* node);
+void* get_data_queue_node(QueueNode* node);
 
 #endif // DYNAMIC_QUEUE_H

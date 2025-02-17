@@ -176,50 +176,12 @@ void on_chase_free(State* state, uint32_t id) {
     if(vars) free(vars);
 }
 
-Queue* player_positions;
-int prev_player_pos_update;
-
-int nb_player_positions = 20;
-
-void init_player_positions(uint32_t id) {
-    player_positions = create_queue();
-    prev_player_pos_update = SDL_GetTicks();
-
-    PositionComponent* pos = ECS_GetComponent(id, POSITION);
-    SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
-    if(pos) {
-        Vector player_pos = (Vector) {pos->x + sprite->width / 2, pos->y + sprite->height / 2};
-        for(int i = 0; i < nb_player_positions; i++) {
-            queue_enqueue(player_positions, &player_pos, sizeof(Vector));
-        }
-    }
-}
-void update_player_positions(uint32_t id) {
-    if(SDL_GetTicks() - prev_player_pos_update > 200) {
-        prev_player_pos_update = SDL_GetTicks();
-
-        Vector last_player_pos = {0, 0};  // Initialize with default values
-
-        PositionComponent* pos = ECS_GetComponent(id, POSITION);
-        SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
-        if(pos && sprite) {
-            // Store the dequeued node's data before removing it
-            if (queue_size(player_positions) > nb_player_positions) {
-                queue_dequeue(player_positions, &last_player_pos, sizeof(Vector));
-            }
-            
-            Vector player_pos = (Vector) {pos->x + sprite->width / 2, pos->y + sprite->height / 2};
-            queue_enqueue(player_positions, &player_pos, sizeof(Vector));
-        }
-    }
-}
-
 FollowStateVars* create_follow_vars(uint32_t target) {
     FollowStateVars* vars = malloc(sizeof(FollowStateVars));
     vars->target = target;
     vars->speed = random_float(1.5, 2.5);
-    vars->currentGoal = NULL;
-
+    vars->prev_pos = create_queue();
+    vars->prev_update = SDL_GetTicks();
     return vars;
 }
 void on_follow_enter(State* state, uint32_t id) {
@@ -228,36 +190,18 @@ void on_follow_enter(State* state, uint32_t id) {
 
     PositionComponent* pos = ECS_GetComponent(id, POSITION);
     PositionComponent* targetPos = ECS_GetComponent(vars->target, POSITION);
-    SpriteComponent* sprite = ECS_GetComponent(vars->target, SPRITE);
-    if(!pos || !targetPos || !sprite) return;
+    if(!pos || !targetPos) return;
 
-    if(queue_size(player_positions) == 0) {
-        Vector player_pos = (Vector) {pos->x + sprite->width / 2, pos->y + sprite->height / 2};
-        queue_enqueue(player_positions, &player_pos, sizeof(Vector));
-    }
+    queue_clear(vars->prev_pos);
 
-    QueueNode* closest = get_first_queue_node(player_positions);
-    Vector closest_pos = *(Vector*) get_data_queue_node(closest);
-    Vector dirToClosest = (Vector) {closest_pos.x - pos->x, closest_pos.y - pos->y};
-
-    for(QueueNode* node = get_first_queue_node(player_positions); node; node = get_next_queue_node(node)) {
-        Vector player_pos = *(Vector*) get_data_queue_node(node);
-        Vector dir = (Vector) {player_pos.x - pos->x, player_pos.y - pos->y};
-        if(vectorSize(&dir) < vectorSize(&dirToClosest)) {
-            closest = node;
-            dirToClosest = dir;
-        }
-    }
-
-    vars->currentGoal = closest;
+    vars->currentGoal = (Vector) {
+        targetPos->x,
+        targetPos->y
+    };
 }
 void on_follow_update(State* state, uint32_t id) {
     FollowStateVars* vars = (FollowStateVars*) state->vars;
     if(!vars) return;
-    
-    if(vars->currentGoal == get_first_queue_node(player_positions)) {
-        vars->currentGoal = get_next_queue_node(vars->currentGoal);
-    }
 
     PositionComponent* posComp = ECS_GetComponent(id, POSITION);
     SpriteComponent* spriteComp = ECS_GetComponent(id, SPRITE);
@@ -288,21 +232,16 @@ void on_follow_update(State* state, uint32_t id) {
         trigger_event(EVENT_STATE_CHANGE, event, true);
         return;
     }
-    
-    Vector* goal_data = get_data_queue_node(vars->currentGoal);
-    Vector goal_pos = *goal_data;
 
-    if(checkCircleCollision(posComp, rb, goal_pos.x, goal_pos.y, 16)) {
-        QueueNode* next = get_next_queue_node(vars->currentGoal);
-        if (next && get_data_queue_node(next)) {
-            vars->currentGoal = next;
-        } else {
-            // If we've reached the end of the queue or next is invalid, start from the beginning
-            vars->currentGoal = get_next_queue_node(get_first_queue_node(player_positions));
-        }
+    if(vars->prev_update + 200 < SDL_GetTicks() || queue_is_empty(vars->prev_pos)) {
+        vars->prev_update = SDL_GetTicks();
+        queue_enqueue(vars->prev_pos, &targetPos, sizeof(Vector));
+    }
+    if(checkCircleCollision(posComp, rb, vars->currentGoal.x, vars->currentGoal.y, 16)) {
+        queue_dequeue(vars->prev_pos, &vars->currentGoal, sizeof(Vector));
     }
 
-    Vector dir = {goal_pos.x - pos.x, goal_pos.y - pos.y};
+    Vector dir = {vars->currentGoal.x - pos.x, vars->currentGoal.y - pos.y};
     if(vectorSize(&dir) > 0.1) {
         normalize(&dir);
         posComp->vx = dir.x * vars->speed;
@@ -320,8 +259,22 @@ void on_follow_update(State* state, uint32_t id) {
 void on_follow_exit(State* state, uint32_t id) {
     FollowStateVars* vars = (FollowStateVars*) state->vars;
     if(!vars) return;
+
+    PositionComponent* pos = ECS_GetComponent(id, POSITION);
+    PositionComponent* targetPos = ECS_GetComponent(vars->target, POSITION);
+    if(!pos || !targetPos) return;
+
+    queue_clear(vars->prev_pos);
+
+    vars->currentGoal = (Vector) {
+        targetPos->x,
+        targetPos->y
+    };
 }
 void on_follow_free(State* state, uint32_t id) {
     FollowStateVars* vars = (FollowStateVars*) state->vars;
-    if(vars) free(vars);
+    if(vars) {
+        queue_destroy(vars->prev_pos);
+        free(vars);
+    }
 }

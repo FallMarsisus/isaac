@@ -59,7 +59,7 @@ bool queue_enqueue(Queue *q, void *data, size_t data_size) {
 bool queue_dequeue(Queue *q, void *out_data, size_t data_size) {
     if (!q || !out_data || data_size == 0 || queue_is_empty(q)) return false;
 
-    QueueNode *temp = q->front;
+    QueueNode* temp = q->front;
     memcpy(out_data, temp->data, data_size);
     
     q->front = temp->next;
@@ -107,4 +107,16 @@ void queue_destroy(Queue *q) {
 
     queue_clear(q);
     free(q);
+}
+
+QueueNode* get_first_queue_node(Queue* q) {
+    return q->front;
+}
+
+QueueNode* get_next_queue_node(QueueNode* node) {
+    return node->next;
+}
+
+void* get_data_queue_node(QueueNode* node) {
+    return node->data;
 }

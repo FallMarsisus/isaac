@@ -25,6 +25,8 @@ void create_game(int win_width, int win_height) {
 
     init_event_system();
 
+    init_player_positions(game->player);
+
     ECS_CreateManager(40);
     game->player = add_player(640, 360);
 
@@ -225,6 +227,8 @@ void update_game(int win_width, int win_height, float delta) {
         1080
     };
 
+    update_player_positions(game->player);
+
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
         u_int32_t id = get_entities(game->current_room)[i];
         PositionComponent* position = ECS_GetComponent(id, POSITION);
@@ -255,14 +259,13 @@ void update_game(int win_width, int win_height, float delta) {
             cam.x = pos->x + (sprite->width - cam.w) / 2;
             cam.y = pos->y + (sprite->height - cam.h) / 2;
 
-            
             // Cache room boundaries
             int room_x = get_x(game->current_room);
             int room_y = get_y(game->current_room);
             
             // Clamp camera position
-            cam.x = fmax(room_x * 1920 + 32, fmin(cam.x, room_x * 1920 + 1920 - cam.w + 32));
-            cam.y = fmax(room_y * 1080 + 32, fmin(cam.y, room_y * 1080 + 1080 - cam.h + 32));
+            cam.x = fmax(room_x * 1920 + 32, fmin(cam.x, (room_x + 1) * 1920 - cam.w - 32));
+            cam.y = fmax(room_y * 1080 + 32, fmin(cam.y, (room_y + 1) * 1080 - cam.h - 32));
         }
 
         if(changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {
@@ -298,10 +301,17 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
         }
     }
 
+    extern Queue* player_positions;
+    for(QueueNode* node = get_first_queue_node(player_positions); node; node = get_next_queue_node(node)) {
+        Vector player_pos = *(Vector*) get_data_queue_node(node);
+        SDL_Rect rec = {player_pos.x - cam.x, player_pos.y - cam.y, 10, 10};
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_RenderFillRect(renderer, &rec);
+    }
+
 	// SDL_Color color = {255, 255, 255, 255};
 	// displayText("abcdefg hijklmnopqrstuvwxyz", renderer, getFonts()->calibri, &color, 10, 50, 10);
 	// displayText("lll", renderer, getFonts()->calibri, &color, 10, 70, 10);
-
 
     SDL_RenderPresent(renderer);
 }

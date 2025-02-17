@@ -1,19 +1,17 @@
 #pragma once
 
-#include "../../../utils/vector.h"
-#include "../../../utils/utils.h"
+#include "../../../../utils/vector.h"
+#include "../../../../utils/utils.h"
 
-#include "../../stateMachine/stateMachine.h"
+#include "../../../stateMachine/stateMachine.h"
 
-#include "../../event/eventSystem.h"
+#include "../../../event/eventSystem.h"
 
-#include "../../ecs/ecs.h"
-#include "../../ecs/components.h"
+#include "../../../ecs/ecs.h"
+#include "../../../ecs/components.h"
 
-#include "../../ecs/render/renderSystems.h"
-#include "../../ecs/physics/physicsSystems.h"
-
-#include "../../../utils/betterArrays/queue.h"
+#include "../../../ecs/render/renderSystems.h"
+#include "../../../ecs/physics/physicsSystems.h"
 
 typedef struct {
     uint32_t player;
@@ -21,15 +19,29 @@ typedef struct {
     float speed;
 
     float wander_time;
+
+    bool is_dancing;
+    float dance_timer;
+    float spin_timer;
+
+    bool is_sleeping;
+    float sleep_timer;
+
+    bool is_sneaking;
+    float sneak_timer;
 } IdleStateVars;
 
 typedef struct {
     uint32_t player;
     float speed;
+
+    float excitement;
 } ChaseStateVars;
 
 typedef struct {
-    QueueNode* currentGoal;
+    Queue* prev_pos;
+    int prev_update;
+    Vector currentGoal;
 
     float speed;
     uint32_t target;
@@ -46,9 +58,6 @@ void on_chase_enter(State* state, uint32_t id);
 void on_chase_update(State* state, uint32_t id);
 void on_chase_exit(State* state, uint32_t id);
 void on_chase_free(State* state, uint32_t id);
-
-void init_player_positions(uint32_t id);
-void update_player_positions(uint32_t id);
 
 FollowStateVars* create_follow_vars(uint32_t target);
 void on_follow_enter(State* state, uint32_t id);

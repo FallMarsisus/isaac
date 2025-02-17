@@ -6,7 +6,7 @@ uint32_t add_effect(float x, float y, float time, int width, int height, SDL_Tex
     SpriteComponent* sprite = ECS_AddComponent(effect, SPRITE, sizeof(SpriteComponent));
     EffectComponent* effectComp = ECS_AddComponent(effect, EFFECT, sizeof(EffectComponent));
     
-    init_effect_component(effectComp, effect, 0, time);
+    init_effect_component(effectComp, effect, time);
 
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;

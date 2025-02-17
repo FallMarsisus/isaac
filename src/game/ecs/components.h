@@ -119,7 +119,4 @@ typedef struct {
 
     int time;
     int end_time;
-
-    int total_frames;
-    int current_frame;
 } EffectComponent;

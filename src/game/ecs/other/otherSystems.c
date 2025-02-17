@@ -16,11 +16,8 @@ void init_child_component(ChildComponent* child, float x, float y, bool relative
     child->is_relative = relative;
     child->parent = parent;
 }
-void init_effect_component(EffectComponent* effect, uint32_t id, int total_frames, float timeLeft) {
+void init_effect_component(EffectComponent* effect, uint32_t id, float timeLeft) {
     effect->id = id;
-
-    effect->current_frame = 0;
-    effect->total_frames = total_frames;
 
     effect->time = timeLeft * 1000;
     effect->end_time = SDL_GetTicks() + effect->time;

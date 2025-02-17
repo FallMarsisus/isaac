@@ -21,6 +21,10 @@ typedef struct {
     SDL_Texture* unknown_item_texture;
     SDL_Texture* sword_item_texture;
     SDL_Texture* background_texture;
+    SDL_Texture* sword_texture;
+    SDL_Texture* sword_up_texture;
+    SDL_Texture* sword_down_texture;
+    SDL_Texture* sword_mirror_texture;
 
     SDL_Texture* slime_texture;
     SDL_Texture* slime_jump_texture;

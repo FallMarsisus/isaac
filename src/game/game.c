@@ -140,6 +140,8 @@ void test_damage(Game* game) {
     static bool sword_used = false;
     static uint32_t tempSword = SDL_MAX_UINT32;
 
+    PositionComponent* player_pos = ECS_GetComponent(game->player, POSITION);
+    SwordComponent* player_sword = ECS_GetComponent(game->player, SWORD_C);
     if(nearest_enemy != -1 && is_colliding_with_enemy(game->player) && attacked == false) {
         attacked = true;
         if(apply_damage(nearest_enemy, game->player) == false) {
@@ -151,6 +153,8 @@ void test_damage(Game* game) {
         attacked = false;
     }
     static int sword_counter = 0;
+    static float initial_direction_x = 0;
+    static float initial_direction_y = 0;
 
     if(SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT]) {
         if (!sword_used) {
@@ -158,16 +162,56 @@ void test_damage(Game* game) {
             tempSword = use_sword(game->player, get_nearest_enemy(game->player));
             sword_used = true;
             sword_counter = 0; // reset counter when sword is used
+            initial_direction_x = player_pos->vx;
+            initial_direction_y = player_pos->vy;
         } else {
             sword_counter++;
-            if (sword_counter >= 0.1) {
+            if (sword_counter >= 35 || (player_pos->vx != initial_direction_x || player_pos->vy != initial_direction_y)) {
                 sword_used = false;
+                ECS_RemoveEntity(tempSword);
                 sword_counter = 0;
             }
         }
     } else {
-        sword_used = false;
-        sword_counter = 0;
+        sword_counter++;
+        if (sword_counter >= 35 || (player_pos->vx != initial_direction_x || player_pos->vy != initial_direction_y)) {
+            sword_used = false;
+            ECS_RemoveEntity(tempSword);
+            sword_counter = 0;
+        }
+    }
+
+    // Update sword position relative to player as child system doesnt work with animations
+    if (tempSword != SDL_MAX_UINT32) {
+        PositionComponent* sword_pos = ECS_GetComponent(tempSword, POSITION);
+        
+        if (sword_pos && player_pos) {
+            if (player_pos->vx >= 1 && player_pos->vy == 0) {
+            sword_pos->x = player_pos->x + 50; // Right
+            sword_pos->y = player_pos->y;
+            } else if (player_pos->vx <= -1 && player_pos->vy == 0) {
+            sword_pos->x = player_pos->x - 50; // Left
+            sword_pos->y = player_pos->y;
+            } else if (player_pos->vx == 0 && player_pos->vy >= 1) {
+            sword_pos->x = player_pos->x;
+            sword_pos->y = player_pos->y + 50; // Down
+            } else if (player_pos->vx == 0 && player_pos->vy <= -1) {
+            sword_pos->x = player_pos->x;
+            sword_pos->y = player_pos->y - 50; // Up
+            } else if (player_pos->vx >= 1 && player_pos->vy >= 1) {
+            sword_pos->x = player_pos->x + 50;
+            sword_pos->y = player_pos->y + 50; // Down-Right
+            } else if (player_pos->vx <= -1 && player_pos->vy <= -1) {
+            sword_pos->x = player_pos->x - 50;
+            sword_pos->y = player_pos->y - 50; // Up-Left
+            } else if (player_pos->vx >= 1 && player_pos->vy <= -1) {
+            sword_pos->x = player_pos->x + 50;
+            sword_pos->y = player_pos->y - 50; // Up-Right
+            } else if (player_pos->vx <= -1 && player_pos->vy >= 1) {
+            sword_pos->x = player_pos->x - 50;
+            sword_pos->y = player_pos->y + 50; // Down-Left
+            }
+        }
     }
 }
 

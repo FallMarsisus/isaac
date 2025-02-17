@@ -19,14 +19,16 @@ uint32_t add_block(float x, float y, SDL_Texture* texture) {
     
     return block;
 }
-
 uint32_t add_effect(float x, float y, SDL_Texture* texture) {
     uint32_t effect = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(effect, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(effect, SPRITE, sizeof(SpriteComponent));
     EffectComponent* effectComp = ECS_AddComponent(effect, EFFECT, sizeof(EffectComponent));
+    ChildComponent* child = ECS_AddComponent(effect, CHILD, sizeof(ChildComponent));
+    
+    
 
-    init_effect_component(effectComp, effect, 10, 0.1);
+    init_effect_component(effectComp, effect, 10, 1);
 
     position->x = x; position->y = y;
     position->vx = 0; position->vy = 0;

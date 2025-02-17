@@ -20,6 +20,7 @@ void load_sprites(SDL_Renderer* ren) {
     sl->inv_texture = load_texture("assets/inventory/inv_grid.bmp", ren);
     sl->apple_item_texture = load_texture("assets/inventory/apple.bmp", ren);
     sl->alien_texture = load_texture("assets/alien/sprite_sheet.bmp", ren);
+    sl->sword_texture = load_texture("assets/sword/spritesheet.bmp", ren);
     sl->goblin_texture = load_texture("assets/goblin/sprite_sheet.bmp", ren);
     sl->sword_slash = load_texture("assets/player/sword.bmp", ren);
     sl->cobble_texture = load_texture("assets/tilemap/cobble.bmp", ren);
@@ -33,6 +34,9 @@ void load_sprites(SDL_Renderer* ren) {
     sl->unknown_item_texture = load_texture("assets/inventory/unknown_item.bmp", ren);
     sl->sword_item_texture = load_texture("assets/inventory/sword_item.bmp", ren);
     sl->background_texture = load_texture("assets/tilemap/background.bmp", ren);
+    sl->sword_up_texture = load_texture("assets/sword/spritesheet_up.bmp", ren);
+    sl->sword_down_texture = load_texture("assets/sword/spritesheet_down.bmp", ren);
+    sl->sword_mirror_texture = load_texture("assets/sword/spritesheet_mirror.bmp", ren);
 
     sl->slime_texture = load_texture("assets/alien/slime.bmp", ren);
     sl->slime_jump_texture = load_texture("assets/alien/slime.bmp", ren);

@@ -1,10 +1,9 @@
 #include "enemies.h"
 
-uint32_t add_standard_enemy(float x, float y, uint32_t pl, SDL_Texture* texture) {
+uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl, SDL_Texture* texture) {
     uint32_t enemy = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(enemy, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(enemy, SPRITE, sizeof(SpriteComponent));
-    AnimationComponent* animation = ECS_AddComponent(enemy, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(enemy, BODY, sizeof(RigidbodyComponent));
     StateMachineComponent* sm = ECS_AddComponent(enemy, STATE_MACHINE, sizeof(StateMachineComponent));
     HealthComponent* health = ECS_AddComponent(enemy, HEALTH, sizeof(HealthComponent));
@@ -32,18 +31,18 @@ uint32_t add_standard_enemy(float x, float y, uint32_t pl, SDL_Texture* texture)
     position->vx = 0; position->vy = 0;
     position->camFixed = false;
 
-    init_rigidbody_component(body, 2, 2, 60, 60);
+    init_rigidbody_component(body, 2, 2, width - 4, height - 4);
     body->is_dynamic = true;
 
-    init_sprite_component(sprite, 64, 64, texture);
-    init_anim_component(animation, 16, 16);
+    init_sprite_component(sprite, width, height, texture);
 
     return enemy;
 }
-
 uint32_t add_goblin(float x, float y, uint32_t pl) {
-    uint32_t goblin = add_standard_enemy(x, y, pl, get_sprites()->goblin_texture);
-    AnimationComponent* animation = ECS_GetComponent(goblin, ANIMATION);
+    uint32_t goblin = add_standard_enemy(x, y, 64, 64, pl, get_sprites()->goblin_texture);
+    AnimationComponent* animation = ECS_AddComponent(goblin, ANIMATION, sizeof(AnimationComponent));
+    init_anim_component(animation, 16, 16);
+
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 2);
@@ -52,19 +51,21 @@ uint32_t add_goblin(float x, float y, uint32_t pl) {
     set_active_anim(animation, 0);
     return goblin;
 }
-
 uint32_t add_slime(float x, float y, uint32_t pl) {
-    uint32_t slime = add_standard_enemy(x, y, pl, get_sprites()->slime_texture);
-    AnimationComponent* animation = ECS_GetComponent(slime, ANIMATION);
+    uint32_t slime = add_standard_enemy(x, y, 64, 64, pl, get_sprites()->slime_texture);
+    AnimationComponent* animation = ECS_AddComponent(slime, ANIMATION, sizeof(AnimationComponent));
+    init_anim_component(animation, 16, 16);
+
     add_anim(animation, 0.1, 4);
 
     set_active_anim(animation, 0);
     return slime;
 }
-
 uint32_t add_alien(float x, float y, uint32_t pl) {
-    uint32_t alien = add_standard_enemy(x, y, pl, get_sprites()->alien_texture);
-    AnimationComponent* animation = ECS_GetComponent(alien, ANIMATION);
+    uint32_t alien = add_standard_enemy(x, y, 64, 64, pl, get_sprites()->alien_texture);
+    AnimationComponent* animation = ECS_AddComponent(alien, ANIMATION, sizeof(AnimationComponent));
+    init_anim_component(animation, 16, 16);
+
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 2);
@@ -72,6 +73,46 @@ uint32_t add_alien(float x, float y, uint32_t pl) {
 
     set_active_anim(animation, 0);
     return alien;
+}
+
+uint32_t add_boss(float x, float y, uint32_t pl) {
+    uint32_t boss = ECS_CreateEntity();
+    PositionComponent* position = ECS_AddComponent(boss, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(boss, SPRITE, sizeof(SpriteComponent));
+    RigidbodyComponent* body = ECS_AddComponent(boss, BODY, sizeof(RigidbodyComponent));
+    StateMachineComponent* sm = ECS_AddComponent(boss, STATE_MACHINE, sizeof(StateMachineComponent));
+    HealthComponent* health = ECS_AddComponent(boss, HEALTH, sizeof(HealthComponent));
+    AnimationComponent* animation = ECS_AddComponent(boss, ANIMATION, sizeof(AnimationComponent));
+    
+    init_health_component(boss, 1, 10, 0);
+    init_state_machine(sm, boss);
+
+    State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
+    idle_state->vars = create_idle_vars(pl);
+    add_state(sm , idle_state);
+
+    State* chase_state = create_state("chase", on_attack_boss_enter, on_attack_boss_update, on_attack_boss_exit, on_attack_boss_free);
+    chase_state->vars = create_attack_boss_vars(pl);
+    add_state(sm, chase_state);
+    
+    switch_state(sm, "chase");
+    
+    create_damager(boss, (DamagerComponent) {1, 0, false, 0});
+    // Initialize components
+    position->x = x; position->y = y;
+    position->vx = 0; position->vy = 0;
+    position->camFixed = false;
+
+    init_rigidbody_component(body, 2, 2, 150 - 4, 150 - 4);
+    body->is_dynamic = true;
+
+    init_sprite_component(sprite, 150, 150, get_sprites()->boss_texture);
+    init_anim_component(animation, 50, 50);
+
+    add_anim(animation, 0.1, 5);
+
+    set_active_anim(animation, 0);
+    return boss;
 }
 
 uint32_t get_nearest_enemy(uint32_t entity) {
@@ -97,7 +138,6 @@ uint32_t get_nearest_enemy(uint32_t entity) {
     }
     return nearest_enemy;
 }
-
 bool is_colliding_with_enemy(uint32_t entity) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);

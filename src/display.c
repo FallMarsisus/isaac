@@ -6,7 +6,7 @@ sprite_list* sl;
 SDL_Texture* load_texture(const char* path, SDL_Renderer* renderer) {
     SDL_Surface* surface = IMG_Load(path);
     if (!surface) {
-        fprintf(stderr, "Failed to load BMP file: %s\n", SDL_GetError());
+        fprintf(stderr, "Failed to load file: %s\n", SDL_GetError());
         return NULL;
     }
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -20,6 +20,8 @@ void load_sprites(SDL_Renderer* ren) {
     sl->alien_texture = load_texture("assets/entities/alien.bmp", ren);
     sl->goblin_texture = load_texture("assets/entities/goblin.bmp", ren);
     sl->slime_texture = load_texture("assets/entities/slime.bmp", ren);
+    sl->flame_texture = load_texture("assets/AssetPack/FX/Projectile/Fireball.png", ren);
+    sl->boss_texture = load_texture("assets/entities/flame.png", ren);
 
     sl->inv_texture = load_texture("assets/inventory/inv_grid.bmp", ren);
     sl->apple_item_texture = load_texture("assets/inventory/apple.bmp", ren);

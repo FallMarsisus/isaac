@@ -10,6 +10,7 @@
 #include "../../objects/blocks/blocks.h"
 #include <stdlib.h>
 #include <time.h>
+#include "../../../utils/pi.h"
 
 void generate_room(int room_x, int room_y, uint32_t player_id);
 

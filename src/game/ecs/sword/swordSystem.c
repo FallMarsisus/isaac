@@ -26,74 +26,29 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
     }
 
     PositionComponent* pos1 = ECS_GetComponent(entity, POSITION);
-
-    // Display sword sprite next to the player
-    
+    SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
     if (!pos1) {
         printf("Position component not found for entity %u\n", entity);
         return SDL_MAX_UINT32;
     }
 
-    // Display sword sprite next to the player
-    
-    int sword_x = pos1->x;
-    int sword_y = pos1->y;
-    float angle = 0.0f;
     int w = 25;
     int h = 38;
 
-    if (pos1->vx >= 1 && pos1->vy == 0) {
-        sword_x += 1920 / 64;
-        sword->renderer = get_sprites()->sword_texture;
-        angle = 0.0f; // Right
-    } else if (pos1->vx <= -1 && pos1->vy == 0) {
-        sword_x -= 1920 / 64;
-        sword->renderer = get_sprites()->sword_mirror_texture;
-        angle = 180.0f; // Left
-    } else {
-        w = 38;
-        h = 25;
-        if (pos1->vx == 0 && pos1->vy >= 1) {
-        sword_y += 1920 / 64;
-        sword->renderer = get_sprites()->sword_down_texture;
-        angle = 90.0f; // Down
-        } else if (pos1->vx == 0 && pos1->vy <= -1) {
-            sword_y -= 1920 / 64;
-            angle = 270.0f; // Up
-            sword->renderer = get_sprites()->sword_up_texture;
-        } else if (pos1->vx >= 1 && pos1->vy >= 1) {
-            sword_x += 1920 / 64;
-            sword_y += 1920 / 64;
-        
-            sword->renderer = get_sprites()->sword_down_texture;
-            angle = 45.0f; // Down-Right
-        } else if (pos1->vx <= -1 && pos1->vy <= -1) {
-            sword_x -= 1920 / 64;
-            sword_y -= 1920 / 64;
-            sword->renderer = get_sprites()->sword_up_texture;
-            angle = 225.0f; // Up-Left
-        } else if (pos1->vx >= 1 && pos1->vy <= -1) {
-            sword_x += 1920 / 64;
-            sword_y -= 1920 / 64;
-            sword->renderer = get_sprites()->sword_up_texture;
-            angle = 315.0f; // Up-Right
-        } else if (pos1->vx <= -1 && pos1->vy >= 1) {
-            sword_x -= 1920 / 64;
-            sword_y += 1920 / 64;
-            sword->renderer = get_sprites()->sword_down_texture;
-            angle = 135.0f; // Down-Left
-        }
-    }
-
-
-    uint32_t sword_temp = add_effect(sword_x, sword_y, sword->renderer);
+    uint32_t sword_temp = add_effect(0, 0, 0.15, w * 2, h * 2, sword->renderer);
     AnimationComponent* animation = ECS_AddComponent(sword_temp, ANIMATION, sizeof(AnimationComponent));
+
     init_anim_component(animation, w, h);
-    add_anim(animation, 0.1, 6);
+    add_anim(animation, 0.05, 3);
     set_active_anim(animation, 0);
     play_anim(animation);
 
-
+    ParentComponent* parent = ECS_GetComponent(entity, PARENT);
+    if(parent) {
+        ChildComponent* child = ECS_AddComponent(sword_temp, CHILD, sizeof(ChildComponent));
+        init_child_component(child, pos1->vx * 20, pos1->vy * 20, true, entity);
+        add_child(parent, sword_temp);
+    }
 
     if(enemy == -1) return sword_temp;
     PositionComponent* pos2 = ECS_GetComponent(enemy, POSITION);

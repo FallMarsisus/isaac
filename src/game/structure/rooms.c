@@ -9,10 +9,6 @@ typedef struct room_s {
     struct room_s* right;
 
     ID_array* entity_ids;
-
-    int grid_width;
-    int grid_height;
-    int** grid;
 } Room;
 
 Room* create_room(int posx, int posy) {
@@ -34,27 +30,12 @@ Room* create_room(int posx, int posy) {
         return NULL;
     }
 
-    r->grid_width = (int) ceil(1920 / 64) + 1;
-    r->grid_height = (int) ceil(1080 / 64) + 1;
-
-    r->grid = malloc(sizeof(int*) * r->grid_height);
-    for(int y = 0; y < r->grid_height; y++) {
-        r->grid[y] = malloc(sizeof(int) * r->grid_width);
-        for(int x = 0; x < r->grid_width; x++) {
-            r->grid[y][x] = 0;
-        }
-    }
-
     return r;
 }
 
 void free_room(Room* r) {
     if (r == NULL) return;
     free_id_array(r->entity_ids);
-    for(int i = 0; i < r->grid_height; i++) {
-        free(r->grid[i]);
-    }
-    free(r->grid);
 
     free(r);
 }
@@ -69,15 +50,6 @@ void remove_entity(Room* r, uint32_t id) {
     remove_id(r->entity_ids, id);
 }
 
-int** get_grid(Room* r) {
-    return r->grid;
-}
-int get_grid_width(Room* r) {
-    return r->grid_width;
-}
-int get_grid_height(Room* r) {
-    return r->grid_height;
-}
 uint32_t* get_entities(Room* r) {
     return get_ids(r->entity_ids);
 }
@@ -117,17 +89,14 @@ Room* getUp(Room* r) {
     assert(r != NULL);
     return r->up;
 }
-
 Room* getDown(Room* r) {
     assert(r != NULL);
     return r->down;
 }
-
 Room* getLeft(Room* r) {
     assert(r != NULL);
     return r->left;
 }
-
 Room* getRight(Room* r) {
     assert(r != NULL);
     return r->right;

@@ -65,7 +65,7 @@ void handle_input_system(SDL_Event* event, uint32_t player);
  * @param roomPos The room Position
  * @param delta Time since last frame
  */
-void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Rect roomPos, float delta);
+void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, float delta);
 /**
  * @brief Renders all visible entities using the game systems
  * @param entities Array of entity IDs to render

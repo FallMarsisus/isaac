@@ -15,6 +15,7 @@
 #include "../../event/eventSystem.h"
 
 #include "enemyStates.h"
+#include "bossStates.h"
 
 /**
  * @brief Creates an enemy entity at specified coordinates
@@ -24,10 +25,9 @@
  * @return Entity ID of the created enemy
  */
 uint32_t add_goblin(float x, float y, uint32_t player);
-
 uint32_t add_slime(float x, float y, uint32_t player);
-
 uint32_t add_alien(float x, float y, uint32_t player);
+uint32_t add_boss(float x, float y, uint32_t player);
 
 /**
  * @brief Checks if an entity is colliding with any enemy

@@ -1,11 +1,11 @@
 #include "renderSystems.h"
 
 void init_sprite_component(SpriteComponent* sprite, int width, int height, SDL_Texture* tex) {
-    sprite->width = 64; sprite->height = 64;
+    sprite->width = width; sprite->height = height;
 
     sprite->texture = tex;
     if (!sprite->texture) {
-        fprintf(stderr, "Failed to load player texture.\n");
+        fprintf(stderr, "Failed to load a texture.\n");
         exit(1);
     }
 
@@ -88,38 +88,39 @@ void render_component(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
 
-    if (position && sprite && sprite->texture) {
-        SDL_Rect* srcRect = NULL;
+    if (!position || !sprite || !sprite->texture) return;
 
-        AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
-        if(anim && get_len(anim->animations) > 0) {
-            double interval = (SDL_GetTicks() - anim->last_change) / 1000.;
-            if(anim->anim_index >= get_len(anim->animations)) return;
-            
-            Anim* curren_anim = get_elt(anim->animations, anim->anim_index);
-            if (curren_anim == NULL) return;
-            
-            if (interval >= curren_anim->interval && anim->playing) {
-                anim->counter++;
-                if (anim->counter >= curren_anim->amount) anim->counter = 0;
-                anim->last_change = SDL_GetTicks();
-            }
-            
-            anim->current_img->x = anim->counter * anim->current_img->w;
-            anim->current_img->y = anim->anim_index * anim->current_img->h;
-            srcRect = anim->current_img;
-        }
+    SDL_Rect* srcRect = NULL;
 
-        SDL_Rect dest = {
-            (int)position->x - cam.x,
-            (int)position->y - cam.y,
-            sprite->width,
-            sprite->height
-        };
-        if(position->camFixed) {
-            dest.x = position->x;
-            dest.y = position->y;
+    AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
+    if(anim && get_len(anim->animations) > 0) {
+        double interval = (SDL_GetTicks() - anim->last_change) / 1000.;
+        if(anim->anim_index >= get_len(anim->animations)) return;
+        
+        Anim* curren_anim = get_elt(anim->animations, anim->anim_index);
+        if (curren_anim == NULL) return;
+        
+        if (interval >= curren_anim->interval && anim->playing) {
+            anim->counter++;
+            if (anim->counter >= curren_anim->amount) anim->counter = 0;
+            anim->last_change = SDL_GetTicks();
         }
-        SDL_RenderCopyEx(renderer, sprite->texture, srcRect, &dest, sprite->angle, sprite->center, sprite->flip);
+        
+        anim->current_img->x = anim->counter * anim->current_img->w;
+        anim->current_img->y = anim->anim_index * anim->current_img->h;
+        srcRect = anim->current_img;
     }
+
+    SDL_Rect dest = {
+        (int)position->x - cam.x,
+        (int)position->y - cam.y,
+        sprite->width,
+        sprite->height
+    };
+    if(position->camFixed) {
+        dest.x = position->x;
+        dest.y = position->y;
+    }
+    
+    SDL_RenderCopyEx(renderer, sprite->texture, srcRect, &dest, sprite->angle, sprite->center, sprite->flip);
 }

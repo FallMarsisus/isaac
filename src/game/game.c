@@ -80,14 +80,7 @@ void on_entity_created(Event event) {
     Room* room = get_room(game->map, room_x, room_y);
     if(!room) return;
 
-    int pos_x = (pos->x - get_x(room) * 1920) / 64;
-    int pos_y = (pos->y - get_y(room) * 1080) / 64;
-
     add_entity(room, e->entity);
-    
-    if(body && !body->is_dynamic && (pos_x >= 0 && pos_y >= 0 && pos_x < get_grid_width(room) && pos_y < get_grid_height(room))) {
-        get_grid(room)[pos_y][pos_x] = 1;
-    }
 }
 void on_entity_removed(Event event) {
     EntityRemovedEvent* rEvent = event.data;
@@ -117,14 +110,6 @@ void change_room(int x, int y) {
                 if(!child) {
                     add_entity(r, e);
                 }
-
-                int pos_x = floor(position->x - get_x(r) * 1920) / 64;
-                int pos_y = floor(position->y - get_y(r) * 1080) / 64;
-                if(pos_x < 0 || pos_y < 0 || pos_x >= get_grid_width(r) || pos_y >= get_grid_height(r)) continue;
-
-                if(body && !body->is_dynamic) {
-                    get_grid(r)[pos_y][pos_x] = 1;
-                }
             }
         }
 
@@ -140,82 +125,37 @@ void test_damage(Game* game) {
     uint32_t nearest_enemy = get_nearest_enemy(game->player);
     static bool attacked = false;
     static bool sword_used = false;
-    static uint32_t tempSword = SDL_MAX_UINT32;
 
     PositionComponent* player_pos = ECS_GetComponent(game->player, POSITION);
     SwordComponent* player_sword = ECS_GetComponent(game->player, SWORD_C);
 
     if(!player_sword || !player_pos) return;
-    
-    if(nearest_enemy != -1 && is_colliding_with_enemy(game->player) && attacked == false) {
-        attacked = true;
-        if(apply_damage(nearest_enemy, game->player) == false) {
-            printf("ERROR : Player not found\n");
-        } else {
-            printf("Player is taking damage from entity %d\n", nearest_enemy);
-        }
-    } else if (!is_colliding_with_enemy(game->player)) {
-        attacked = false;
-    }
-    static int sword_counter = 0;
-    static float initial_direction_x = 0;
-    static float initial_direction_y = 0;
 
-    if(SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT]) {
-        if (!sword_used) {
-            SwordComponent* sword = ECS_GetComponent(game->player, SWORD_C);
-            tempSword = use_sword(game->player, get_nearest_enemy(game->player));
-            sword_used = true;
-            sword_counter = 0; // reset counter when sword is used
-            initial_direction_x = player_pos->vx;
-            initial_direction_y = player_pos->vy;
-        } else {
-            sword_counter++;
-            if (sword_counter >= 35 || (player_pos->vx != initial_direction_x || player_pos->vy != initial_direction_y)) {
-                sword_used = false;
-                ECS_RemoveEntity(tempSword);
-                sword_counter = 0;
-            }
-        }
-    } else {
+    static int sword_counter = 0;
+
+    if(sword_used) {
         sword_counter++;
-        if (sword_counter >= 35 || (player_pos->vx != initial_direction_x || player_pos->vy != initial_direction_y)) {
+        if (sword_counter >= 20) {
             sword_used = false;
-            ECS_RemoveEntity(tempSword);
             sword_counter = 0;
         }
     }
 
-    // Update sword position relative to player as child system doesnt work with animations
-    if (tempSword != SDL_MAX_UINT32) {
-        PositionComponent* sword_pos = ECS_GetComponent(tempSword, POSITION);
-        
-        if (sword_pos && player_pos) {
-            if (player_pos->vx >= 1 && player_pos->vy == 0) {
-            sword_pos->x = player_pos->x + 50; // Right
-            sword_pos->y = player_pos->y;
-            } else if (player_pos->vx <= -1 && player_pos->vy == 0) {
-            sword_pos->x = player_pos->x - 50; // Left
-            sword_pos->y = player_pos->y;
-            } else if (player_pos->vx == 0 && player_pos->vy >= 1) {
-            sword_pos->x = player_pos->x;
-            sword_pos->y = player_pos->y + 50; // Down
-            } else if (player_pos->vx == 0 && player_pos->vy <= -1) {
-            sword_pos->x = player_pos->x;
-            sword_pos->y = player_pos->y - 50; // Up
-            } else if (player_pos->vx >= 1 && player_pos->vy >= 1) {
-            sword_pos->x = player_pos->x + 50;
-            sword_pos->y = player_pos->y + 50; // Down-Right
-            } else if (player_pos->vx <= -1 && player_pos->vy <= -1) {
-            sword_pos->x = player_pos->x - 50;
-            sword_pos->y = player_pos->y - 50; // Up-Left
-            } else if (player_pos->vx >= 1 && player_pos->vy <= -1) {
-            sword_pos->x = player_pos->x + 50;
-            sword_pos->y = player_pos->y - 50; // Up-Right
-            } else if (player_pos->vx <= -1 && player_pos->vy >= 1) {
-            sword_pos->x = player_pos->x - 50;
-            sword_pos->y = player_pos->y + 50; // Down-Left
+    if(SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT] && !sword_used) {
+        SwordComponent* sword = ECS_GetComponent(game->player, SWORD_C);
+        use_sword(game->player, get_nearest_enemy(game->player));
+        sword_used = true;
+        sword_counter = 0; // reset counter when sword is used
+
+        if(nearest_enemy != -1 && is_colliding_with_enemy(game->player) && attacked == false) {
+            attacked = true;
+            if(apply_damage(nearest_enemy, game->player) == false) {
+                printf("ERROR : Player not found\n");
+            } else {
+                printf("Player is taking damage from entity %d\n", nearest_enemy);
             }
+        } else if (!is_colliding_with_enemy(game->player)) {
+            attacked = false;
         }
     }
 }
@@ -240,7 +180,6 @@ void update_game(int win_width, int win_height, float delta) {
         
         update_elt(
             id,
-            get_grid(game->current_room),
             get_entities(game->current_room),
             get_entity_amount(game->current_room),
             room_pos,
@@ -290,19 +229,6 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
     
     draw_inventory(game->player, renderer, win_width, win_height, true_width , true_height);
     display_health(game->player, renderer);
-
-    SDL_Rect rec = {0, 0, 8, 8};
-    int offsetX = get_x(game->current_room) * 1920 - cam.x + 28;
-    int offsetY = get_y(game->current_room) * 1080 - cam.y + 28;
-    for(rec.x = offsetX; rec.x < offsetX + get_grid_width(game->current_room) * 64; rec.x += 64) {
-        for(rec.y = offsetY; rec.y < offsetY + get_grid_height(game->current_room) * 64; rec.y += 64) {
-            switch(get_grid(game->current_room)[(rec.y - offsetY) / 64][(rec.x - offsetX) / 64]) {
-                case 1 : SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); break;
-                default : SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); break;
-            }
-            SDL_RenderFillRect(renderer, &rec);
-        }
-    }
 
     extern Queue* player_positions;
     for(QueueNode* node = get_first_queue_node(player_positions); node; node = get_next_queue_node(node)) {

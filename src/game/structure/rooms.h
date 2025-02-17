@@ -16,9 +16,6 @@ void free_room(Room* r);
 void add_entity(Room* r, uint32_t id);
 void remove_entity(Room* r, uint32_t id);
 
-int** get_grid(Room* r);
-int get_grid_width(Room* r);
-int get_grid_height(Room* r);
 uint32_t* get_entities(Room* r);
 int get_entity_amount(Room* r);
 int get_x(Room* room); int get_y(Room* room);

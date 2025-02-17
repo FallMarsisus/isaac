@@ -24,15 +24,6 @@
 uint32_t add_block(float x, float y, SDL_Texture* texture);
 
 /**
- * @brief Creates a block entity at specified coordinates with a texture
- * @param x X coordinate for block placement
- * @param y Y coordinate for block placement
- * @param texture SDL texture for the block
- * @return Entity ID of the created block
- */
-uint32_t add_effect(float x, float y, SDL_Texture* texture);
-
-/**
  * @brief Creates a background tile entity at specified coordinates
  * @param x X coordinate for block placement
  * @param y Y coordinate for block placement
@@ -55,9 +46,6 @@ uint32_t add_chest(float x, float y);
  * @return true if the entity is colliding with a chest
  * @return false if the entity is not colliding with a chest
  */
-
-bool is_colliding_with_item(uint32_t entity);
-
 bool is_colliding_with_chest(uint32_t entity);
 
 /**

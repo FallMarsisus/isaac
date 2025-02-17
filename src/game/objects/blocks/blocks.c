@@ -13,32 +13,9 @@ uint32_t add_block(float x, float y, SDL_Texture* texture) {
     init_rigidbody_component(body, 2, 2, 60, 60);
 
     init_sprite_component(sprite, 64, 64, texture);
-
-
-
     
     return block;
 }
-uint32_t add_effect(float x, float y, SDL_Texture* texture) {
-    uint32_t effect = ECS_CreateEntity();
-    PositionComponent* position = ECS_AddComponent(effect, POSITION, sizeof(PositionComponent));
-    SpriteComponent* sprite = ECS_AddComponent(effect, SPRITE, sizeof(SpriteComponent));
-    EffectComponent* effectComp = ECS_AddComponent(effect, EFFECT, sizeof(EffectComponent));
-    ChildComponent* child = ECS_AddComponent(effect, CHILD, sizeof(ChildComponent));
-    
-    
-
-    init_effect_component(effectComp, effect, 10, 1);
-
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
-
-    init_sprite_component(sprite, 64, 64, texture);
-
-    return effect;
-}
-
 uint32_t add_background_tile(float x, float y) {
     uint32_t block = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(block, POSITION, sizeof(PositionComponent));
@@ -52,7 +29,6 @@ uint32_t add_background_tile(float x, float y) {
 
     return block;
 }
-
 uint32_t add_chest(float x, float y) {
     uint32_t chest = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(chest, POSITION, sizeof(PositionComponent));
@@ -65,6 +41,23 @@ uint32_t add_chest(float x, float y) {
     init_sprite_component(sprite, 64, 64, get_sprites()->chest_closed_texture);
 
     return chest;
+}
+uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
+    uint32_t obj = ECS_CreateEntity();
+    PositionComponent* position = ECS_AddComponent(obj, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(obj, SPRITE, sizeof(SpriteComponent));
+    TeleporterComponent* teleport = ECS_AddComponent(obj, TELEPORT, sizeof(TeleporterComponent));
+    ScriptComponent* script = ECS_AddComponent(obj, SCRIPT, sizeof(ScriptComponent));
+
+    position->x = x; position->y = y;
+    position->vx = 0; position->vy = 0;
+    position->camFixed = false;
+    init_sprite_component(sprite, 64, 64, get_sprites()->teleporter_texture);
+    init_script_component(script, update_teleporter);
+
+    teleport->posX = xTarget; teleport->posY = yTarget;
+
+    return obj;
 }
 
 bool is_colliding_with_chest(uint32_t entity) {
@@ -97,22 +90,4 @@ bool is_colliding_with_chest(uint32_t entity) {
         }
     }
     return false;
-}
-
-uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
-    uint32_t obj = ECS_CreateEntity();
-    PositionComponent* position = ECS_AddComponent(obj, POSITION, sizeof(PositionComponent));
-    SpriteComponent* sprite = ECS_AddComponent(obj, SPRITE, sizeof(SpriteComponent));
-    TeleporterComponent* teleport = ECS_AddComponent(obj, TELEPORT, sizeof(TeleporterComponent));
-    ScriptComponent* script = ECS_AddComponent(obj, SCRIPT, sizeof(ScriptComponent));
-
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
-    init_sprite_component(sprite, 64, 64, get_sprites()->teleporter_texture);
-    init_script_component(script, update_teleporter);
-
-    teleport->posX = xTarget; teleport->posY = yTarget;
-
-    return obj;
 }

@@ -96,7 +96,7 @@ void handle_input_system(SDL_Event* event, uint32_t player) {
     }
 }
 
-void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Rect roomPos, float delta) {
+void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, float delta) {
     StateMachineComponent* sm = ECS_GetComponent(elt, STATE_MACHINE);
     ParentComponent* parent = ECS_GetComponent(elt, PARENT);
 
@@ -105,7 +105,7 @@ void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Re
     }
     
     update_others(elt, roomPos);
-    update_pathfinding_system(elt, grid, roomPos);
+    //update_pathfinding_system(elt, roomPos);
     update_item(elt);
     update_item(elt);
     update_physics(elt, delta);
@@ -113,7 +113,7 @@ void update_elt(uint32_t elt, int** grid, uint32_t* entities, int amount, SDL_Re
     if(parent) {
         for(int i = 0; i < get_ids_len(parent->children); i++) {
             uint32_t id = get_ids(parent->children)[i];
-            update_elt(id, grid, entities, amount, roomPos, delta);
+            update_elt(id, entities, amount, roomPos, delta);
         }
     }
 }

@@ -1,0 +1,32 @@
+#pragma once
+
+#include "../../../utils/vector.h"
+#include "../../../utils/utils.h"
+
+#include "../../stateMachine/stateMachine.h"
+
+#include "../../event/eventSystem.h"
+
+#include "../../ecs/ecs.h"
+#include "../../ecs/components.h"
+
+#include "../../ecs/render/renderSystems.h"
+#include "../../ecs/physics/physicsSystems.h"
+
+#include "../../../utils/betterArrays/queue.h"
+
+#include "../others/others.h"
+
+typedef struct {
+    uint32_t player;
+    float speed;
+
+    int last_attack;
+    int attack_cooldown;
+} AttackBossStateVars;
+
+AttackBossStateVars* create_attack_boss_vars(uint32_t player);
+void on_attack_boss_enter(State* state, uint32_t id);
+void on_attack_boss_update(State* state, uint32_t id);
+void on_attack_boss_exit(State* state, uint32_t id);
+void on_attack_boss_free(State* state, uint32_t id);

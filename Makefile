@@ -1,7 +1,6 @@
 # Compiler
 CC = gcc
 
-
 CFLAGS = -Wall -Wextra -g
 LFLAGS = -lm -lSDL2 -lSDL2_ttf -lSDL2_image
 

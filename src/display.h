@@ -8,6 +8,8 @@ typedef struct {
     SDL_Texture* alien_texture;
     SDL_Texture* goblin_texture;
     SDL_Texture* slime_texture;
+    SDL_Texture* flame_texture;
+    SDL_Texture* boss_texture;
 
     SDL_Texture* inv_texture;
     SDL_Texture* apple_item_texture;

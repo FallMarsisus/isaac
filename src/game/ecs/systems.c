@@ -109,13 +109,6 @@ void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, 
     update_item(elt);
     update_item(elt);
     update_physics(elt, delta);
-    
-    if(parent) {
-        for(int i = 0; i < get_ids_len(parent->children); i++) {
-            uint32_t id = get_ids(parent->children)[i];
-            update_elt(id, entities, amount, roomPos, delta);
-        }
-    }
 }
 
 // Render all entities

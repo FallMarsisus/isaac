@@ -70,8 +70,6 @@ void on_entity_created(Event event) {
     if(!e) return;
 
     PositionComponent* pos = ECS_GetComponent(e->entity, POSITION);
-    ChildComponent* child = ECS_GetComponent(e->entity, CHILD);
-    RigidbodyComponent* body = ECS_GetComponent(e->entity, BODY);
     if(!pos) return;
 
     int room_x = floor(pos->x / 1920); int room_y = floor(pos->y / 1080);
@@ -103,20 +101,16 @@ void change_room(int x, int y) {
 
         for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
             PositionComponent* position = ECS_GetComponent(e, POSITION);
-            ChildComponent* child = ECS_GetComponent(e, CHILD);
-            RigidbodyComponent* body = ECS_GetComponent(e, BODY);
 
             if(x == 0 && y == 0 && e == game->player) {
                 continue;
             }
 
-            if (!position) continue;
+            if(!position) continue;
 
             if(position->camFixed || 
             ((int) floor(position->x / 1920) == x && (int) floor(position->y / 1080) == y)) {
-                if(!child) {
-                    add_entity(r, e);
-                }
+                add_entity(r, e);
             }
         }
 

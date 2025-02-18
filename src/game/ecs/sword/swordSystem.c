@@ -35,7 +35,7 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
     int w = 25;
     int h = 38;
 
-    uint32_t sword_temp = add_effect(0, 0, 0.15, w * 2, h * 2, sword->renderer);
+    uint32_t sword_temp = add_effect(pos1->x, pos1->y, 0.15, w * 2, h * 2, sword->renderer);
     AnimationComponent* animation = ECS_AddComponent(sword_temp, ANIMATION, sizeof(AnimationComponent));
 
     init_anim_component(animation, w, h);

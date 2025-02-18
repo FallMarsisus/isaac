@@ -55,7 +55,6 @@ void free_game() {
     unregister_listener(EVENT_COLLISION, on_collision);
     unregister_listener(EVENT_ENTITY_CREATED, on_entity_created);
     unregister_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
-
     free_map(game->map);
     
     free_components();
@@ -79,12 +78,20 @@ void on_entity_created(Event event) {
 
     Room* room = get_room(game->map, room_x, room_y);
     if(!room) return;
-    
+
     add_entity(room, e->entity);
 }
 void on_entity_removed(Event event) {
     EntityRemovedEvent* rEvent = event.data;
 
+    ChildComponent* child = ECS_GetComponent(rEvent->entity, CHILD);
+    if(child) {
+        uint32_t parent = child->parent;
+        ParentComponent* parentComp = ECS_GetComponent(parent, PARENT);
+        if(parentComp) {
+            remove_child(parentComp, rEvent->entity);
+        }
+    }
     remove_entity(game->current_room, rEvent->entity);
 }
 
@@ -177,7 +184,7 @@ void update_game(int win_width, int win_height, float delta) {
         PositionComponent* position = ECS_GetComponent(id, POSITION);
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
         if(!position || !sprite) continue;
-        
+
         update_elt(
             id,
             get_entities(game->current_room),

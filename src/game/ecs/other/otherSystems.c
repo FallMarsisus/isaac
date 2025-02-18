@@ -26,6 +26,9 @@ void init_effect_component(EffectComponent* effect, uint32_t id, float timeLeft)
 void add_child(ParentComponent* parent, uint32_t id) {
     add_id(parent->children, id);
 }
+void remove_child(ParentComponent* parent, uint32_t id) {
+    remove_id(parent->children, id);
+}
 
 void free_parent_component(ParentComponent* parent) {
     if(parent) free_id_array(parent->children);

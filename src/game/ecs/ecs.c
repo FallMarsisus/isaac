@@ -81,6 +81,10 @@ void ECS_RemoveEntity(Entity entity) {
     if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active) {
         return;
     }
+    
+    // Mark the entity as inactive
+    ecs_manager->entities[entity].active = false;
+    ecs_manager->entity_count--;
 
     // Free all components associated with the entity
     for (int i = 0; i < MAX_COMPONENT_TYPES; ++i) {
@@ -105,15 +109,10 @@ void ECS_RemoveEntity(Entity entity) {
         }
     }
 
-    // Mark the entity as inactive
-    ecs_manager->entities[entity].active = false;
-    ecs_manager->entity_count--;
-
     EntityRemovedEvent* event = malloc(sizeof(EntityRemovedEvent));
     event->entity = entity;
     trigger_event(EVENT_ENTITY_REMOVED, event, true);
 }
-
 
 void* ECS_AddComponent(Entity entity, ComponentType component_type, int component_size) {
     if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active || component_type >= MAX_COMPONENT_TYPES) {

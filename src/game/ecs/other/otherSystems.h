@@ -11,7 +11,7 @@ void init_child_component(ChildComponent* child, float x, float y, bool relative
 void init_effect_component(EffectComponent* effect, uint32_t id, float time);
 
 void add_child(ParentComponent* parent, uint32_t id);
-
+void remove_child(ParentComponent* parent, uint32_t id);
 void free_parent_component(ParentComponent* parent);
 void free_all_other_components(uint32_t id);
 

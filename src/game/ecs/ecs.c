@@ -108,6 +108,10 @@ void ECS_RemoveEntity(Entity entity) {
     // Mark the entity as inactive
     ecs_manager->entities[entity].active = false;
     ecs_manager->entity_count--;
+
+    EntityRemovedEvent* event = malloc(sizeof(EntityRemovedEvent));
+    event->entity = entity;
+    trigger_event(EVENT_ENTITY_REMOVED, event, true);
 }
 
 

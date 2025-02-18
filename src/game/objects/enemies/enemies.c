@@ -87,15 +87,11 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     init_health_component(boss, 1, 10, 0);
     init_state_machine(sm, boss);
 
-    State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
-    idle_state->vars = create_idle_vars(pl);
-    add_state(sm , idle_state);
-
-    State* chase_state = create_state("chase", on_attack_boss_enter, on_attack_boss_update, on_attack_boss_exit, on_attack_boss_free);
-    chase_state->vars = create_attack_boss_vars(pl);
-    add_state(sm, chase_state);
+    State* attack_state = create_state("attack", on_attack_boss_enter, on_attack_boss_update, on_attack_boss_exit, on_attack_boss_free);
+    attack_state->vars = create_attack_boss_vars(pl);
+    add_state(sm, attack_state);
     
-    switch_state(sm, "chase");
+    switch_state(sm, "attack");
     
     create_damager(boss, (DamagerComponent) {1, 0, false, 0});
     // Initialize components
@@ -112,6 +108,7 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     add_anim(animation, 0.1, 5);
 
     set_active_anim(animation, 0);
+    play_anim(animation);
     return boss;
 }
 

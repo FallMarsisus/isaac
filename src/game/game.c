@@ -79,7 +79,7 @@ void on_entity_created(Event event) {
 
     Room* room = get_room(game->map, room_x, room_y);
     if(!room) return;
-
+    
     add_entity(room, e->entity);
 }
 void on_entity_removed(Event event) {

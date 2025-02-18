@@ -2,7 +2,7 @@
 
 void normalize(Vector* v) {
     float len = sqrt(v->x * v->x + v->y * v->y);
-    if(len < 0.0001) return;
+    if(len < 0.01) return;
     v->x = v->x / len;
     v->y = v->y / len;
 }

@@ -5,7 +5,7 @@
 
 #define ATTACK_RANGE 300
 #define ABANDON_RANGE 600
-#define CHASE_OFFSET_RANGE 50.0f // Maximum offset from player position
+#define CHASE_OFFSET_RANGE 0.1f // Maximum offset from player position
 #define FRAME_TIME (1.0f/60.0f) // Consistent time delta for 60 FPS
 
 //Returns False if touch something
@@ -132,8 +132,8 @@ void on_chase_update(State* state, uint32_t id) {
 
     Vector pos = {posComp->x + spriteComp->width / 2, posComp->y + spriteComp->height / 2};
     Vector targetPos = {
-        targetPosComp->x + targetSpriteComp->width / 2 + random_float(-CHASE_OFFSET_RANGE, CHASE_OFFSET_RANGE), 
-        targetPosComp->y + targetSpriteComp->height / 2 + random_float(-CHASE_OFFSET_RANGE, CHASE_OFFSET_RANGE)
+        targetPosComp->x + targetSpriteComp->width / 2, 
+        targetPosComp->y + targetSpriteComp->height / 2
     };
     
     Vector dir = (Vector) {
@@ -153,20 +153,15 @@ void on_chase_update(State* state, uint32_t id) {
         return;
     }
 
-    // Chase the offset target position instead of player directly
-    Vector chase_dir = {
-        targetPos.x - pos.x,
-        targetPos.y - pos.y
-    };
-    normalize(&chase_dir);
-    posComp->vx = chase_dir.x * vars->speed;
-    posComp->vy = chase_dir.y * vars->speed;
+    normalize(&dir);
+    posComp->vx = (dir.x + random_float(-CHASE_OFFSET_RANGE, CHASE_OFFSET_RANGE)) * vars->speed;
+    posComp->vy = (dir.y + random_float(-CHASE_OFFSET_RANGE, CHASE_OFFSET_RANGE)) * vars->speed;
 
     if(anim) {
-        if(posComp->vy < -0.5) set_active_anim(anim, 1);
-        else if(posComp->vy > 0.5) set_active_anim(anim, 0);
-        else if(posComp->vx < -0.5) set_active_anim(anim, 2);
-        else if(posComp->vx > 0.5) set_active_anim(anim, 3);
+        if(dir.y < -0.5) set_active_anim(anim, 1);
+        else if(dir.y > 0.5) set_active_anim(anim, 0);
+        else if(dir.x < -0.5) set_active_anim(anim, 2);
+        else if(dir.x > 0.5) set_active_anim(anim, 3);
         play_anim(anim);
     }
 }
@@ -307,14 +302,14 @@ void on_follow_update(State* state, uint32_t id) {
         normalize(&dir);
         posComp->vx = dir.x * vars->speed;
         posComp->vy = dir.y * vars->speed;
-    }
 
-    if(anim) {
-        if(posComp->vy < -0.5) set_active_anim(anim, 1);
-        else if(posComp->vy > 0.5) set_active_anim(anim, 0);
-        else if(posComp->vx < -0.5) set_active_anim(anim, 2);
-        else if(posComp->vx > 0.5) set_active_anim(anim, 3);
-        play_anim(anim);
+        if(anim) {
+            if(dir.y < -0.5) set_active_anim(anim, 1);
+            else if(dir.y > 0.5) set_active_anim(anim, 0);
+            else if(dir.x < -0.5) set_active_anim(anim, 2);
+            else if(dir.x > 0.5) set_active_anim(anim, 3);
+            play_anim(anim);
+        }
     }
 }
 void on_follow_exit(State* state, uint32_t id) {

@@ -17,12 +17,18 @@
 
 #include "../others/others.h"
 
+#include "../../../utils/pi.h"
+
 typedef struct {
     uint32_t player;
     float speed;
 
+    int last_sleep;
+    int sleep_time;
+
+    int nb_attacks;
     int last_attack;
-    int attack_cooldown;
+    int time_between_attacks;
 } AttackBossStateVars;
 
 AttackBossStateVars* create_attack_boss_vars(uint32_t player);

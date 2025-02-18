@@ -25,12 +25,17 @@ uint32_t add_projectile(float x, float y, float vx, float vy, float time, SDL_Te
     return projectile;
 }
 
-uint32_t add_flame(float x, float y, float vx, float vy) {
-    uint32_t flame = add_projectile(x, y, vx, vy, 1, get_sprites()->flame_texture);
+uint32_t add_flame(float x, float y, float vx, float vy, float time) {
+    uint32_t flame = add_projectile(x, y, vx, vy, time, get_sprites()->flame_texture);
     AnimationComponent* animation = ECS_AddComponent(flame, ANIMATION, sizeof(AnimationComponent));
+
+    create_damager(flame, (DamagerComponent) {1, 0, false, 0});
+    
     init_anim_component(animation, 16, 16);
 
-    add_anim(animation, 0.1, 4);
+    add_anim(animation, 0.1, 3);
     set_active_anim(animation, 0);
+    play_anim(animation);
+    
     return flame;
 }

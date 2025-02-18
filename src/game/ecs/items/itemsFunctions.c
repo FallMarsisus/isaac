@@ -47,3 +47,19 @@ ActionFunction get_constant_functions(int i) {
 		return itemDoNothing;
 	}
 }
+
+char* get_actions_name(int i) {
+
+	switch (i) {
+	case 0:
+		return "l\xE2\cher";
+		break;
+	
+	case 1:
+		return "unselect";
+		break;
+
+	default:
+		return "should no happen";
+	}
+}

@@ -240,6 +240,11 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
+	SDL_Color textColor = {255, 255, 255, 255};
+	int fontSize = SLOT_SIZE * scaleFactor / 2;
+	int yOffset = 2;
+	int xOffset = 10;
+
     for (int i = 0; i < inventory->selected_slot_actions->nb_actions; i++) {
 
         int yPos = ((MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE)) * scaleFactor;
@@ -252,12 +257,14 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
         };
 
         if (mouseInRectFixDrift(mouseX, mouseY, &actions_rect, trueWidth, renderWidth)) {
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawColor(renderer, 64, 72, 120, 240);
         } else {
-            SDL_SetRenderDrawColor(renderer, 255, 200, 255, 255);
+            SDL_SetRenderDrawColor(renderer, 32, 36, 60, 240);
         }
 
         SDL_RenderFillRect(renderer, &actions_rect);
+
+		displayText(inventory->selected_slot_actions->titles[i], renderer, getFonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
     }
 
     // techniquemement ça marche de deux manières donc je préfère faire deux boucles
@@ -272,12 +279,14 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
         };
 
         if (mouseInRectFixDrift(mouseX, mouseY, &actions_rect, trueWidth, renderWidth)) {
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawColor(renderer, 64, 72, 120, 240);
         } else {
-            SDL_SetRenderDrawColor(renderer, 255, 200, 255, 255);
+            SDL_SetRenderDrawColor(renderer, 32, 36, 60, 240);
         }
 
         SDL_RenderFillRect(renderer, &actions_rect);
+		displayText(get_actions_name(i - inventory->selected_slot_actions->nb_actions), renderer, getFonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
+
     }
 }
 

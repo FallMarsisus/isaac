@@ -73,7 +73,7 @@ Action* get_item_actions(enum ItemID id) {
         action->nb_actions = 1;
         
         action->titles = malloc(sizeof(char*) * action->nb_actions);
-        action->titles[0] = "équiper";
+        action->titles[0] = "\xE9\quiper";
 
         action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
         action->functions[0] = itemDoNothing; 
@@ -91,7 +91,7 @@ Action* get_item_actions(enum ItemID id) {
         action->nb_actions = 1;
         
         action->titles = malloc(sizeof(char*) * action->nb_actions);
-        action->titles[0] = "équiper";
+        action->titles[0] = "do nothing";
 
         action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
         action->functions[0] = itemDoNothing;

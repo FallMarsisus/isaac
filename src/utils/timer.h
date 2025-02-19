@@ -1,23 +1,39 @@
 #pragma once
 
-#include <sys/time.h>
-#include <stdlib.h>
+#include <SDL2/SDL.h>
 #include <stdbool.h>
 
-typedef struct {
-    bool running;
-    float time;
+typedef struct timer_s Timer;
 
-    void* elt;
+typedef void (*TimerCallback)(Timer* timer, void* user_data);
 
-    struct timeval* start;
-    void (*on_end)(void* elt);
-} Timer;
+struct timer_s {
+    bool active;
+    bool paused;
+    float duration;
+    float elapsed;
+    float remaining;
+    
+    TimerCallback callback;
+    void* user_data;
+    
+    // For linked list of active timers
+    struct timer_s* next;
+    struct timer_s* prev;
+};
 
-Timer* create_timer(void (*on_end)(void* elt), void* elt);
+// Timer system functions
+void init_timer_system(void);
+void shutdown_timer_system(void);
+void update_timer_system(float delta_time);
+
+// Timer functions
+Timer* create_timer(float duration, TimerCallback callback, void* user_data);
 void free_timer(Timer* timer);
-
-float get_current_time(Timer* timer);
-
-void play_timer(Timer* timer, float time);
-void update_timer(Timer* timer);
+void start_timer(Timer* timer);
+void pause_timer(Timer* timer);
+void resume_timer(Timer* timer);
+void cancel_timer(Timer* timer);
+float get_remaining_timer(const Timer* timer);
+bool is_active_timer(const Timer* timer);
+bool is_paused_timer(const Timer* timer);

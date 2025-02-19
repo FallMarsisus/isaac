@@ -13,7 +13,7 @@ bool transfer_item_into_inventory(uint32_t itemEntity, uint32_t targetEntity);
 SDL_Texture* get_texture_from_Id(enum ItemID id);
 Action* get_item_actions(enum ItemID id);
 
-
+void timer_make_item_grabbable_by_dropper(Timer* self, void* arguments);
 
 /**
  * @brief Creates an item entity at specified coordinates

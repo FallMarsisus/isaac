@@ -46,9 +46,13 @@ void create_game(int win_width, int win_height) {
     register_listener(EVENT_COLLISION, on_collision);
     register_listener(EVENT_ENTITY_CREATED, on_entity_created);
     register_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
+
+    init_timer_system();
 }
 
 void free_game() {
+    shutdown_timer_system();
+    
     unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
     unregister_listener(EVENT_CHEST_OPENED, on_chest_open);
     unregister_listener(EVENT_STATE_CHANGE, on_state_change);
@@ -163,6 +167,8 @@ void test_damage(Game* game) {
 
 void update_game(int win_width, int win_height, float delta) {
     call_events();
+
+    update_timer_system(delta);
 
     SDL_Rect room_pos = {
         get_x(game->current_room) * 1920,

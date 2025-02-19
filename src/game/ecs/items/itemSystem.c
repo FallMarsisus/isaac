@@ -110,7 +110,6 @@ Action* get_item_actions(enum ItemID id) {
     return action;
 }
 
-
 void freeAction(Action* act) {
     if (act == NULL) return;
 
@@ -118,14 +117,10 @@ void freeAction(Action* act) {
     free(act->functions);
 }
 
-
-void timer_make_item_grabbable_by_dropper(void* arguments) {
-    void** args = arguments;
-    Timer* self = args[0];
-	
-    uint32_t* entityAdress = args[1];
+void timer_make_item_grabbable_by_dropper(Timer* self, void* arguments) {
+    uint32_t* entityAdress = arguments;
     ItemComponent* item = ECS_GetComponent(*entityAdress, ITEM);
-
+    
     free_timer(self);
     free(arguments);
 
@@ -136,7 +131,6 @@ void timer_make_item_grabbable_by_dropper(void* arguments) {
     item->isDropperLocked = false;
 }
 
-
 uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, bool playerLocked) {
     uint32_t itemEntity = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(itemEntity, POSITION, sizeof(PositionComponent));
@@ -144,7 +138,6 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
     ItemComponent* itemC = ECS_AddComponent(itemEntity, ITEM, sizeof(ItemComponent));
     RigidbodyComponent* body = ECS_AddComponent(itemEntity, BODY, sizeof(RigidbodyComponent));
     
-
     itemC->makeDropperUnlocked = NULL;
     itemC->isDropperLocked = playerLocked;
     itemC->dropper = dropper;
@@ -152,18 +145,13 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
 
         printf("adding timer !!\n");
     
-        void** arguments = malloc(sizeof(void*)*2);
-		
-		arguments[1] = malloc(sizeof(uint32_t));
-		*(uint32_t*)arguments[1] = itemEntity;
+        uint32_t* arguments = malloc(sizeof(uint32_t));
+		*arguments = itemEntity;
 
-        Timer* timer = create_timer(timer_make_item_grabbable_by_dropper, arguments);
-
-        arguments[0] = timer;
-
+        Timer* timer = create_timer(2, timer_make_item_grabbable_by_dropper, arguments);
 
         itemC->makeDropperUnlocked = timer;
-        play_timer(timer, 2);
+        start_timer(timer);
     }
 
     position->x = x; position->y = y;
@@ -180,23 +168,12 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
     return itemEntity;
 }
 
-
 bool update_item(uint32_t entity) {
     ItemComponent* item = ECS_GetComponent(entity, ITEM);
     if (!item) return false;
 
-    // Update item logic here
-    if (item->makeDropperUnlocked) {
-        update_timer(item->makeDropperUnlocked);
-    }
-
-    return true;
     return true;
 }
-
-
-
-
 
 bool handle_collision_item(uint32_t entity1, uint32_t entity2) {
     uint32_t receiver, item;

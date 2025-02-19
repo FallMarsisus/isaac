@@ -307,7 +307,7 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer, int win_width, int 
     // trust me ça marche ça
     SDL_Rect backgroundRect = {
         MARGIN * win_width/1920,
-        MARGIN * win_height/1080,
+        MARGIN * win_height/1024,
         ((inventory->max_nb_items + nbRows - 1) / nbRows * (SLOT_SIZE + SPACING) + (MARGIN + SPACING)) * win_width / true_width,
         (nbRows * (SLOT_SIZE + SPACING) + (MARGIN + SPACING)) * win_height/true_height
     }; // retirer le + nb - 1 si ça fait de la merde

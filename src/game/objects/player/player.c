@@ -13,9 +13,7 @@ uint32_t add_player(float x, float y) {
     SwordComponent* sword = ECS_AddComponent(player, SWORD_C, sizeof(SwordComponent));
     
     create_sword(sword, SWORD, 10, 64, 1);
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
+    init_position_component(position, x, y);
 
     // Initialize components
     initialize_inventory(inv, 20, false);

@@ -36,15 +36,18 @@ typedef enum {
 typedef struct {
     float x, y;      // Position
     float vx, vy;    // Velocity
+    float ax, ay;   // Acceleration
     bool camFixed;
 } PositionComponent;
 
-typedef struct {
-    bool is_dynamic;       // True if the object is dynamic; false if static
-    float mass;            // Mass of the object
-    SDL_Rect hitbox;       // Collision boundary
-    float restitution;     // Bounciness (0.0 - 1.0)
-    float friction;        // Friction coefficient
+typedef struct RigidbodyComponent {
+    SDL_Rect hitbox;
+    bool is_dynamic;
+    float friction;
+    float restitution;
+    float mass;
+    float forceX;
+    float forceY;
 } RigidbodyComponent;
 
 // Sprite component (for rendering a texture)
@@ -119,4 +122,6 @@ typedef struct {
 
     int time;
     int end_time;
+
+    bool has_physics; // If the effect is removed when it collides with a object
 } EffectComponent;

@@ -1,11 +1,23 @@
 #include "physicsSystems.h"
 
+void init_position_component(PositionComponent* position, float x, float y) {
+    position->x = x;
+    position->y = y;
+    position->vx = 0;
+    position->vy = 0;
+    position->ax = 0;
+    position->ay = 0;
+    position->camFixed = false;
+}
+
 void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY, int width, int height) {
     body->is_dynamic = false;
     body->hitbox = (SDL_Rect){offsetX, offsetY, width, height};
     body->friction = 0;
     body->restitution = 0;
     body->mass = 50;
+    body->forceX = 0;
+    body->forceY = 0;
 }
 
 bool isColliding(PositionComponent* p1, RigidbodyComponent* r1, 
@@ -47,19 +59,38 @@ void resolveAxis(PositionComponent* position, RigidbodyComponent* body,
     *velocity = 0;
 }
 
+void apply_force(RigidbodyComponent* body, float fx, float fy) {
+    body->forceX += fx;
+    body->forceY += fy;
+}
+
 void update_physics(uint32_t id, float delta) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(id, BODY);
 
-    if (position) {
-        // Save original position
+    if (position && body && body->is_dynamic) {
+        if (body->mass > 0) {
+            position->ax += body->forceX / body->mass;
+            position->ay += body->forceY / body->mass;
+            
+            float friction_force = body->friction;
+            float speed = sqrtf(position->vx * position->vx + position->vy * position->vy);
+            if (speed > 0) {
+                float fx = -friction_force * (position->vx / speed);
+                float fy = -friction_force * (position->vy / speed);
+                position->ax += fx;
+                position->ay += fy;
+            }
+            
+            body->forceX = 0;
+            body->forceY = 0;
+        }
+
         float originalX = position->x;
         float originalY = position->y;
 
-        // Update X-axis position first
         position->x += position->vx * 60 * delta;
 
-        // Handle collisions for X-axis first
         if (body) {
             if(!body->is_dynamic) return;
             for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
@@ -70,17 +101,14 @@ void update_physics(uint32_t id, float delta) {
                 if (!otherPos || !otherBody) continue;
 
                 if (isColliding(position, body, otherPos, otherBody)) {
-                    // Case Handling
                     if (!body->is_dynamic && !otherBody->is_dynamic) {
                         continue;
                     } else if (body->is_dynamic && !otherBody->is_dynamic) {
-                        // Dynamic vs. Static
-                        position->x = originalX; // Revert X movement
+                        position->x = originalX;
                         resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
                     } else if (!body->is_dynamic && otherBody->is_dynamic) {
                         continue;
                     } else if (body->is_dynamic && otherBody->is_dynamic) {
-                        // Dynamic vs. Dynamic: Apply elastic collision resolution
                         //resolveDynamicCollision(position, body, otherPos, otherBody);
                     }
                     
@@ -92,10 +120,8 @@ void update_physics(uint32_t id, float delta) {
             }
         }
 
-        // Update Y-axis position next
         position->y += position->vy * 60 * delta;
 
-        // Handle collisions for Y-axis
         if (body) {
             for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
                 if(e == id) continue;
@@ -105,17 +131,14 @@ void update_physics(uint32_t id, float delta) {
                 if (!otherPos || !otherBody) continue;
 
                 if (isColliding(position, body, otherPos, otherBody)) {
-                    // Case Handling
                     if (!body->is_dynamic && !otherBody->is_dynamic) {
                         continue;
                     } else if (body->is_dynamic && !otherBody->is_dynamic) {
-                        // Dynamic vs. Static
-                        position->y = originalY; // Revert Y movement
+                        position->y = originalY;
                         resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
                     } else if (!body->is_dynamic && otherBody->is_dynamic) {
                         continue;
                     } else if (body->is_dynamic && otherBody->is_dynamic) {
-                        // Dynamic vs. Dynamic: Apply elastic collision resolution
                         //resolveDynamicCollision(position, body, otherPos, otherBody);
                     }
                     
@@ -124,6 +147,23 @@ void update_physics(uint32_t id, float delta) {
                     event->entity2 = e;
                     trigger_event(EVENT_COLLISION, event, true);
                 }
+            }
+        }
+
+        if(fabsf(position->ax) > 0.001f) {
+            position->vx += position->ax * delta;
+            position->ax *= 0.90f;
+            
+            if(fabsf(position->vx) < 0.01f) {
+                position->vx = 0;
+            }
+        }
+        if(fabsf(position->ay) > 0.001f) {
+            position->vy += position->ay * delta;
+            position->ay *= 0.90f;
+            
+            if(fabsf(position->vy) < 0.01f) {
+                position->vy = 0;
             }
         }
     }

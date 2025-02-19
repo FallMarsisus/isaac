@@ -1,14 +1,41 @@
 #include "roomGeneration.h"
 
-void generate_walls(int rX, int rY, uint32_t player_id, int layout_type) {
-    int start_x = rX * 1920; int start_y = rY * 1080;
+void parse_map(int rX, int rY, uint32_t player_id, int layout_type) {
+    int start_x = rX * 1920; int start_y = rY * 1024;
     int max_x = start_x + 1920;
-    int max_y = start_y + 1080;
+    int max_y = start_y + 1024;
+    
+    char map_name[10];
+    sprintf(map_name, "assets/maps/map%d", layout_type);
+    FILE *map_file = fopen(map_name, "r");
+    if (!map_file) {
+        printf("Failed to open map file\n");
+        return;
+    }
+
+    char line[200];
+    int j = 0;
+    while (fgets(line, sizeof(line), map_file)) {
+        for(int i = 0; i < strlen(line); i++) {
+            if(line[i] == '1') {
+                add_block(start_x + i * 64, start_y + j * 64, get_sprites()->cobble_texture);
+            }
+        }
+        j++;
+    }
+
+    fclose(map_file);
+}
+
+void generate_walls(int rX, int rY, uint32_t player_id, int layout_type) {
+    int start_x = rX * 1920; int start_y = rY * 1024;
+    int max_x = start_x + 1920;
+    int max_y = start_y + 1024;
     
     // Fixed door positions - centered on each wall
     int north_door = 14; // (1920/64)/2 - 1 = 14 (center of north wall)
     int south_door = 14; // Same as north for symmetry
-    int east_door = 8;   // (1080/64)/2 - 1 = 8 (center of east wall)
+    int east_door = 8;   // (1024/64)/2 - 1 = 8 (center of east wall)
     int west_door = 8;   // Same as east for symmetry
     
     // Add outer walls with fixed doors
@@ -31,18 +58,25 @@ void generate_walls(int rX, int rY, uint32_t player_id, int layout_type) {
 }
 
 void generate_obstacles(int rX, int rY, uint32_t player_id, int layout_type) {
-    int start_x = rX * 1920; int start_y = rY * 1080;
+    int start_x = rX * 1920; int start_y = rY * 1024;
     int max_x = start_x + 1920;
-    int max_y = start_y + 1080;
+    int max_y = start_y + 1024;
+
+    //Room dimensions : 1920x1080
     
     switch(layout_type) {
         case 0: // Cross pattern
-            for(int i = 0; i < 20; i++) {
-                // Horizontal line
-                add_block(start_x + (5 + i) * 64, start_y + 8 * 64, get_sprites()->cobble_texture);
+            for(int i = 1; i < 8; i++) {
                 // Vertical line
                 add_block(start_x + 13 * 64, start_y + i * 64, get_sprites()->cobble_texture);
+
+                add_block(start_x + 16 * 64, start_y + (17 - i) * 64, get_sprites()->cobble_texture);
             }
+            for(int i = 13; i < 17; i++) {
+                // Horizontal line
+                add_block(start_x + i * 64, start_y + 8 * 64, get_sprites()->cobble_texture);
+            }
+
             break;
             
         case 1: // Circular arena
@@ -82,14 +116,15 @@ void generate_obstacles(int rX, int rY, uint32_t player_id, int layout_type) {
                     add_block(start_x + (17 + i) * 64, start_y + (17 - i) * 64, get_sprites()->cobble_texture);
                 }
             }
+
             break;
     }
 }
 
 void generate_enemies(int rX, int rY, uint32_t player_id, int layout_type) {
-    int start_x = rX * 1920; int start_y = rY * 1080;
+    int start_x = rX * 1920; int start_y = rY * 1024;
     int max_x = start_x + 1920;
-    int max_y = start_y + 1080;
+    int max_y = start_y + 1024;
 
     switch(layout_type) {
         case 0: // Cross pattern - enemies in the corners
@@ -135,9 +170,9 @@ void generate_enemies(int rX, int rY, uint32_t player_id, int layout_type) {
 }
 
 void generate_items(int rX, int rY, uint32_t player_id, int layout_type) {
-    int start_x = rX * 1920; int start_y = rY * 1080;
+    int start_x = rX * 1920; int start_y = rY * 1024;
     int max_x = start_x + 1920;
-    int max_y = start_y + 1080;
+    int max_y = start_y + 1024;
     
     switch(layout_type) {
         case 0:
@@ -159,8 +194,9 @@ void generate_room(int rX, int rY, uint32_t player_id) {
     // Choose a random room layout type
     int layout_type = rand() % 5;
 
-    generate_walls(rX, rY, player_id, layout_type);
-    generate_obstacles(rX, rY, player_id, layout_type);
+    parse_map(rX, rY, player_id, layout_type);
+    /*generate_walls(rX, rY, player_id, layout_type);
+    generate_obstacles(rX, rY, player_id, layout_type);*/
     generate_enemies(rX, rY, player_id, layout_type);
     generate_items(rX, rY, player_id, layout_type);
 }

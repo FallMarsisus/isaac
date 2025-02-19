@@ -21,6 +21,7 @@ void init_effect_component(EffectComponent* effect, uint32_t id, float timeLeft)
 
     effect->time = timeLeft * 1000;
     effect->end_time = SDL_GetTicks() + effect->time;
+    effect->has_physics = false;
 }
 
 void add_child(ParentComponent* parent, uint32_t id) {

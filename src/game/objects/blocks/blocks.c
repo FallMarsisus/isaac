@@ -6,9 +6,7 @@ uint32_t add_block(float x, float y, SDL_Texture* texture) {
     SpriteComponent* sprite = ECS_AddComponent(block, SPRITE, sizeof(SpriteComponent));
     RigidbodyComponent* body = ECS_AddComponent(block, BODY, sizeof(RigidbodyComponent));
 
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
+    init_position_component(position, x, y);
 
     init_rigidbody_component(body, 2, 2, 60, 60);
 
@@ -21,9 +19,7 @@ uint32_t add_background_tile(float x, float y) {
     PositionComponent* position = ECS_AddComponent(block, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(block, SPRITE, sizeof(SpriteComponent));
 
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = true;
+    init_position_component(position, x, y);
 
     init_sprite_component(sprite, 64, 64, get_sprites()->background_texture);
 
@@ -34,9 +30,7 @@ uint32_t add_chest(float x, float y) {
     PositionComponent* position = ECS_AddComponent(chest, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(chest, SPRITE, sizeof(SpriteComponent));
 
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
+    init_position_component(position, x, y);
 
     init_sprite_component(sprite, 64, 64, get_sprites()->chest_closed_texture);
 
@@ -49,9 +43,8 @@ uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
     TeleporterComponent* teleport = ECS_AddComponent(obj, TELEPORT, sizeof(TeleporterComponent));
     ScriptComponent* script = ECS_AddComponent(obj, SCRIPT, sizeof(ScriptComponent));
 
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
+    init_position_component(position, x, y);
+    
     init_sprite_component(sprite, 64, 64, get_sprites()->teleporter_texture);
     init_script_component(script, update_teleporter);
 

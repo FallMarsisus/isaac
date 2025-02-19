@@ -5,13 +5,14 @@ uint32_t add_effect(float x, float y, float time, int width, int height, SDL_Tex
     PositionComponent* position = ECS_AddComponent(effect, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(effect, SPRITE, sizeof(SpriteComponent));
     EffectComponent* effectComp = ECS_AddComponent(effect, EFFECT, sizeof(EffectComponent));
+    RigidbodyComponent* body = ECS_AddComponent(effect, BODY, sizeof(RigidbodyComponent));
     
+    init_rigidbody_component(body, 0, 0, width, height);
+    body->is_dynamic = true;
+    body->mass = 1;
+
     init_effect_component(effectComp, effect, time);
-
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
-
+    init_position_component(position, x, y);
     init_sprite_component(sprite, width, height, texture);
 
     return effect;
@@ -19,14 +20,18 @@ uint32_t add_effect(float x, float y, float time, int width, int height, SDL_Tex
 
 uint32_t add_projectile(float x, float y, float vx, float vy, float time, SDL_Texture* texture) {
     uint32_t projectile = add_effect(x, y, time, 64, 64, texture);
-    PositionComponent* position = ECS_GetComponent(projectile, POSITION);
-    position->vx = vx; position->vy = vy;
+
+    EffectComponent* effect = ECS_GetComponent(projectile, EFFECT);
+    effect->has_physics = true;
+
+    RigidbodyComponent* body = ECS_GetComponent(projectile, BODY);
+    apply_force(body, vx * 5, vy * 5);
 
     return projectile;
 }
 
-uint32_t add_flame(float x, float y, float vx, float vy, float time) {
-    uint32_t flame = add_projectile(x, y, vx, vy, time, get_sprites()->flame_texture);
+uint32_t add_flame(float x, float y, float vx, float vy) {
+    uint32_t flame = add_projectile(x, y, vx, vy, 5, get_sprites()->flame_texture);
     AnimationComponent* animation = ECS_AddComponent(flame, ANIMATION, sizeof(AnimationComponent));
 
     create_damager(flame, (DamagerComponent) {1, 0, false, 0});

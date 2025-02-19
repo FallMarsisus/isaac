@@ -60,7 +60,7 @@ void on_attack_boss_update(State* state, uint32_t id) {
             uint32_t flame = add_flame(
                 position->x + (sprite->width - 64) / 2, 
                 position->y + (sprite->height - 64) / 2, 
-                cos(angle_rad) * 6, sin(angle_rad) * 6, 2
+                cos(angle_rad) * 6, sin(angle_rad) * 6
             );
             SpriteComponent* flame_sprite = ECS_GetComponent(flame, SPRITE);
             if(flame_sprite) {

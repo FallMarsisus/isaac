@@ -120,7 +120,7 @@ void free_action(Action* act) {
 void timer_make_item_grabbable_by_dropper(Timer* self, void* arguments) {
     uint32_t* entityAdress = arguments;
     ItemComponent* item = ECS_GetComponent(*entityAdress, ITEM);
-    
+
     free_timer(self);
     free(arguments);
 
@@ -154,9 +154,7 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
         start_timer(timer);
     }
 
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
+    init_position_component(position, x, y);
 
     init_sprite_component(sprite, 64, 64, get_texture_from_Id(itemType.id));
     init_rigidbody_component(body, 0, 0, 64, 64);

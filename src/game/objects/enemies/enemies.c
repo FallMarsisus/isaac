@@ -27,9 +27,8 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     
     create_damager(enemy, (DamagerComponent) {1, 0, false, 0});
     // Initialize components
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
+
+    init_position_component(position, x, y);
 
     init_rigidbody_component(body, 2, 2, width - 4, height - 4);
     body->is_dynamic = true;
@@ -95,9 +94,7 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     
     create_damager(boss, (DamagerComponent) {1, 0, false, 0});
     // Initialize components
-    position->x = x; position->y = y;
-    position->vx = 0; position->vy = 0;
-    position->camFixed = false;
+    init_position_component(position, x, y);
 
     init_rigidbody_component(body, 2, 2, 150 - 4, 150 - 4);
     body->is_dynamic = true;

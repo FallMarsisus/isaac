@@ -71,8 +71,7 @@ void free_game()
     free(game);
 }
 
-void on_entity_created(Event event)
-{
+void on_entity_created(Event event) {
     EntityCreatedEvent* e = (EntityCreatedEvent*)event.data;
     if (!e)
         return;
@@ -105,8 +104,7 @@ void on_entity_removed(Event event)
     remove_entity(game->current_room, rEvent->entity);
 }
 
-void change_room(int x, int y)
-{
+void change_room(int x, int y) {
     Room* r = get_room(game->map, x, y);
     if (r == NULL) {
         r = create_room(x, y);
@@ -133,65 +131,21 @@ void change_room(int x, int y)
     game->current_room = r;
 }
 
-void get_keys(SDL_Event* event)
-{
-    handle_input_system(event, game->player);
-}
-void test_damage(Game* game)
-{
-    uint32_t nearest_enemy = get_nearest_enemy(game->player);
-    static bool attacked = false;
-    static bool sword_used = false;
-
-    PositionComponent* player_pos = ECS_GetComponent(game->player, POSITION);
-    SwordComponent* player_sword = ECS_GetComponent(game->player, SWORD_C);
-
-    if (!player_sword || !player_pos)
-        return;
-
-    static int sword_counter = 0;
-
-    if (sword_used) {
-        sword_counter++;
-        if (sword_counter >= 20) {
-            sword_used = false;
-            sword_counter = 0;
-        }
-    }
-
-    if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT] && !sword_used) {
-        SwordComponent* sword = ECS_GetComponent(game->player, SWORD_C);
-        use_sword(game->player, get_nearest_enemy(game->player));
-        sword_used = true;
-        sword_counter = 0; // reset counter when sword is used
-
-        if (nearest_enemy != -1 && is_colliding_with_enemy(game->player) && attacked == false) {
-            attacked = true;
-            if (apply_damage(nearest_enemy, game->player) == false) {
-                printf("ERROR : Player not found\n");
-            } else {
-                printf("Player is taking damage from entity %d\n", nearest_enemy);
-            }
-        } else if (!is_colliding_with_enemy(game->player)) {
-            attacked = false;
-        }
-    }
+void test_damage(Game* game) {
 }
 
 void update_game(int win_width, int win_height, float delta)
 {
-    call_events();
-
-    update_timer_system(delta);
-
     SDL_Rect room_pos = {
         get_x(game->current_room) * 1920,
         get_y(game->current_room) * 1024,
         1920,
         1024
     };
+    update_timer_system(delta);
+    call_events();
 
-    update_player_positions(game->player);
+    update_player(game->player);
 
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
         u_int32_t id = get_entities(game->current_room)[i];
@@ -207,6 +161,8 @@ void update_game(int win_width, int win_height, float delta)
             room_pos,
             delta);
     }
+
+    update_player_positions(game->player);
 
     test_damage(game);
     // is_colliding_with_item(game->player);

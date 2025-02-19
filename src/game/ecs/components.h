@@ -80,6 +80,8 @@ typedef struct {
 // Player movement component
 typedef struct {
     float speed;  // Movement speed of the player
+
+    Vector direction;
 } PlayerMovementComponent;
 
 typedef struct {

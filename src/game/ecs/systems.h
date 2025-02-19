@@ -19,6 +19,7 @@
 #include "health/healthSystem.h"
 #include "items/itemSystem.h"
 #include "damager/damagerSystem.h"
+#include "player/playerSystems.h"
 
 #include "../objects/enemies/enemies.h"
 #include "../objects/player/player.h"
@@ -49,12 +50,6 @@ void free_components();
 * @param entity entity to be freed
 */
 void free_one_entity(uint32_t entity);
-
-/**
- * @brief Processes input events for the game systems
- * @param event SDL event to process
- */
-void handle_input_system(SDL_Event* event, uint32_t player);
 
 /**
  * @brief Updates all systems for a single entity

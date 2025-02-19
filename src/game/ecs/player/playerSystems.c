@@ -1,0 +1,126 @@
+#include "playerSystems.h"
+
+void init_player_component(PlayerMovementComponent* player) {
+    player->speed = 200;
+    player->direction = (Vector) {0, 0};
+}
+
+static void handle_movement_input(int* dx, int* dy) {
+    const Uint8* state = SDL_GetKeyboardState(NULL);
+    *dx = 0;
+    *dy = 0;
+    if(state[SDL_SCANCODE_W]) *dy -= 1;
+    if(state[SDL_SCANCODE_S]) *dy += 1;
+    if(state[SDL_SCANCODE_A]) *dx -= 1;
+    if(state[SDL_SCANCODE_D]) *dx += 1;
+    if(state[SDL_SCANCODE_ESCAPE]) {
+        SDL_Event quit;
+        quit.type = SDL_QUIT;
+        SDL_PushEvent(&quit);
+    }
+}
+
+static void handle_inventory_display(InventoryComponent* inv) {
+    static bool is_it_wanting_to_display = false;
+    const Uint8* state = SDL_GetKeyboardState(NULL);
+    
+    if (state[SDL_SCANCODE_E] && !is_it_wanting_to_display) {
+        is_it_wanting_to_display = true;
+        inv->isDisplayed = !inv->isDisplayed;
+    }
+    else if (!state[SDL_SCANCODE_E]) {
+        is_it_wanting_to_display = false;
+    }
+}
+
+static void handle_mouse_input(uint32_t player) {
+    static bool mouseClicked = false;
+    int x, y;
+    Uint32 mouseState = SDL_GetMouseState(&x, &y);
+    InventoryComponent* inv = ECS_GetComponent(player, INVENT);
+    
+    if ((mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouseClicked && inv != NULL) {
+        printf("mouse is in slot n° %d\n", on_clic(player, x, y));
+        mouseClicked = true;
+    } else if (!(mouseState & SDL_BUTTON(SDL_BUTTON_LEFT))) {
+        mouseClicked = false;
+    }
+}
+
+static void update_movement_and_animation(PlayerMovementComponent* movement, PositionComponent* position, 
+                                       AnimationComponent* anim, int dx, int dy, float distance) {
+    if(distance > 0.01) {
+        position->vx = (dx / distance) * movement->speed;
+        position->vy = (dy / distance) * movement->speed;
+        if(anim) {
+            if(dy < 0) set_active_anim(anim, 1);
+            else if(dy > 0) set_active_anim(anim, 0);
+            else if(dx < 0) set_active_anim(anim, 2);
+            else if(dx > 0) set_active_anim(anim, 3);
+            play_anim(anim);
+        }
+    }
+    else {
+        position->vx = 0; position->vy = 0;
+        if(anim) {
+            stop_anim(anim);
+        }
+    }
+}
+
+static void handle_combat(uint32_t player, PositionComponent* position, SwordComponent* sword) {
+    static bool attacked = false;
+    static bool sword_used = false;
+    static int sword_counter = 0;
+    const Uint8* state = SDL_GetKeyboardState(NULL);
+    uint32_t nearest_enemy = get_nearest_enemy(player);
+
+    if (sword_used) {
+        sword_counter++;
+        if (sword_counter >= 20) {
+            sword_used = false;
+            sword_counter = 0;
+        }
+    }
+
+    if (state[SDL_SCANCODE_LSHIFT] && !sword_used) {
+        use_sword(player, nearest_enemy);
+        sword_used = true;
+        sword_counter = 0;
+
+        if (nearest_enemy != -1 && is_colliding_with_enemy(player) && !attacked) {
+            attacked = true;
+            if (apply_damage(nearest_enemy, player) == false) {
+                printf("ERROR : Player not found\n");
+            } else {
+                printf("Player is taking damage from entity %d\n", nearest_enemy);
+            }
+        }
+    }
+    
+    if (!is_colliding_with_enemy(player)) {
+        attacked = false;
+    }
+}
+
+void update_player(uint32_t player) {
+    int dx = 0, dy = 0;
+    handle_movement_input(&dx, &dy);
+    float distance = sqrt(pow(dx, 2) + pow(dy, 2));
+
+    PlayerMovementComponent* movement = ECS_GetComponent(player, PLAYER);
+    PositionComponent* position = ECS_GetComponent(player, POSITION);
+    AnimationComponent* anim = ECS_GetComponent(player, ANIMATION);
+    InventoryComponent* inv = ECS_GetComponent(player, INVENT);
+    SwordComponent* sword = ECS_GetComponent(player, SWORD_C);
+
+    if (movement && position) {
+        handle_inventory_display(inv);
+        handle_mouse_input(player);
+        update_movement_and_animation(movement, position, anim, dx, dy, distance);
+    }
+
+    if (position && sword) {
+        handle_combat(player, position, sword);
+    }
+}

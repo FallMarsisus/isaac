@@ -22,8 +22,6 @@ void on_entity_removed(Event event);
 
 void change_room(int x, int y);
 
-void get_keys(SDL_Event* event);
-
 void update_game(int win_width, int win_height, float delta);
 
 void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_width , int true_height);

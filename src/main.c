@@ -60,7 +60,6 @@ int main() {
                 running = 0;
             }
         }
-        get_keys(&event);
 
         double new_time = SDL_GetTicks() / 1000.;
         double frame_time = new_time - current_time;

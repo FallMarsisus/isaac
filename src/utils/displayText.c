@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 fonts* allFonts;
 
@@ -55,7 +56,7 @@ void free_fonts() {
 	free(allFonts);
 }
 
-void displayText(const char* text, SDL_Renderer* ren, SDL_Texture** font, SDL_Color* color, int x, int y, int fontSize) {
+void display_text(const char* text, SDL_Renderer* ren, SDL_Texture** font, SDL_Color* color, int x, int y, int fontSize) {
 
 	while (*text != '\0') {
 		SDL_Texture* texture = font[(unsigned char)*text];
@@ -66,6 +67,7 @@ void displayText(const char* text, SDL_Renderer* ren, SDL_Texture** font, SDL_Co
 			SDL_SetTextureAlphaMod(texture, color->a);  // Sets alpha transparency
 			float scale = 2 * (float)fontSize / texH;  // Calculate scale based on desired height
 			SDL_Rect dstrect = { x, y, (int)(texW * scale), 2 * fontSize }; 
+			
 			SDL_RenderCopy(ren, texture, NULL, &dstrect);
 			x += (int)(texW * scale);
 		}

@@ -264,7 +264,7 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
 
         SDL_RenderFillRect(renderer, &actions_rect);
 
-		displayText(inventory->selected_slot_actions->titles[i], renderer, getFonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
+		display_text(inventory->selected_slot_actions->titles[i], renderer, getFonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
     }
 
     // techniquemement ça marche de deux manières donc je préfère faire deux boucles
@@ -285,7 +285,7 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
         }
 
         SDL_RenderFillRect(renderer, &actions_rect);
-		displayText(get_actions_name(i - inventory->selected_slot_actions->nb_actions), renderer, getFonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
+		display_text(get_actions_name(i - inventory->selected_slot_actions->nb_actions), renderer, getFonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
 
     }
 }

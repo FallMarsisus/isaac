@@ -56,7 +56,7 @@ Action* get_item_actions(enum ItemID id) {
         action->titles[0] = "consommer";
 
         action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
-        action->functions[0] = itemHeal; 
+        action->functions[0] = item_heal; 
         break;
     
     case APPLE:
@@ -66,7 +66,7 @@ Action* get_item_actions(enum ItemID id) {
         action->titles[0] = "consommer";
 
         action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
-        action->functions[0] = itemHeal; 
+        action->functions[0] = item_heal; 
         break;
 
     case SWORD:
@@ -76,7 +76,7 @@ Action* get_item_actions(enum ItemID id) {
         action->titles[0] = "\xE9\quiper";
 
         action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
-        action->functions[0] = itemDoNothing; 
+        action->functions[0] = item_do_nothing; 
         break;
 
     case KEY:
@@ -94,7 +94,7 @@ Action* get_item_actions(enum ItemID id) {
         action->titles[0] = "do nothing";
 
         action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
-        action->functions[0] = itemDoNothing;
+        action->functions[0] = item_do_nothing;
         break;
 
     default:
@@ -110,7 +110,7 @@ Action* get_item_actions(enum ItemID id) {
     return action;
 }
 
-void freeAction(Action* act) {
+void free_action(Action* act) {
     if (act == NULL) return;
 
     free(act->titles);

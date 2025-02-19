@@ -38,7 +38,7 @@ void load_fonts(SDL_Renderer* ren) {
 	allFonts->calibri = loadOneFont("calibri", ren);
 }
 
-fonts* getFonts() {
+fonts* get_fonts() {
 	return allFonts;
 }
 

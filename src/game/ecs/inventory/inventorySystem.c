@@ -33,7 +33,7 @@ void initialize_inventory(InventoryComponent* invent, int maxItems, bool isDispl
 void free_inventory(InventoryComponent* invent) {
     free(invent->items);
     if (invent->selected_slot_actions != NULL) {
-        freeAction(invent->selected_slot_actions);
+        free_action(invent->selected_slot_actions);
         invent->selected_slot_actions = NULL;
     }
 }
@@ -56,7 +56,7 @@ bool remove_item_from_inventory(uint32_t entity, ItemData item) { //faudra mettr
     }
 
     if (inventory->selected_slot != -1 &&  inventory->items[inventory->selected_slot].id == item.id) {
-        freeAction(inventory->selected_slot_actions);
+        free_action(inventory->selected_slot_actions);
         free(inventory->selected_slot_actions);
 
         inventory->selected_slot = -1;
@@ -154,7 +154,7 @@ int get_clicked_acion(InventoryComponent* invent, int x, int y) {
             SPACING + SLOT_SIZE
         };
 
-        if (mouseInRect(x, y, actions_rect)) {
+        if (mouse_in_rect(x, y, actions_rect)) {
             return i;
         }
     }
@@ -168,7 +168,7 @@ int get_clicked_acion(InventoryComponent* invent, int x, int y) {
             SPACING + SLOT_SIZE
         };
 
-        if (mouseInRect(x, y, actions_rect)) {
+        if (mouse_in_rect(x, y, actions_rect)) {
             return i;
         }
     }
@@ -181,7 +181,7 @@ void executeAction(uint32_t entity, InventoryComponent* invent, int selectedActi
     (invent->selected_slot_actions->functions[selectedAction])(entity, invent->items[invent->selected_slot]);
 }
 
-int onClic(uint32_t entity, int x, int y) {
+int on_clic(uint32_t entity, int x, int y) {
 
     InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
     if (!invent)
@@ -190,7 +190,7 @@ int onClic(uint32_t entity, int x, int y) {
     if (invent->selected_slot == -1) {
         invent->selected_slot = get_slot_of_mouse(entity, x, y);
 
-        freeAction(invent->selected_slot_actions);
+        free_action(invent->selected_slot_actions);
         free(invent->selected_slot_actions);
 
         invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
@@ -209,7 +209,7 @@ int onClic(uint32_t entity, int x, int y) {
     }
     invent->selected_slot = get_slot_of_mouse(entity, x, y);
 
-    freeAction(invent->selected_slot_actions);
+    free_action(invent->selected_slot_actions);
     free(invent->selected_slot_actions);
 
     invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
@@ -256,7 +256,7 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
             (SPACING + SLOT_SIZE) * scaleFactor
         };
 
-        if (mouseInRectFixDrift(mouseX, mouseY, &actions_rect, trueWidth, renderWidth)) {
+        if (mouse_in_rect_fix_drift(mouseX, mouseY, &actions_rect, trueWidth, renderWidth)) {
             SDL_SetRenderDrawColor(renderer, 64, 72, 120, 240);
         } else {
             SDL_SetRenderDrawColor(renderer, 32, 36, 60, 240);
@@ -264,7 +264,7 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
 
         SDL_RenderFillRect(renderer, &actions_rect);
 
-		display_text(inventory->selected_slot_actions->titles[i], renderer, getFonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
+		display_text(inventory->selected_slot_actions->titles[i], renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
     }
 
     // techniquemement ça marche de deux manières donc je préfère faire deux boucles
@@ -278,14 +278,14 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
             (SPACING + SLOT_SIZE) * scaleFactor
         };
 
-        if (mouseInRectFixDrift(mouseX, mouseY, &actions_rect, trueWidth, renderWidth)) {
+        if (mouse_in_rect_fix_drift(mouseX, mouseY, &actions_rect, trueWidth, renderWidth)) {
             SDL_SetRenderDrawColor(renderer, 64, 72, 120, 240);
         } else {
             SDL_SetRenderDrawColor(renderer, 32, 36, 60, 240);
         }
 
         SDL_RenderFillRect(renderer, &actions_rect);
-		display_text(get_actions_name(i - inventory->selected_slot_actions->nb_actions), renderer, getFonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
+		display_text(get_actions_name(i - inventory->selected_slot_actions->nb_actions), renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
 
     }
 }
@@ -334,7 +334,7 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer, int win_width, int 
         if (i < inventory->nb_items && inventory->items[i].id != -1) {
 
             // change the color according to pos of mouse
-            if (mouseInRectFixDrift(mouseX, mouseY, &itemRect, true_width, win_width)) {
+            if (mouse_in_rect_fix_drift(mouseX, mouseY, &itemRect, true_width, win_width)) {
                 SDL_SetRenderDrawColor(renderer, 200, 200, 255, 255);
             } else {
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -345,7 +345,7 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer, int win_width, int 
         } else {
 
             // change color if mouse in slot
-            if (mouseInRectFixDrift(mouseX, mouseY, &itemRect, true_width, win_width)) {
+            if (mouse_in_rect_fix_drift(mouseX, mouseY, &itemRect, true_width, win_width)) {
                 SDL_SetRenderDrawColor(renderer, 200, 200, 255, 128);
             } else {
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);

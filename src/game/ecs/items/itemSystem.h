@@ -28,4 +28,4 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
 
 bool update_item(uint32_t entity);
 bool handle_collision_item(uint32_t entity1, uint32_t entity2);
-void freeAction(Action* act);
+void free_action(Action* act);

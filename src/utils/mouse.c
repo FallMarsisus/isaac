@@ -1,10 +1,10 @@
 #include "mouse.h"
 
-bool mouseInRect(int x, int y, SDL_Rect rect) {
+bool mouse_in_rect(int x, int y, SDL_Rect rect) {
 	return (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h);
 }
 
-bool mouseInRectFixDrift(int x, int y, SDL_Rect* rect, int trueWidth, int renderWidth) {
+bool mouse_in_rect_fix_drift(int x, int y, SDL_Rect* rect, int trueWidth, int renderWidth) {
  {
 	float scaleFactor = (float)trueWidth / renderWidth;
 	SDL_Rect scaledRect = {
@@ -13,6 +13,6 @@ bool mouseInRectFixDrift(int x, int y, SDL_Rect* rect, int trueWidth, int render
 		.w = rect->w * scaleFactor,
 		.h = rect->h * scaleFactor
 	};
-	return mouseInRect(x, y, scaledRect);
+	return mouse_in_rect(x, y, scaledRect);
 }
 }

@@ -70,7 +70,7 @@ void handle_input_system(SDL_Event* event, uint32_t player) {
         Uint32 mouseState = SDL_GetMouseState(&x, &y);
         
         if ((mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouseClicked && inv != NULL) {
-            printf("mouse is in slot n° %d\n", onClic(player, x, y));
+            printf("mouse is in slot n° %d\n", on_clic(player, x, y));
             mouseClicked = true;
         } else if (!(mouseState & SDL_BUTTON(SDL_BUTTON_LEFT))) {
             mouseClicked = false;

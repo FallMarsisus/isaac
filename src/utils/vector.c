@@ -7,11 +7,11 @@ void normalize(Vector* v) {
     v->y = v->y / len;
 }
 
-float vectorSize(Vector* v) {
+float vector_size(Vector* v) {
     return sqrt(v->x * v->x + v->y * v->y);
 }
 
-float vectorDistance(Vector *v1, Vector *v2)
+float vector_distance(Vector *v1, Vector *v2)
 {
 	return sqrt((v1->x - v2->x)* (v1->x - v2->x) + (v1->y - v2->y) * (v1->y-v2->y));
 }

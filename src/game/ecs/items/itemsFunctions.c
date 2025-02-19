@@ -2,7 +2,7 @@
 #include "../inventory/inventorySystem.h"
 #include "../systems.h"
 
-void itemHeal(uint32_t entity, ItemData currentItem) {
+void item_heal(uint32_t entity, ItemData currentItem) {
 	InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
 
 	if (invent == NULL) return;
@@ -12,7 +12,7 @@ void itemHeal(uint32_t entity, ItemData currentItem) {
 	remove_item_from_inventory(entity, currentItem);
 }
 
-void itemDoNothing(u_int32_t entity, ItemData currentItem) {}
+void item_do_nothing(u_int32_t entity, ItemData currentItem) {}
 
 void unselectItem(uint32_t entity, ItemData currentItem) {
 	InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
@@ -44,7 +44,7 @@ ActionFunction get_constant_functions(int i) {
 		break;
 
 	default:
-		return itemDoNothing;
+		return item_do_nothing;
 	}
 }
 

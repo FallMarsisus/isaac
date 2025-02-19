@@ -73,7 +73,7 @@ void on_idle_update(State* state, uint32_t id) {
         playerPos.x - pos.x,
         playerPos.y - pos.y
     };
-    if(vectorSize(&dir) < ATTACK_RANGE && raycast(pos, dir, vectorSize(&dir))) {
+    if(vector_size(&dir) < ATTACK_RANGE && raycast(pos, dir, vector_size(&dir))) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "chase";
         trigger_event(EVENT_STATE_CHANGE, event, true);
@@ -140,13 +140,13 @@ void on_chase_update(State* state, uint32_t id) {
         targetPos.x - pos.x,
         targetPos.y - pos.y
     };
-    if(2 * RAYCAST_RADIUS < vectorSize(&dir) && vectorSize(&dir) < ATTACK_RANGE && !raycast(pos, dir, vectorSize(&dir))) {
+    if(2 * RAYCAST_RADIUS < vector_size(&dir) && vector_size(&dir) < ATTACK_RANGE && !raycast(pos, dir, vector_size(&dir))) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "follow";
         trigger_event(EVENT_STATE_CHANGE, event, true);
         return;
     }
-    if(vectorSize(&dir) > ABANDON_RANGE) {
+    if(vector_size(&dir) > ABANDON_RANGE) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "idle";
         trigger_event(EVENT_STATE_CHANGE, event, true);
@@ -238,7 +238,7 @@ void on_follow_enter(State* state, uint32_t id) {
     for(QueueNode* node = get_first_queue_node(player_positions); node; node = get_next_queue_node(node)) {
         Vector player_pos = *(Vector*) get_data_queue_node(node);
         Vector dir = (Vector) {player_pos.x - pos->x, player_pos.y - pos->y};
-        if(vectorSize(&dir) < vectorSize(&dirToClosest)) {
+        if(vector_size(&dir) < vector_size(&dirToClosest)) {
             closest = node;
             dirToClosest = dir;
         }
@@ -271,13 +271,13 @@ void on_follow_update(State* state, uint32_t id) {
         targetPos.x - pos.x,
         targetPos.y - pos.y
     };
-    if(vectorSize(&dirToTarget) < ATTACK_RANGE && raycast(pos, dirToTarget, vectorSize(&dirToTarget))) {
+    if(vector_size(&dirToTarget) < ATTACK_RANGE && raycast(pos, dirToTarget, vector_size(&dirToTarget))) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "chase";
         trigger_event(EVENT_STATE_CHANGE, event, true);
         return;
     }
-    if(vectorSize(&dirToTarget) > ABANDON_RANGE) {
+    if(vector_size(&dirToTarget) > ABANDON_RANGE) {
         StateChangeEvent* event = malloc(sizeof(StateChangeEvent));
         event->id = id; event->new_state = "idle";
         trigger_event(EVENT_STATE_CHANGE, event, true);
@@ -298,7 +298,7 @@ void on_follow_update(State* state, uint32_t id) {
     }
 
     Vector dir = {goal_pos.x - pos.x, goal_pos.y - pos.y};
-    if(vectorSize(&dir) > 0.1) {
+    if(vector_size(&dir) > 0.1) {
         normalize(&dir);
         posComp->vx = dir.x * vars->speed;
         posComp->vy = dir.y * vars->speed;

@@ -29,7 +29,7 @@ void create_game(int win_width, int win_height)
     init_player_positions(game->player);
 
     ECS_CreateManager(40);
-    game->player = add_player(640, 360);
+    game->player = add_player(1920 / 2 - 32, 1024 - 64);
 
     game->map = create_map();
     change_room(0, 0);

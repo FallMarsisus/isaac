@@ -26,29 +26,12 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
     }
 
     PositionComponent* pos1 = ECS_GetComponent(entity, POSITION);
-    SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
     if (!pos1) {
         printf("Position component not found for entity %u\n", entity);
         return SDL_MAX_UINT32;
     }
 
-    int w = 25;
-    int h = 38;
-
-    uint32_t sword_temp = add_effect(pos1->x, pos1->y, 0.15, w * 2, h * 2, sword->renderer);
-    AnimationComponent* animation = ECS_AddComponent(sword_temp, ANIMATION, sizeof(AnimationComponent));
-
-    init_anim_component(animation, w, h);
-    add_anim(animation, 0.05, 3);
-    set_active_anim(animation, 0);
-    play_anim(animation);
-
-    ParentComponent* parent = ECS_GetComponent(entity, PARENT);
-    if(parent) {
-        ChildComponent* child = ECS_AddComponent(sword_temp, CHILD, sizeof(ChildComponent));
-        init_child_component(child, pos1->vx * 20, pos1->vy * 20, true, entity);
-        add_child(parent, sword_temp);
-    }
+    uint32_t sword_temp = add_sword(entity, sword);
 
     if(enemy == -1) return sword_temp;
     PositionComponent* pos2 = ECS_GetComponent(enemy, POSITION);

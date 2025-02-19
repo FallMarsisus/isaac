@@ -52,6 +52,8 @@ static void update_movement_and_animation(PlayerMovementComponent* movement, Pos
     if(distance > 0.01) {
         position->vx = (dx / distance) * movement->speed;
         position->vy = (dy / distance) * movement->speed;
+        movement->direction = (Vector) {dx / distance, dy / distance};
+        
         if(anim) {
             if(dy < 0) set_active_anim(anim, 1);
             else if(dy > 0) set_active_anim(anim, 0);

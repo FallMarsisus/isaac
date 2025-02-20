@@ -18,6 +18,7 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
     body->mass = 50;
     body->forceX = 0;
     body->forceY = 0;
+	body->forces = create_array();
 }
 
 bool isColliding(PositionComponent* p1, RigidbodyComponent* r1, 
@@ -59,35 +60,93 @@ void resolveAxis(PositionComponent* position, RigidbodyComponent* body,
     *velocity = 0;
 }
 
-void apply_force(RigidbodyComponent* body, float fx, float fy) {
-    body->forceX += fx;
-    body->forceY += fy;
+void apply_one_force(RigidbodyComponent* body, float fx, float fy) {
+	// printf("Applying force: Fx = %f, Fy = %f\n", fx, fy);
+	body->forceX += fx;
+	body->forceY += fy;
+}
+
+void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
+	bool shouldBeRemoved;
+	Force* currentForce;
+
+	if (!body->forces || get_len(body->forces) == 0) return;
+	
+	for (int i = 0; i < get_len(body->forces); i++) {
+
+		currentForce = (Force*) get_elt(body->forces, i);
+		shouldBeRemoved = update_entity_force(entity, currentForce);
+		apply_one_force(body, currentForce->Fx, currentForce->Fy);
+
+		if (shouldBeRemoved) {
+			// printf("Removing force: Fx = %f, Fy = %f\n", currentForce->Fx, currentForce->Fy);
+			free_force(get_elt(body->forces, i));
+			remove_dynarr(body->forces, i);
+			i--;
+		}
+	}
+
+	// printf("Sum of forces: Fx = %f, Fy = %f\n\n", body->forceX, body->forceY);
+}
+
+void add_force(uint32_t entity, Force* f) {
+	RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
+	if (!body) return;
+
+	append(body->forces, f);
 }
 
 void update_physics(uint32_t id, float delta) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(id, BODY);
+	
+	if (body) apply_all_forces(id, body);
 
     if (position && body && body->is_dynamic) {
+
+
         if (body->mass > 0) {
-            position->ax += body->forceX / body->mass;
-            position->ay += body->forceY / body->mass;
+            position->ax = body->forceX / body->mass;
+            position->ay = body->forceY / body->mass;
             
-            float friction_force = body->friction;
-            float speed = sqrtf(position->vx * position->vx + position->vy * position->vy);
-            if (speed > 0) {
-                float fx = -friction_force * (position->vx / speed);
-                float fy = -friction_force * (position->vy / speed);
-                position->ax += fx;
-                position->ay += fy;
+            // float friction_force = body->friction;
+            // float speed = sqrtf(position->vx * position->vx + position->vy * position->vy);
+            // if (speed > 0) {
+				//     float fx = -friction_force * (position->vx / speed);
+				//     float fy = -friction_force * (position->vy / speed);
+				//     position->ax += fx;
+				//     position->ay += fy;
+				// }
+				
+				body->forceX = 0;
+				body->forceY = 0;
+			}
+			
+		// if (get_len(body->forces)) printf("Acceleration: ax = %f, ay = %f, deltaV = %f\n", position->ax, position->ay, delta*position->ax);
+		float originalX = position->x;
+        float originalY = position->y;
+
+		if(fabsf(position->ax) > 0.001f) {
+            position->vx += position->ax * delta;
+            
+            if(fabsf(position->vx) < 0.001f) {
+                position->vx = 0;
             }
+        }
+        if(fabsf(position->ay) > 0.001f) {
+            position->vy += position->ay * delta;
             
-            body->forceX = 0;
-            body->forceY = 0;
+            if(fabsf(position->vy) < 0.001f) {
+                position->vy = 0;
+            }
         }
 
-        float originalX = position->x;
-        float originalY = position->y;
+		// frottement statiques
+		if (sqrtf(position->vx * position->vx + position->vy * position->vy) < 0.006f) {
+			position->vx = 0;
+			position->vy = 0;
+		}
+
 
         position->x += position->vx * 60 * delta;
 
@@ -150,21 +209,5 @@ void update_physics(uint32_t id, float delta) {
             }
         }
 
-        if(fabsf(position->ax) > 0.001f) {
-            position->vx += position->ax * delta;
-            position->ax *= 0.90f;
-            
-            if(fabsf(position->vx) < 0.01f) {
-                position->vx = 0;
-            }
-        }
-        if(fabsf(position->ay) > 0.001f) {
-            position->vy += position->ay * delta;
-            position->ay *= 0.90f;
-            
-            if(fabsf(position->vy) < 0.01f) {
-                position->vy = 0;
-            }
-        }
     }
 }

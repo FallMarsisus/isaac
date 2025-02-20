@@ -17,5 +17,6 @@ void* get_elt(dyn_array* da, int index);
 void set_elt(dyn_array* da, int index, void* elt);
 void append(dyn_array* da, void* elt);
 void* pop(dyn_array* da);
+void* remove_dynarr(dyn_array* da, int index);
 
 #endif

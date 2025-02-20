@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "dyn_arrays.h"
 
 struct dyn_array_s {
@@ -88,4 +89,38 @@ void* pop(dyn_array* da) {
     }
     da->len--;
     return da->list[da->len];
+}
+
+void* remove_dynarr(dyn_array* da, int index) {
+    if (da == NULL) {
+		fprintf(stderr, "\033[1;31mError: dyn_array is NULL\033[0m\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	if (index < 0 || index >= da->len ) {
+		fprintf(stderr, "\033[1;31mError: index %d is out of bounds\033[0m\n", index);
+		exit(EXIT_FAILURE);
+	}
+
+	
+    if(da->len * 4 < da->maxlen) {
+        int new_len = da->len * 2;
+        void** new_list = malloc(sizeof(void*) * new_len);
+
+        for(int i = 0; i < da->len; i++) {
+            new_list[i] = da->list[i];
+        }
+        free(da->list);
+        da->list = new_list;
+        da->maxlen = new_len;
+    }
+	
+	void* elt = da->list[index];
+
+	for (int i = index; i < da->len-1; i++) {
+		da->list[i] = da->list[i+1];
+	} 
+
+	da->len--;
+	return elt;
 }

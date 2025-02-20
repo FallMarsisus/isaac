@@ -9,6 +9,7 @@
 #include "../../utils/betterArrays/dyn_arrays.h"
 #include "../../utils/betterArrays/queue.h"
 #include "../../utils/vector.h"
+#include "./physics/forceSystem.h"
 #include "items/itemData.h"
 
 typedef enum {
@@ -41,13 +42,14 @@ typedef struct {
 } PositionComponent;
 
 typedef struct RigidbodyComponent {
-    SDL_Rect hitbox;
+	SDL_Rect hitbox;
     bool is_dynamic;
     float friction;
     float restitution;
     float mass;
     float forceX;
     float forceY;
+	dyn_array* forces;
 } RigidbodyComponent;
 
 // Sprite component (for rendering a texture)

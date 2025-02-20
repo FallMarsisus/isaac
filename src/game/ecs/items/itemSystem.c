@@ -159,6 +159,15 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
     init_sprite_component(sprite, 64, 64, get_texture_from_Id(itemType.id));
     init_rigidbody_component(body, 0, 0, 64, 64);
     body->is_dynamic = true;
+	body->mass = 20;
+
+	void* windArgs = malloc(sizeof(int)*3);
+	((float*) windArgs)[0] = 3;
+	((float*) windArgs)[1] = 2;
+	((float*) windArgs)[2] = 10;
+	Force* f = create_force(wind_force, windArgs); 
+
+	add_force(itemEntity, f);
 
     itemC->isGettable = true;
     itemC->item = itemType;

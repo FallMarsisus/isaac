@@ -1,8 +1,8 @@
 # Compiler
 CC = gcc
 
-CFLAGS = -Wall -Wextra -g $(shell pkg-config --cflags cairo librsvg-2.0)
-LFLAGS = -lm -lSDL2 -lSDL2_ttf -lSDL2_image $(shell pkg-config --libs cairo librsvg-2.0)
+CFLAGS = -Wall -Wextra -g
+LFLAGS = -lm -lSDL2 -lSDL2_ttf -lSDL2_image
 
 # Detect OS
 UNAME_S := $(shell uname -s)

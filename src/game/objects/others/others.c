@@ -25,7 +25,7 @@ uint32_t add_projectile(float x, float y, float vx, float vy, float time, SDL_Te
     effect->has_physics = true;
 
     RigidbodyComponent* body = ECS_GetComponent(projectile, BODY);
-    apply_force(body, vx * 5, vy * 5);
+    apply_one_force(body, vx * 5, vy * 5);
 
     return projectile;
 }

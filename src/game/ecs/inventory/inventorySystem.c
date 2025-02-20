@@ -290,6 +290,28 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
     }
 }
 
+void displayConstantSlot(SDL_Renderer* renderer, int win_width, int win_height, int true_width, int true_height, int nbRows, 
+	int mouseX, int mouseY, int nth, SDL_Texture* texture) {
+
+    // display hand slot
+    SDL_Rect slotRect = {
+        ((MARGIN + SPACING) + nth * (SPACING + SLOT_SIZE)) * win_width / (double)true_width,
+        ((MARGIN + 2*SPACING) + nbRows * (SPACING + SLOT_SIZE)) * win_height / (double)true_height,
+        SLOT_SIZE * win_width / (double)true_width,
+        SLOT_SIZE * win_height / (double)true_height
+    };
+
+    if (mouse_in_rect_fix_drift(mouseX, mouseY, &slotRect, true_width, win_width)) {
+        SDL_SetRenderDrawColor(renderer, 200, 200, 255, 128);
+    } else {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
+    }
+
+    SDL_RenderFillRect(renderer, &slotRect);
+    SDL_RenderCopy(renderer, texture, NULL, &slotRect);
+
+}
+
 void draw_inventory(uint32_t entity, SDL_Renderer* renderer, int win_width, int win_height, int true_width , int true_height) {
     InventoryComponent* inventory = ECS_GetComponent(entity, INVENT);
     if (!inventory || !inventory->isDisplayed) {
@@ -309,7 +331,7 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer, int win_width, int 
         MARGIN * win_width/1920,
         MARGIN * win_height/1024,
         ((inventory->max_nb_items + nbRows - 1) / nbRows * (SLOT_SIZE + SPACING) + (MARGIN + SPACING)) * win_width / true_width,
-        (nbRows * (SLOT_SIZE + SPACING) + (MARGIN + SPACING)) * win_height/true_height
+        ((nbRows+1) * (SLOT_SIZE + SPACING) + (MARGIN + 2*SPACING)) * win_height/true_height
     }; // retirer le + nb - 1 si ça fait de la merde
 
     SDL_RenderFillRect(renderer, &backgroundRect);
@@ -323,11 +345,11 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer, int win_width, int 
         int heightPos = i / nbRows;
 
         // 42 = 10 (margin) + 32 (size of slot)
-		SDL_Rect itemRect = {
-			((MARGIN + SPACING) + heightPos * (SPACING + SLOT_SIZE)) * win_width / (double)true_width,
-			((MARGIN + SPACING) + widthPos * (SPACING + SLOT_SIZE)) * win_height / (double)true_height,
-			SLOT_SIZE * win_width / (double)true_width,
-			SLOT_SIZE * win_height / (double)true_height
+        SDL_Rect itemRect = {
+            ((MARGIN + SPACING) + heightPos * (SPACING + SLOT_SIZE)) * win_width / (double)true_width,
+            ((MARGIN + SPACING) + widthPos * (SPACING + SLOT_SIZE)) * win_height / (double)true_height,
+            SLOT_SIZE * win_width / (double)true_width,
+            SLOT_SIZE * win_height / (double)true_height
         }; // Position and size of each item
 
         // change the color according to pos of mouse and if slot is full
@@ -354,6 +376,14 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer, int win_width, int 
             SDL_RenderFillRect(renderer, &itemRect);
         }
     }
+
+
+	// weapon slot
+	displayConstantSlot(renderer, win_width, win_height, true_width, true_height, nbRows, mouseX, mouseY, 0, get_sprites()->sword_slot_texture);
+	
+	// armor slot s
+	displayConstantSlot(renderer, win_width, win_height, true_width, true_height, nbRows, mouseX, mouseY, 1, get_sprites()->armor_slot_texture);
+
 
     draw_item_actions(inventory, renderer, true_width, win_width);
 

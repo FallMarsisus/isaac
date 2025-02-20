@@ -21,5 +21,7 @@ typedef struct {
 	int selected_slot;
 	Action* selected_slot_actions;
 	ItemData* items;
+	ItemData handSlot;
+	ItemData ArmorSlot;	
 } InventoryComponent;
 

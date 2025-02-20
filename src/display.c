@@ -27,9 +27,11 @@ void load_sprites(SDL_Renderer* ren) {
     sl->apple_item_texture = load_texture("assets/inventory/apple.bmp", ren);
     sl->unknown_item_texture = load_texture("assets/inventory/unknown_item.bmp", ren);
     sl->sword_item_texture = load_texture("assets/inventory/sword_item.bmp", ren);
-
+	sl->sword_slot_texture = load_texture("assets/inventory/swordSlot.bmp", ren);
+	sl->armor_slot_texture = load_texture("assets/inventory/chestplate.bmp", ren);
+	
     sl->sword_texture = load_texture("assets/sword/spritesheet.bmp", ren);
-
+	
     sl->cobble_texture = load_texture("assets/tilemap/cobble.bmp", ren);
     sl->iconE_texture = load_texture("assets/tilemap/iconE.bmp", ren);
     sl->teleporter_texture = load_texture("assets/tilemap/teleporter.bmp", ren);

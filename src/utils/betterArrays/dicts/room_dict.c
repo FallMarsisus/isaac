@@ -74,7 +74,7 @@ node* addInNode(int x, int y, void* value, node* head, bool* isRealAddition) {
 
 node* removeOneNode(int x, int y, node* noeud, bool* hasRemoved) {
 	if (noeud == NULL) {
-		fprintf(stderr, "No element to remove");
+		fprintf(stderr, "\033[1;31mNo element to remove\033[0m");
 		*hasRemoved = false;
 		return NULL;
 	} else if (noeud->x == x && noeud->y == y) {

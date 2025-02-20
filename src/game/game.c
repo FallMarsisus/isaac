@@ -215,8 +215,7 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &rec);
     }
-
-    SDL_Color color = {255, 255, 255, 255};
+	
 
     SDL_RenderPresent(renderer);
 }

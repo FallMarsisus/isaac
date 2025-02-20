@@ -158,41 +158,41 @@ void resize_dict(Structure* st, int new_capacity) {
 
 // Create a new structure
 Structure* create_structure() {
-    Structure* st = malloc(sizeof(Structure));
-    if (!st) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
+	Structure* st = malloc(sizeof(Structure));
+	if (!st) {
+		fprintf(stderr, "\033[1;31mMemory allocation failed\033[0m\n");
+		exit(EXIT_FAILURE);
+	}
 
-    // Initialize array
-    st->array = malloc(sizeof(NodeArray));
-    if (!st->array) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-    st->array->capacity = 200;
-    st->array->len = 0;
-    st->array->array = calloc(st->array->capacity, sizeof(Node*));
-    if (!st->array->array) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
+	// Initialize array
+	st->array = malloc(sizeof(NodeArray));
+	if (!st->array) {
+		fprintf(stderr, "\033[1;31mMemory allocation failed\033[0m\n");
+		exit(EXIT_FAILURE);
+	}
+	st->array->capacity = 200;
+	st->array->len = 0;
+	st->array->array = calloc(st->array->capacity, sizeof(Node*));
+	if (!st->array->array) {
+		fprintf(stderr, "\033[1;31mMemory allocation failed\033[0m\n");
+		exit(EXIT_FAILURE);
+	}
 
-    // Initialize dictionary
-    st->dict = malloc(sizeof(IntDictionary));
-    if (!st->dict) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-    st->dict->capacity = 100;
-    st->dict->count = 0;
-    st->dict->array = calloc(st->dict->capacity, sizeof(Node*));
-    if (!st->dict->array) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
+	// Initialize dictionary
+	st->dict = malloc(sizeof(IntDictionary));
+	if (!st->dict) {
+		fprintf(stderr, "\033[1;31mMemory allocation failed\033[0m\n");
+		exit(EXIT_FAILURE);
+	}
+	st->dict->capacity = 100;
+	st->dict->count = 0;
+	st->dict->array = calloc(st->dict->capacity, sizeof(Node*));
+	if (!st->dict->array) {
+		fprintf(stderr, "\033[1;31mMemory allocation failed\033[0m\n");
+		exit(EXIT_FAILURE);
+	}
 
-    return st;
+	return st;
 }
 
 // Free the structure and all associated memory

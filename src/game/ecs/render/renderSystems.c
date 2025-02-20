@@ -5,7 +5,7 @@ void init_sprite_component(SpriteComponent* sprite, int width, int height, SDL_T
 
     sprite->texture = tex;
     if (!sprite->texture) {
-        fprintf(stderr, "Failed to load a texture.\n");
+		fprintf(stderr, "\033[1;31mFailed to load a texture.\033[0m\n");
         exit(1);
     }
 

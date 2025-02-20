@@ -5,6 +5,7 @@
 
 typedef struct {
 	SDL_Texture** calibri;
+	SDL_Texture** jetBainsMono;
 } fonts;
 
 void load_fonts(SDL_Renderer* ren);

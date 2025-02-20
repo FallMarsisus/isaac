@@ -12,8 +12,8 @@ SDL_Texture* load_char(const int chara, const char* fontName, SDL_Renderer* rend
 	printf("Loading character from path: %s\n", path);
     SDL_Surface* surface = SDL_LoadBMP(path);
     if (!surface) {
-        fprintf(stderr, "Failed to load character : %c\n", (char)chara);
-		fprintf(stderr, "Error : %s\n", SDL_GetError());
+		fprintf(stderr, "\033[0;31mFailed to load character : %c\033[0m\n", (char)chara);
+		fprintf(stderr, "\033[0;31mError : %s\033[0m\n", SDL_GetError());
 		free(path);
         return NULL;
     }

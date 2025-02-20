@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 from wand.image import Image as WandImage
 import os
 
-fontName = "calibri"  # Ne pas mettre .ttf
+fontName = "jetBrain"  # Ne pas mettre .ttf
 font_size = 40
 resolution_scale = 4  # Facteur de multiplication pour la résolution
 

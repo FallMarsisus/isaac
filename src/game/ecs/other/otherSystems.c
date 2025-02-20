@@ -38,7 +38,6 @@ void free_all_other_components(uint32_t id) {
     ParentComponent* parent = ECS_GetComponent(id, PARENT);
     if(parent) {
         free_parent_component(parent);
-        ECS_ClearComponent(id, PARENT);
     }
 }
 

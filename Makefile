@@ -30,7 +30,7 @@ run:
 	$(EXEC)
 
 run_debug:
-	valgrind --leak-check=full --show-leak-kinds=definite $(EXEC)
+	valgrind --leak-check=full --show-leak-kinds=definite --track-origins=yes -s $(EXEC)
 
 # Linking the executable
 $(EXEC): $(OBJ)

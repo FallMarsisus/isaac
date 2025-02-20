@@ -29,9 +29,6 @@ void load_sprites(SDL_Renderer* ren) {
     sl->sword_item_texture = load_texture("assets/inventory/sword_item.bmp", ren);
 
     sl->sword_texture = load_texture("assets/sword/spritesheet.bmp", ren);
-    sl->sword_up_texture = load_texture("assets/sword/spritesheet_up.bmp", ren);
-    sl->sword_down_texture = load_texture("assets/sword/spritesheet_down.bmp", ren);
-    sl->sword_mirror_texture = load_texture("assets/sword/spritesheet_mirror.bmp", ren);
 
     sl->cobble_texture = load_texture("assets/tilemap/cobble.bmp", ren);
     sl->iconE_texture = load_texture("assets/tilemap/iconE.bmp", ren);
@@ -39,6 +36,7 @@ void load_sprites(SDL_Renderer* ren) {
     sl->chest_opened_texture = load_texture("assets/tilemap/chest_opened.bmp", ren);
     sl->chest_closed_texture = load_texture("assets/tilemap/chest_closed.bmp", ren);
     sl->background_texture = load_texture("assets/tilemap/background.bmp", ren);
+    sl->tileset_texture = load_texture("assets/AssetPack/Backgrounds/Tilesets/TilesetDungeon.png", ren);
 
     sl->red_heart_full_texture = load_texture("assets/health/red_heart_full.bmp", ren);
     sl->red_heart_half_texture = load_texture("assets/health/red_heart_half.bmp", ren);

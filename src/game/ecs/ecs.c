@@ -1,197 +1,173 @@
 #include "ecs.h"
 
-static ECS_Manager* ecs_manager = NULL;
-static Entity active_entity_head = -1;    // Index of the first active entity
+// The ECSManager holds entity states and component pointers.
+typedef struct ECSManager {
+    Entity nextEntity;                       // Next available entity ID
+    bool active[MAX_ENTITIES];               // Whether an entity is active
+    void* components[MAX_ENTITIES][MAX_COMPONENTS]; // Component storage
+    Entity freeList[MAX_ENTITIES];           // Stores reusable entity IDs
+    int freeCount;                           // Number of reusable IDs
+} ECSManager;
 
-void ECS_CreateManager(int component_count) {
-    // Allocate memory for the ECS manager
-    ecs_manager = (ECS_Manager*)malloc(sizeof(ECS_Manager));
-    if (!ecs_manager) {
-        fprintf(stderr, "Failed to allocate memory for ECS manager\n");
-        exit(EXIT_FAILURE);
+static ECSManager* manager = NULL;
+static bool removal_flags[MAX_ENTITIES] = { false };
+
+void ECS_CreateManager() {
+    manager = malloc(sizeof(ECSManager));
+    if (!manager) {
+        fprintf(stderr, "Failed to allocate ECS Manager\n");
+        exit(1);
     }
 
-    // Allocate memory for entities
-    ecs_manager->entities = (EntityRecord*)calloc(MAX_ENTITIES, sizeof(EntityRecord));
-    if (!ecs_manager->entities) {
-        fprintf(stderr, "Failed to allocate memory for entities\n");
-        free(ecs_manager);
-        exit(EXIT_FAILURE);
+    manager->nextEntity = 0;
+    manager->freeCount = 0;
+    for (Entity e = 0; e < MAX_ENTITIES; e++) {
+        manager->active[e] = false;
+        for (int comp = 0; comp < MAX_COMPONENTS; comp++) {
+            manager->components[e][comp] = NULL;
+        }
     }
-
-    // Allocate memory for component sizes
-    ecs_manager->component_sizes = (int*)calloc(MAX_COMPONENT_TYPES, sizeof(int));
-    if (!ecs_manager->component_sizes) {
-        fprintf(stderr, "Failed to allocate memory for component sizes\n");
-        free(ecs_manager->entities);
-        free(ecs_manager);
-        exit(EXIT_FAILURE);
-    }
-
-    // Initialize manager state
-    ecs_manager->entity_count = 0;
-    ecs_manager->component_count = component_count;
-    active_entity_head = -1; // Initialize the linked list
 }
 
 void ECS_DestroyManager() {
-    if (!ecs_manager) return;
-
-    // Free all component data
-    for (int i = 0; i < MAX_ENTITIES; ++i) {
-        for (int j = 0; j < MAX_COMPONENT_TYPES; ++j) {
-            if (ecs_manager->entities[i].components[j]) {
-                free(ecs_manager->entities[i].components[j]);
+    for (Entity e = 0; e < MAX_ENTITIES; e++) {
+        if (manager->active[e]) {
+            for (int comp = 0; comp < MAX_COMPONENTS; comp++) {
+                free(manager->components[e][comp]);
+                manager->components[e][comp] = NULL;
             }
         }
     }
-
-    // Free allocated memory
-    free(ecs_manager->entities);
-    free(ecs_manager->component_sizes);
-    free(ecs_manager);
-    ecs_manager = NULL;
+    free(manager);
+    manager = NULL;
 }
 
 Entity ECS_CreateEntity() {
-    if (!ecs_manager) return -1;
+    Entity newEntity;
 
-    for (Entity i = 0; i < MAX_ENTITIES; ++i) {
-        if (!ecs_manager->entities[i].active) {
-            ecs_manager->entities[i].active = true;
-            ecs_manager->entity_count++;
-
-            // Add the new entity to the linked list
-            ecs_manager->entities[i].next = active_entity_head;
-            active_entity_head = i;
-
-
-            EntityCreatedEvent* event = malloc(sizeof(EntityCreatedEvent));
-            event->entity = i;
-            trigger_event(EVENT_ENTITY_CREATED, event, true);
-
-            return i;
+    // Reuse an old entity slot if available
+    if (manager->freeCount > 0) {
+        newEntity = manager->freeList[--manager->freeCount];
+        // Ensure old components are cleared
+        for (int comp = 0; comp < MAX_COMPONENTS; comp++) {
+            free(manager->components[newEntity][comp]);
+            manager->components[newEntity][comp] = NULL;
         }
+    } else {
+        if (manager->nextEntity >= MAX_ENTITIES) {
+            fprintf(stderr, "Maximum number of entities reached.\n");
+            return (Entity)-1;
+        }
+        newEntity = manager->nextEntity++;
     }
 
-    return -1; // No more entities available
+    manager->active[newEntity] = true;
+
+    EntityCreatedEvent* event = malloc(sizeof(EntityCreatedEvent));
+    event->entity = newEntity;
+    trigger_event(EVENT_ENTITY_CREATED, event, true);
+
+    return newEntity;
 }
 
 void ECS_RemoveEntity(Entity entity) {
-    if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active) {
+    if (entity >= MAX_ENTITIES || !manager->active[entity]) {
+        fprintf(stderr, "Attempted to remove invalid or already removed entity %d.\n", entity);
         return;
     }
+
+    if (removal_flags[entity]) {
+        fprintf(stderr, "Entity %d is already marked for removal.\n", entity);
+        return;
+    }
+
+    removal_flags[entity] = true;
     
-    // Mark the entity as inactive
-    ecs_manager->entities[entity].active = false;
-    ecs_manager->entity_count--;
-
-    // Free all components associated with the entity
-    for (int i = 0; i < MAX_COMPONENT_TYPES; ++i) {
-        if (ecs_manager->entities[entity].components[i]) {
-            free(ecs_manager->entities[entity].components[i]);
-            ecs_manager->entities[entity].components[i] = NULL;
-        }
-    }
-
-    // Remove the entity from the linked list
-    if (entity == active_entity_head) {
-        // If the entity is the head, update the head
-        active_entity_head = ecs_manager->entities[entity].next;
-    } else {
-        // Otherwise, find the previous entity in the linked list
-        Entity prev = active_entity_head;
-        while (prev != -1 && ecs_manager->entities[prev].next != entity) {
-            prev = ecs_manager->entities[prev].next;
-        }
-        if (prev != -1) {
-            ecs_manager->entities[prev].next = ecs_manager->entities[entity].next;
-        }
-    }
-
     EntityRemovedEvent* event = malloc(sizeof(EntityRemovedEvent));
     event->entity = entity;
     trigger_event(EVENT_ENTITY_REMOVED, event, true);
 }
 
+void ECS_ProcessRemovals() {
+    for (Entity e = 0; e < manager->nextEntity; e++) {
+        if (removal_flags[e]) {
+            for (int comp = 0; comp < MAX_COMPONENTS; comp++) {
+                free(manager->components[e][comp]);
+                manager->components[e][comp] = NULL;
+            }
+            manager->active[e] = false;
+            removal_flags[e] = false;
+
+            // Add to free list for future reuse
+            manager->freeList[manager->freeCount++] = e;
+        }
+    }
+}
+
 void* ECS_AddComponent(Entity entity, ComponentType component_type, int component_size) {
-    if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active || component_type >= MAX_COMPONENT_TYPES) {
+    if (entity >= MAX_ENTITIES || !manager->active[entity]) {
+        fprintf(stderr, "Invalid entity %d for component addition.\n", entity);
+        return NULL;
+    }
+    if (component_type < 0 || component_type >= MAX_COMPONENTS) {
+        fprintf(stderr, "Invalid component type %d.\n", component_type);
         return NULL;
     }
 
-    // Allocate memory for the component if it doesn't already exist
-    if (!ecs_manager->entities[entity].components[component_type]) {
-        ecs_manager->entities[entity].components[component_type] = malloc(component_size);
-        if (!ecs_manager->entities[entity].components[component_type]) {
-            fprintf(stderr, "Failed to allocate memory for component\n");
-            return NULL;
-        }
-        ecs_manager->component_sizes[component_type] = component_size;
+    void* component = malloc(component_size);
+    if (!component) {
+        fprintf(stderr, "Failed to allocate component.\n");
+        return NULL;
     }
 
-    return ecs_manager->entities[entity].components[component_type];
+    manager->components[entity][component_type] = component;
+    return component;
 }
 
 void* ECS_GetComponent(Entity entity, ComponentType component_type) {
-    if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active || component_type >= MAX_COMPONENT_TYPES) {
+    if (!manager) {
+        fprintf(stderr, "ECS Manager not initialized\n");
         return NULL;
     }
 
-    return ecs_manager->entities[entity].components[component_type];
+    if (entity >= MAX_ENTITIES || !manager->active[entity]) {
+        return NULL;
+    }
+    if (component_type < 0 || component_type >= MAX_COMPONENTS) {
+        return NULL;
+    }
+    return manager->components[entity][component_type];
 }
 
 bool ECS_HasComponent(Entity entity, ComponentType component_type) {
-    if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active || component_type >= MAX_COMPONENT_TYPES) {
+    if (entity >= MAX_ENTITIES || !manager->active[entity]) {
         return false;
     }
-
-    return ecs_manager->entities[entity].components[component_type] != NULL;
-}
-
-void ECS_ClearComponent(Entity entity, ComponentType component_type) {
-    if (!ecs_manager || entity >= MAX_ENTITIES || !ecs_manager->entities[entity].active || component_type >= MAX_COMPONENT_TYPES) {
-        return;
+    if (component_type < 0 || component_type >= MAX_COMPONENTS) {
+        return false;
     }
-
-    if (ecs_manager->entities[entity].components[component_type]) {
-        free(ecs_manager->entities[entity].components[component_type]);
-        ecs_manager->entities[entity].components[component_type] = NULL;
-    }
+    return (manager->components[entity][component_type] != NULL);
 }
 
 void ECS_IterateEntities(void (*action)(Entity entity, void* user_data), void* user_data) {
-    if (!ecs_manager) return;
-
-    for (Entity i = 0; i < MAX_ENTITIES; ++i) {
-        if (ecs_manager->entities[i].active) {
-            action(i, user_data); // Call the action function for each active entity
-        }
+    for (Entity e = 0; e < manager->nextEntity; e++) {
+        if (manager->active[e])
+            action(e, user_data);
     }
 }
 
 Entity ECS_GetFirstEntity() {
-    return active_entity_head; // Directly return the head of the linked list
-}
-
-Entity ECS_GetNextEntity(Entity current_entity) {
-    if (!ecs_manager || current_entity >= MAX_ENTITIES) return -1;
-    return ecs_manager->entities[current_entity].next; // Directly return the next entity
-}
-
-/*
-int main() {
-    ECS_CreateManager(10);
-
-    Entity entity1 = ECS_CreateEntity();
-    Entity entity2 = ECS_CreateEntity();
-    Entity entity3 = ECS_CreateEntity();
-
-    // Iterate over all entities using a for loop
-    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
-        printf("Entity %d is active\n", e);
+    for (Entity e = 0; e < manager->nextEntity; e++) {
+        if (manager->active[e])
+            return e;
     }
-
-    ECS_DestroyManager();
-    return 0;
+    return (Entity)-1;
 }
-    */
+
+Entity ECS_GetNextEntity(Entity current) {
+    for (Entity e = current + 1; e < manager->nextEntity; e++) {
+        if (manager->active[e])
+            return e;
+    }
+    return (Entity)-1;
+}

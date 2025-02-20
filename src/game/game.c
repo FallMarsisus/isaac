@@ -26,10 +26,10 @@ void create_game(int win_width, int win_height)
 
     init_event_system();
 
-    init_player_positions(game->player);
+    ECS_CreateManager();
 
-    ECS_CreateManager(40);
     game->player = add_player(1920 / 2 - 32, 1024 - 64);
+    init_player_positions(game->player);
 
     game->map = create_map();
     change_room(0, 0);
@@ -196,6 +196,8 @@ void update_game(int win_width, int win_height, float delta)
             printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, 1920, pos->y, 1024, changeX, changeY);
         }
     }
+
+    ECS_ProcessRemovals();
 }
 
 void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_width, int true_height)

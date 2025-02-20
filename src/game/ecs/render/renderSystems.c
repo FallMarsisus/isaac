@@ -1,5 +1,10 @@
 #include "renderSystems.h"
 
+typedef struct {
+    float interval;
+    int amount;
+} Anim;
+
 void init_sprite_component(SpriteComponent* sprite, int width, int height, SDL_Texture* tex) {
     sprite->width = width; sprite->height = height;
 
@@ -23,9 +28,18 @@ void init_anim_component(AnimationComponent* animation, int sprite_width, int sp
     *(animation->current_img) = (SDL_Rect) {0, 0, sprite_width, sprite_height};
     animation->last_change = SDL_GetTicks();
 }
+void init_tile_component(TileComponent* tile, int tile_x, int tile_y, int tile_width, int tile_height) {
+    tile->tile_x = tile_x;
+    tile->tile_y = tile_y;
+    tile->tile_width = tile_width;
+    tile->tile_height = tile_height;
+}
 
 void free_sprite_component(SpriteComponent* sprite) {
-    free(sprite->center);
+    if(sprite->center) {
+        free(sprite->center);
+    }
+    sprite->center = NULL;
 }
 void free_anim_component(AnimationComponent* animation) {
     free(animation->current_img);
@@ -38,16 +52,13 @@ void free_all_render_components(uint32_t id) {
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
     if(sprite) {
         free_sprite_component(sprite);
-        ECS_ClearComponent(id, SPRITE);
     }
     AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
     if(anim) {
         free_anim_component(anim);
-        ECS_ClearComponent(id, ANIMATION);
     }
 }
 int add_anim(AnimationComponent* animation, float interval, int amount) {
-
     Anim* a = malloc(sizeof(Anim));
     a->amount = amount;
     a->interval = interval;
@@ -91,6 +102,16 @@ void render_component(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {
     if (!position || !sprite || !sprite->texture) return;
 
     SDL_Rect* srcRect = NULL;
+
+    TileComponent* tile_comp = ECS_GetComponent(id, TILE);
+    if(tile_comp) {
+        srcRect = & (SDL_Rect) {
+            tile_comp->tile_x * tile_comp->tile_width,
+            tile_comp->tile_y * tile_comp->tile_height,
+            tile_comp->tile_width,
+            tile_comp->tile_height
+        };
+    }
 
     AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
     if(anim && get_len(anim->animations) > 0) {

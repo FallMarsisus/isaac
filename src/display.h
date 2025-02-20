@@ -17,9 +17,6 @@ typedef struct {
     SDL_Texture* sword_item_texture;
 
     SDL_Texture* sword_texture;
-    SDL_Texture* sword_up_texture;
-    SDL_Texture* sword_down_texture;
-    SDL_Texture* sword_mirror_texture;
 
     SDL_Texture* cobble_texture;
     SDL_Texture* iconE_texture;
@@ -27,6 +24,7 @@ typedef struct {
     SDL_Texture* chest_opened_texture;
     SDL_Texture* chest_closed_texture;
     SDL_Texture* background_texture;
+    SDL_Texture* tileset_texture;
 
     SDL_Texture* red_heart_full_texture;
     SDL_Texture* red_heart_half_texture;

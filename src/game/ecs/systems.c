@@ -15,13 +15,11 @@ void free_one_entity(uint32_t entity) {
     StateMachineComponent* sm = ECS_GetComponent(entity, STATE_MACHINE);
     if(sm) {
         free_state_machine(sm);
-        ECS_ClearComponent(entity, STATE_MACHINE);
     }
 
     InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
     if(invent) {
         free_inventory(invent);
-        ECS_ClearComponent(entity, INVENT);
     }
 
     free_pathfinding_component(ECS_GetComponent(entity, PATHFINDING));

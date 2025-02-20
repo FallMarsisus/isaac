@@ -14,30 +14,14 @@
 
 #include "../../scripts/teleporters/teleport.h"
 
-/**
- * @brief Creates a block entity at specified coordinates with a texture
- * @param x X coordinate for block placement
- * @param y Y coordinate for block placement
- * @param texture SDL texture for the block
- * @return Entity ID of the created block
- */
-uint32_t add_block(float x, float y, SDL_Texture* texture);
+uint32_t add_tile(float x, float y, int tile_x, int tile_y);
 
-/**
- * @brief Creates a background tile entity at specified coordinates
- * @param x X coordinate for block placement
- * @param y Y coordinate for block placement
- * @return Entity ID of the created block
- */
 uint32_t add_background_tile(float x, float y);
 
-/**
- * @brief Creates a chest at specified coordinates with a closed_chest texture
- * @param x X coordinate for block placement
- * @param y Y coordinate for block placement
- * @return Entity ID of the created block
- */
+uint32_t add_block(float x, float y);
 uint32_t add_chest(float x, float y);
+uint32_t add_door(float x, float y);
+uint32_t add_trap(float x, float y);
 
 /**
  * @brief Checks if an entity is colliding with a chest

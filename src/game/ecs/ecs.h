@@ -1,46 +1,35 @@
 #pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "../event/eventList.h"
 #include "../event/eventSystem.h"
-
 #include "components.h"
 
-#define MAX_ENTITIES 1000000
-#define MAX_COMPONENT_TYPES 32
+// Limits – adjust as needed
+#define MAX_ENTITIES   1024
+#define MAX_COMPONENTS 32
 
 typedef uint32_t Entity;
 
-typedef struct {
-    void* components[MAX_COMPONENT_TYPES]; // Array of pointers to component data
-    bool active;                          // Whether the entity is active
-    Entity next;                          // Index of the next active entity
-} EntityRecord;
-
-typedef struct {
-    EntityRecord* entities;               // Dynamically allocated array of entities
-    int* component_sizes;                 // Dynamically allocated array of component sizes
-    int entity_count;                     // Number of active entities
-    int component_count;                  // Number of component types
-} ECS_Manager;
-
-void ECS_CreateManager(int component_count);
+// Core ECS functions
+void ECS_CreateManager();
 void ECS_DestroyManager();
 
-uint32_t ECS_CreateEntity();
-void ECS_RemoveEntity(uint32_t entity);
+Entity ECS_CreateEntity();
+void ECS_RemoveEntity(Entity entity);
+void ECS_ProcessRemovals();
 
-void* ECS_AddComponent(uint32_t entity, ComponentType component_type, int component_size);
-void* ECS_GetComponent(uint32_t entity, ComponentType component_type);
-bool ECS_HasComponent(uint32_t entity, ComponentType component_type);
-void ECS_ClearComponent(uint32_t entity, ComponentType component_type);
+void* ECS_AddComponent(Entity entity, ComponentType component_type, int component_size);
+void* ECS_GetComponent(Entity entity, ComponentType component_type);
+bool ECS_HasComponent(Entity entity, ComponentType component_type);
 
+// Entity iteration
 void ECS_IterateEntities(void (*action)(Entity entity, void* user_data), void* user_data);
 
+// Entity iteration helpers
 Entity ECS_GetFirstEntity();
-Entity ECS_GetNextEntity(Entity current_entity);
+Entity ECS_GetNextEntity(Entity current);

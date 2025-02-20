@@ -5,6 +5,7 @@
 
 void init_sprite_component(SpriteComponent* sprite, int width, int height, SDL_Texture* tex);
 void init_anim_component(AnimationComponent* animation, int sprite_width, int sprite_height);
+void init_tile_component(TileComponent* tile, int tile_x, int tile_y, int tile_width, int tile_height);
 
 void free_sprite_component(SpriteComponent* sprite);
 void free_anim_component(AnimationComponent* animation);

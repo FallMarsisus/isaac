@@ -30,7 +30,8 @@ typedef enum {
     DAMAGER,
     STATE_MACHINE,
     SWORD_C,
-    EFFECT
+    EFFECT,
+    TILE
 } ComponentType;
 
 // Position and velocity component
@@ -75,9 +76,12 @@ typedef struct {
 } AnimationComponent;
 
 typedef struct {
-    float interval;
-    int amount;
-} Anim;
+    int tile_x;
+    int tile_y;
+
+    int tile_width;
+    int tile_height;
+} TileComponent;
 
 // Player movement component
 typedef struct {

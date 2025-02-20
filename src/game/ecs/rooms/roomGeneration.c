@@ -5,7 +5,7 @@ void parse_map(int rX, int rY, uint32_t player_id, int layout_type) {
     int max_x = start_x + 1920;
     int max_y = start_y + 1024;
     
-    char map_name[10];
+    char map_name[20];
     sprintf(map_name, "assets/maps/map%d", layout_type);
     FILE *map_file = fopen(map_name, "r");
     if (!map_file) {
@@ -18,7 +18,13 @@ void parse_map(int rX, int rY, uint32_t player_id, int layout_type) {
     while (fgets(line, sizeof(line), map_file)) {
         for(int i = 0; i < strlen(line); i++) {
             if(line[i] == '1') {
-                add_block(start_x + i * 64, start_y + j * 64, get_sprites()->cobble_texture);
+                add_block(start_x + i * 64, start_y + j * 64);
+            }
+            if(line[i] == '.') {
+                add_door(start_x + i * 64, start_y + j * 64);
+            }
+            if(line[i] == '_') {
+                add_trap(start_x + i * 64, start_y + j * 64);
             }
         }
         j++;
@@ -27,98 +33,35 @@ void parse_map(int rX, int rY, uint32_t player_id, int layout_type) {
     fclose(map_file);
 }
 
-void generate_walls(int rX, int rY, uint32_t player_id, int layout_type) {
-    int start_x = rX * 1920; int start_y = rY * 1024;
-    int max_x = start_x + 1920;
-    int max_y = start_y + 1024;
-    
-    // Fixed door positions - centered on each wall
-    int north_door = 14; // (1920/64)/2 - 1 = 14 (center of north wall)
-    int south_door = 14; // Same as north for symmetry
-    int east_door = 8;   // (1024/64)/2 - 1 = 8 (center of east wall)
-    int west_door = 8;   // Same as east for symmetry
-    
-    // Add outer walls with fixed doors
-    for(int x = 0; x < 30; x++) {
-        if(x < north_door || x >= north_door + 2) {
-            add_block(start_x + x * 64, start_y, get_sprites()->cobble_texture);
-        }
-        if(x < south_door || x >= south_door + 2) {
-            add_block(start_x + x * 64, start_y + 1024, get_sprites()->cobble_texture);
-        }
-    }
-    for(int y = 0; y < 17; y++) {
-        if(y < west_door || y >= west_door + 2) {
-            add_block(start_x, start_y + y * 64, get_sprites()->cobble_texture);
-        }
-        if(y < east_door || y >= east_door + 2) {
-            add_block(start_x + 1856, start_y + y * 64, get_sprites()->cobble_texture);
-        }
-    }
-}
-
 void generate_obstacles(int rX, int rY, uint32_t player_id, int layout_type) {
     int start_x = rX * 1920; int start_y = rY * 1024;
     int max_x = start_x + 1920;
     int max_y = start_y + 1024;
 
-    //Room dimensions : 1920x1080
+    //Room dimensions : 1920x1024
     
-    switch(layout_type) {
-        case 0: // Cross pattern
-            for(int i = 1; i < 8; i++) {
-                // Vertical line
-                add_block(start_x + 13 * 64, start_y + i * 64, get_sprites()->cobble_texture);
-
-                add_block(start_x + 16 * 64, start_y + (17 - i) * 64, get_sprites()->cobble_texture);
-            }
-            for(int i = 13; i < 17; i++) {
-                // Horizontal line
-                add_block(start_x + i * 64, start_y + 8 * 64, get_sprites()->cobble_texture);
-            }
-
+    
+    /*switch(layout_type) {
+        case 0:
+            add_door(start_x + 128, start_y + 128);
             break;
             
-        case 1: // Circular arena
-            for(int angle = 0; angle < 360; angle += 15) {
-                float rad = angle * PI / 180.0f;
-                if(angle % 180 == 90) continue;
-                int x = start_x + (14.5 * 64) + cos(rad) * 500;
-                int y = start_y + (8.5 * 64) + sin(rad) * 500;
-                add_block(x, y, get_sprites()->cobble_texture);
-            }
+        case 1:
+            add_door(start_x + 128, start_y + 128);
             break;
             
-        case 2: // Maze-like corridors
-            for(int i = 0; i < 4; i++) {
-                int x = start_x + ((4 + i * 6) * 64);
-                for(int y = 2; y < 14; y++) {
-                    if(rand() % 2 == 0) {
-                        add_block(x, start_y + y * 64, get_sprites()->cobble_texture);
-                    }
-                }
-            }
+        case 2:
+            add_door(start_x + 128, start_y + 128);
             break;
             
-        case 3: // Pillars and platforms
-            for(int i = 0; i < 5; i++) {
-                for(int j = 0; j < 3; j++) {
-                    add_block(start_x + (4 + i * 6) * 64, start_y + (4 + j * 4) * 64, get_sprites()->cobble_texture);
-                }
-            }
+        case 3:
+            add_door(start_x + 128, start_y + 128);
             break;
             
-        case 4: // Diagonal barriers
-            for(int i = 0; i < 15; i++) {
-                if(rand() % 2 == 0) {
-                    add_block(start_x + (2 + i) * 64, start_y + (2 + i) * 64, get_sprites()->cobble_texture);
-                } else {
-                    add_block(start_x + (17 + i) * 64, start_y + (17 - i) * 64, get_sprites()->cobble_texture);
-                }
-            }
-
+        case 4:
+            add_door(start_x + 128, start_y + 128);
             break;
-    }
+    }*/
 }
 
 void generate_enemies(int rX, int rY, uint32_t player_id, int layout_type) {
@@ -195,8 +138,7 @@ void generate_room(int rX, int rY, uint32_t player_id) {
     int layout_type = rand() % 5;
 
     parse_map(rX, rY, player_id, layout_type);
-    /*generate_walls(rX, rY, player_id, layout_type);
-    generate_obstacles(rX, rY, player_id, layout_type);*/
+    generate_obstacles(rX, rY, player_id, layout_type);
     generate_enemies(rX, rY, player_id, layout_type);
     generate_items(rX, rY, player_id, layout_type);
 }

@@ -1,19 +1,18 @@
 #include "blocks.h"
 
-uint32_t add_block(float x, float y, SDL_Texture* texture) {
-    uint32_t block = ECS_CreateEntity();
-    PositionComponent* position = ECS_AddComponent(block, POSITION, sizeof(PositionComponent));
-    SpriteComponent* sprite = ECS_AddComponent(block, SPRITE, sizeof(SpriteComponent));
-    RigidbodyComponent* body = ECS_AddComponent(block, BODY, sizeof(RigidbodyComponent));
+uint32_t add_tile(float x, float y, int tile_x, int tile_y) {
+    uint32_t tile = ECS_CreateEntity();
+    PositionComponent* position = ECS_AddComponent(tile, POSITION, sizeof(PositionComponent));
+    SpriteComponent* sprite = ECS_AddComponent(tile, SPRITE, sizeof(SpriteComponent));
+    TileComponent* tile_comp = ECS_AddComponent(tile, TILE, sizeof(TileComponent));
 
     init_position_component(position, x, y);
+    init_sprite_component(sprite, 64, 64, get_sprites()->tileset_texture);
+    init_tile_component(tile_comp, tile_x, tile_y, 16, 16);
 
-    init_rigidbody_component(body, 2, 2, 60, 60);
-
-    init_sprite_component(sprite, 64, 64, texture);
-    
-    return block;
+    return tile;
 }
+
 uint32_t add_background_tile(float x, float y) {
     uint32_t block = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(block, POSITION, sizeof(PositionComponent));
@@ -25,6 +24,15 @@ uint32_t add_background_tile(float x, float y) {
 
     return block;
 }
+
+uint32_t add_block(float x, float y) {
+    uint32_t block = add_tile(x, y, 0, 0);
+    RigidbodyComponent* body = ECS_AddComponent(block, BODY, sizeof(RigidbodyComponent));
+    init_rigidbody_component(body, 2, 2, 60, 60);
+
+    return block;
+}
+
 uint32_t add_chest(float x, float y) {
     uint32_t chest = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(chest, POSITION, sizeof(PositionComponent));
@@ -36,6 +44,7 @@ uint32_t add_chest(float x, float y) {
 
     return chest;
 }
+
 uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
     uint32_t obj = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(obj, POSITION, sizeof(PositionComponent));
@@ -51,6 +60,22 @@ uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
     teleport->posX = xTarget; teleport->posY = yTarget;
 
     return obj;
+}
+
+uint32_t add_door(float x, float y) {
+    uint32_t door = add_tile(x, y, 0, 0);
+    RigidbodyComponent* body = ECS_AddComponent(door, BODY, sizeof(RigidbodyComponent));
+    init_rigidbody_component(body, 2, 2, 60, 60);
+
+    return door;
+}
+
+uint32_t add_trap(float x, float y) {
+    uint32_t trap = add_tile(x, y, 4, 1);
+    RigidbodyComponent* body = ECS_AddComponent(trap, BODY, sizeof(RigidbodyComponent));
+    init_rigidbody_component(body, 2, 2, 60, 60);
+
+    return trap;
 }
 
 bool is_colliding_with_chest(uint32_t entity) {

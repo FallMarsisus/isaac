@@ -25,18 +25,26 @@ void on_collision(Event event) {
     if (handle_collision_item(collision->entity1, collision->entity2)) {
         return;
     }
+    
+    RigidbodyComponent* body1 = ECS_GetComponent(collision->entity1, BODY);
+    RigidbodyComponent* body2 = ECS_GetComponent(collision->entity2, BODY);
+    if(!body1 || !body2) return;
 
-    EffectComponent* effect = ECS_GetComponent(collision->entity1, EFFECT);
-    if(effect) {
-        // Assume that Entity1 is the effect and Entity2 is the wall
-        RigidbodyComponent* body1 = ECS_GetComponent(collision->entity1, BODY);
-        RigidbodyComponent* body2 = ECS_GetComponent(collision->entity2, BODY);
-        if(!body1 || !body2) return;
-
-        if(body1->is_dynamic && !body2->is_dynamic && effect->has_physics) {
+    EffectComponent* effect1 = ECS_GetComponent(collision->entity1, EFFECT);
+    if(effect1) {
+        if(body1->is_dynamic && !body2->is_dynamic && effect1->has_physics) {
             // Effect is dynamic, wall is static
             // Remove effect
             ECS_RemoveEntity(collision->entity1);
+        }
+    }
+
+    EffectComponent* effect2 = ECS_GetComponent(collision->entity2, EFFECT);
+    if(effect2) {
+        if(body2->is_dynamic && !body1->is_dynamic && effect2->has_physics) {
+            // Effect is dynamic, wall is static
+            // Remove effect
+            ECS_RemoveEntity(collision->entity2);
         }
     }
     

@@ -38,7 +38,7 @@ void generate_obstacles(int rX, int rY, uint32_t player_id, int layout_type) {
     int max_x = start_x + 1920;
     int max_y = start_y + 1280;
 
-    //Room dimensions : 1920x1024
+    //Room dimensions : 1920x1280
     
     
     /*switch(layout_type) {
@@ -122,7 +122,7 @@ void generate_items(int rX, int rY, uint32_t player_id, int layout_type) {
             add_item_entity(start_x + 14 * 64, start_y + 8 * 64, apple, -1, false);
             break;
         case 1:
-            add_chest(start_x + 14 * 64, start_y + 8 * 64);
+            //add_chest(start_x + 14 * 64, start_y + 8 * 64);
             break;
         case 2:
             add_item_entity(start_x + 14 * 64, start_y + 8 * 64, apple, -1, false);

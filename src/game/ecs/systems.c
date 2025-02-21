@@ -40,7 +40,6 @@ void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, 
     update_others(elt, roomPos);
     //update_pathfinding_system(elt, roomPos);
     update_item(elt);
-    update_item(elt);
     update_physics(elt, delta);
 }
 

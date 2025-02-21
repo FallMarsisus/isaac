@@ -146,23 +146,22 @@ void update_game(int win_width, int win_height, float delta)
     call_events();
 
     update_player(game->player);
+    update_player_positions(game->player);
 
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
         u_int32_t id = get_entities(game->current_room)[i];
         PositionComponent* position = ECS_GetComponent(id, POSITION);
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
-        if (!position || !sprite)
-            continue;
+        if (!position || !sprite) continue;
 
         update_elt(
             id,
             get_entities(game->current_room),
             get_entity_amount(game->current_room),
             room_pos,
-            delta);
+            delta
+        );
     }
-
-    update_player_positions(game->player);
 
     test_damage(game);
     // is_colliding_with_item(game->player);

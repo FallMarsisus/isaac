@@ -1,14 +1,19 @@
 #include "blocks.h"
 
-uint32_t add_tile(float x, float y, int tile_x, int tile_y) {
+uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset_texture, bool has_collision) {
     uint32_t tile = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(tile, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(tile, SPRITE, sizeof(SpriteComponent));
     TileComponent* tile_comp = ECS_AddComponent(tile, TILE, sizeof(TileComponent));
 
     init_position_component(position, x, y);
-    init_sprite_component(sprite, 64, 64, get_sprites()->tileset_texture);
+    init_sprite_component(sprite, 64, 64, tileset_texture);
     init_tile_component(tile_comp, tile_x, tile_y, 16, 16);
+
+    if(has_collision) {
+        RigidbodyComponent* body = ECS_AddComponent(tile, BODY, sizeof(RigidbodyComponent));
+        init_rigidbody_component(body, 2, 2, 60, 60);
+    }
 
     return tile;
 }
@@ -21,14 +26,6 @@ uint32_t add_background_tile(float x, float y) {
     init_position_component(position, x, y);
 
     init_sprite_component(sprite, 64, 64, get_sprites()->background_texture);
-
-    return block;
-}
-
-uint32_t add_block(float x, float y) {
-    uint32_t block = add_tile(x, y, 0, 0);
-    RigidbodyComponent* body = ECS_AddComponent(block, BODY, sizeof(RigidbodyComponent));
-    init_rigidbody_component(body, 2, 2, 60, 60);
 
     return block;
 }
@@ -63,7 +60,7 @@ uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
 }
 
 uint32_t add_door(float x, float y) {
-    uint32_t door = add_tile(x, y, 0, 0);
+    uint32_t door = add_tile(x, y, 0, 0, get_sprites()->tileset_texture, true);
     RigidbodyComponent* body = ECS_AddComponent(door, BODY, sizeof(RigidbodyComponent));
     init_rigidbody_component(body, 2, 2, 60, 60);
 
@@ -71,7 +68,7 @@ uint32_t add_door(float x, float y) {
 }
 
 uint32_t add_trap(float x, float y) {
-    uint32_t trap = add_tile(x, y, 4, 1);
+    uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, false);
     RigidbodyComponent* body = ECS_AddComponent(trap, BODY, sizeof(RigidbodyComponent));
     init_rigidbody_component(body, 2, 2, 60, 60);
 

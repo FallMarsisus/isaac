@@ -14,11 +14,10 @@
 
 #include "../../scripts/teleporters/teleport.h"
 
-uint32_t add_tile(float x, float y, int tile_x, int tile_y);
+uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset_texture, bool has_collision);
 
 uint32_t add_background_tile(float x, float y);
 
-uint32_t add_block(float x, float y);
 uint32_t add_chest(float x, float y);
 uint32_t add_door(float x, float y);
 uint32_t add_trap(float x, float y);

@@ -31,13 +31,6 @@ uint32_t add_player(float x, float y) {
 
     init_parent_component(parent);
 
-
-    /*uint32_t sword = add_block(0, 0, get_sprites()->sword_item_texture);
-    ChildComponent* child = ECS_AddComponent(sword, CHILD, sizeof(SwordComponent));
-    
-    init_child_component(child, -64, 0, true, player);
-    add_child(parent, child);*/
-
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 4);
     add_anim(animation, 0.1, 2);

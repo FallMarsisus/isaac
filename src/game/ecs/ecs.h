@@ -10,7 +10,7 @@
 #include "components.h"
 
 // Limits – adjust as needed
-#define MAX_ENTITIES   1024
+#define MAX_ENTITIES   1280
 #define MAX_COMPONENTS 32
 
 typedef uint32_t Entity;

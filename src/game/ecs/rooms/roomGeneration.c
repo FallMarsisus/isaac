@@ -1,9 +1,9 @@
 #include "roomGeneration.h"
 
 void parse_map(int rX, int rY, uint32_t player_id, int layout_type) {
-    int start_x = rX * 1920; int start_y = rY * 1024;
+    int start_x = rX * 1920; int start_y = rY * 1280;
     int max_x = start_x + 1920;
-    int max_y = start_y + 1024;
+    int max_y = start_y + 1280;
     
     char map_name[20];
     sprintf(map_name, "assets/maps/map%d", layout_type);
@@ -34,9 +34,9 @@ void parse_map(int rX, int rY, uint32_t player_id, int layout_type) {
 }
 
 void generate_obstacles(int rX, int rY, uint32_t player_id, int layout_type) {
-    int start_x = rX * 1920; int start_y = rY * 1024;
+    int start_x = rX * 1920; int start_y = rY * 1280;
     int max_x = start_x + 1920;
-    int max_y = start_y + 1024;
+    int max_y = start_y + 1280;
 
     //Room dimensions : 1920x1024
     
@@ -65,9 +65,9 @@ void generate_obstacles(int rX, int rY, uint32_t player_id, int layout_type) {
 }
 
 void generate_enemies(int rX, int rY, uint32_t player_id, int layout_type) {
-    int start_x = rX * 1920; int start_y = rY * 1024;
+    int start_x = rX * 1920; int start_y = rY * 1280;
     int max_x = start_x + 1920;
-    int max_y = start_y + 1024;
+    int max_y = start_y + 1280;
 
     switch(layout_type) {
         case 0: // Cross pattern - enemies in the corners
@@ -113,9 +113,9 @@ void generate_enemies(int rX, int rY, uint32_t player_id, int layout_type) {
 }
 
 void generate_items(int rX, int rY, uint32_t player_id, int layout_type) {
-    int start_x = rX * 1920; int start_y = rY * 1024;
+    int start_x = rX * 1920; int start_y = rY * 1280;
     int max_x = start_x + 1920;
-    int max_y = start_y + 1024;
+    int max_y = start_y + 1280;
     
     switch(layout_type) {
         case 0:

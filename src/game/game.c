@@ -28,7 +28,7 @@ void create_game(int win_width, int win_height)
 
     ECS_CreateManager();
 
-    game->player = add_player(1920 / 2 - 32, 1024 - 64);
+    game->player = add_player(1920 / 2 - 32, 1280 - 64);
     init_player_positions(game->player);
 
     game->map = create_map();
@@ -81,7 +81,7 @@ void on_entity_created(Event event) {
         return;
 
     int room_x = floor(pos->x / 1920);
-    int room_y = floor(pos->y / 1024);
+    int room_y = floor(pos->y / 1280);
 
     Room* room = get_room(game->map, room_x, room_y);
     if (!room)
@@ -121,7 +121,7 @@ void change_room(int x, int y) {
                 continue;
 
             if(position->camFixed || 
-            ((int) floor(position->x / 1920) == x && (int) floor(position->y / 1024) == y)) {
+            ((int) floor(position->x / 1920) == x && (int) floor(position->y / 1280) == y)) {
                 add_entity(r, e);
             }
         }
@@ -138,9 +138,9 @@ void update_game(int win_width, int win_height, float delta)
 {
     SDL_Rect room_pos = {
         get_x(game->current_room) * 1920,
-        get_y(game->current_room) * 1024,
+        get_y(game->current_room) * 1280,
         1920,
-        1024
+        1280
     };
     update_timer_system(delta);
     call_events();
@@ -173,7 +173,7 @@ void update_game(int win_width, int win_height, float delta)
 
     if (pos) {
         int changeX = floor(pos->x / 1920);
-        int changeY = floor(pos->y / 1024);
+        int changeY = floor(pos->y / 1280);
         if(!static_cam) {
             cam.x = pos->x + (sprite->width - cam.w) / 2;
             cam.y = pos->y + (sprite->height - cam.h) / 2;
@@ -184,16 +184,16 @@ void update_game(int win_width, int win_height, float delta)
 
             // Clamp camera position
             cam.x = fmax(room_x * 1920 + 32, fmin(cam.x, (room_x + 1) * 1920 - cam.w - 32));
-            cam.y = fmax(room_y * 1024 + 32, fmin(cam.y, (room_y + 1) * 1024 - cam.h - 32));
+            cam.y = fmax(room_y * 1280 + 32, fmin(cam.y, (room_y + 1) * 1280 - cam.h - 32));
         }
 
         if (changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {
             if (static_cam) {
                 cam.x = changeX * 1920 + 32;
-                cam.y = changeY * 1024 + 32;
+                cam.y = changeY * 1280 + 32;
             }
             change_room(changeX, changeY);
-            printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, 1920, pos->y, 1024, changeX, changeY);
+            printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, 1920, pos->y, 1280, changeX, changeY);
         }
     }
 

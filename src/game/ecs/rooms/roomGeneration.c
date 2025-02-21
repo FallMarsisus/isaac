@@ -3,8 +3,10 @@
 int nocollision_tiles[] = {10, 37, 7, 101, 96, 22, 34, 21, 33, 19};
 
 void parse_tiled_map(int rX, int rY, uint32_t player_id, int layout_type) {
-    int start_x = rX * 1920; int start_y = rY * 1280;
-    
+    int start_x = rX * 1920;
+    int start_y = rY * 1280;
+
+    // Open the tile map file
     char map_name[50];
     sprintf(map_name, "assets/maps/tiled/test_Tile Layer 2.csv");
     FILE *map_file = fopen(map_name, "r");
@@ -13,42 +15,55 @@ void parse_tiled_map(int rX, int rY, uint32_t player_id, int layout_type) {
         return;
     }
 
-    char line[200];
+    // Open the collision map file
+    char collision_name[50];
+    sprintf(collision_name, "assets/maps/tiled/test_collisions.csv");
+    FILE *collision_file = fopen(collision_name, "r");
+    if (!collision_file) {
+        printf("Failed to open collision file\n");
+        fclose(map_file); // Close the map file before exiting
+        return;
+    }
+
+    char line_map[200];
+    char line_collision[200];
     int y = 0;
-    
-    // Read the file line by line
-    while (fgets(line, sizeof(line), map_file) && y < 20) {  // 20 rows in the CSV
-        char *token = strtok(line, ",");
+
+    // Read both files line by line
+    while (fgets(line_map, sizeof(line_map), map_file) &&
+           fgets(line_collision, sizeof(line_collision), collision_file) &&
+           y < 20) {
+        char *saveptr_map, *saveptr_collision;
+        char *map_token = strtok_r(line_map, ",", &saveptr_map);
+        char *collision_token = strtok_r(line_collision, ",", &saveptr_collision);
         int x = 0;
-        
-        // Process each number in the line
-        while (token != NULL && x < 30) {  // 30 columns in the CSV
-            int tile_id = atoi(token);
-            
-            // Only process non-empty tiles (tile_id != -1)
-            if (tile_id != -1) {
-                // Calculate world position
-                int world_x = start_x + (x * 64);  // Assuming 64 pixels per tile
+
+        // Process each token (tile and collision ID) in the current line
+        while (map_token && collision_token && x < 30) {
+            int tile_id = atoi(map_token);
+            int collision_id = atoi(collision_token);
+
+            if (tile_id != -1) { // Skip empty tiles
+                int world_x = start_x + (x * 64);
                 int world_y = start_y + (y * 64);
-                
-                int tile_x = (tile_id % 12);
-                int tile_y = (tile_id / 12);
-                bool has_collision = true;
-                for(int i = 0; i < sizeof(nocollision_tiles) / sizeof(nocollision_tiles[0]); i++) {
-                    if(tile_id == nocollision_tiles[i]) {
-                        has_collision = false;
-                    }
-                }
+                int tile_x = tile_id % 12; // Assuming 12 columns in the tileset
+                int tile_y = tile_id / 12;
+                bool has_collision = (collision_id != -1); // Collision data determines flag
+
                 add_tile(world_x, world_y, tile_x, tile_y, get_sprites()->tileset_texture_tiled, has_collision);
             }
-            
-            token = strtok(NULL, ",");
+
+            // Move to the next tokens
+            map_token = strtok_r(NULL, ",", &saveptr_map);
+            collision_token = strtok_r(NULL, ",", &saveptr_collision);
             x++;
         }
         y++;
     }
 
+    // Cleanup: Close both files
     fclose(map_file);
+    fclose(collision_file);
 }
 
 void parse_map(int rX, int rY, uint32_t player_id, int layout_type) {

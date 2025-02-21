@@ -3,6 +3,9 @@
 typedef struct {
     float interval;
     int amount;
+
+    int start_x;
+    int start_y;
 } Anim;
 
 void init_sprite_component(SpriteComponent* sprite, int width, int height, SDL_Texture* tex) {
@@ -58,8 +61,20 @@ void free_all_render_components(uint32_t id) {
         free_anim_component(anim);
     }
 }
+
 int add_anim(AnimationComponent* animation, float interval, int amount) {
     Anim* a = malloc(sizeof(Anim));
+    a->start_x = 0;
+    a->start_y = get_len(animation->animations);
+    a->amount = amount;
+    a->interval = interval;
+    append(animation->animations, a);
+    return get_len(animation->animations) - 1;
+}
+int add_anim_tile(AnimationComponent* animation, int start_x, int start_y, float interval, int amount) {
+    Anim* a = malloc(sizeof(Anim));
+    a->start_x = start_x;
+    a->start_y = start_y;
     a->amount = amount;
     a->interval = interval;
     append(animation->animations, a);
@@ -83,6 +98,26 @@ void pause_anim(AnimationComponent* anim) {
 void stop_anim(AnimationComponent* anim) {
     anim->playing = false;
     anim->counter = 0;
+}
+
+void update_anim(uint32_t id) {
+    AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
+    if(anim && get_len(anim->animations) > 0) {
+        double interval = (SDL_GetTicks() - anim->last_change) / 1000.;
+        if(anim->anim_index >= get_len(anim->animations)) return;
+        
+        Anim* curren_anim = get_elt(anim->animations, anim->anim_index);
+        if (curren_anim == NULL) return;
+        
+        if (interval >= curren_anim->interval && anim->playing) {
+            anim->counter++;
+            if (anim->counter >= curren_anim->amount) anim->counter = 0;
+            anim->last_change = SDL_GetTicks();
+        }
+        
+        anim->current_img->x = (curren_anim->start_x + anim->counter) * anim->current_img->w;
+        anim->current_img->y = curren_anim->start_y * anim->current_img->h;
+    }
 }
 
 void render_background(SDL_Rect cam, SDL_Renderer* renderer, SDL_Texture* background) {
@@ -115,20 +150,6 @@ void render_component(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {
 
     AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
     if(anim && get_len(anim->animations) > 0) {
-        double interval = (SDL_GetTicks() - anim->last_change) / 1000.;
-        if(anim->anim_index >= get_len(anim->animations)) return;
-        
-        Anim* curren_anim = get_elt(anim->animations, anim->anim_index);
-        if (curren_anim == NULL) return;
-        
-        if (interval >= curren_anim->interval && anim->playing) {
-            anim->counter++;
-            if (anim->counter >= curren_anim->amount) anim->counter = 0;
-            anim->last_change = SDL_GetTicks();
-        }
-        
-        anim->current_img->x = anim->counter * anim->current_img->w;
-        anim->current_img->y = anim->anim_index * anim->current_img->h;
         srcRect = anim->current_img;
     }
 

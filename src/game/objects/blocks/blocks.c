@@ -61,16 +61,21 @@ uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
 
 uint32_t add_door(float x, float y) {
     uint32_t door = add_tile(x, y, 0, 0, get_sprites()->tileset_texture, true);
-    RigidbodyComponent* body = ECS_AddComponent(door, BODY, sizeof(RigidbodyComponent));
-    init_rigidbody_component(body, 2, 2, 60, 60);
-
     return door;
 }
 
 uint32_t add_trap(float x, float y) {
-    uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, false);
-    RigidbodyComponent* body = ECS_AddComponent(trap, BODY, sizeof(RigidbodyComponent));
-    init_rigidbody_component(body, 2, 2, 60, 60);
+    uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, true);
+    ScriptComponent* script = ECS_AddComponent(trap, SCRIPT, sizeof(ScriptComponent));
+    init_script_component(script, update_trap);
+
+    AnimationComponent* anim = ECS_AddComponent(trap, ANIMATION, sizeof(AnimationComponent));
+    init_anim_component(anim, 16, 16);
+
+    add_anim_tile(anim, 4, 1, 1, 2);
+
+    set_active_anim(anim, 0);
+    play_anim(anim);
 
     return trap;
 }

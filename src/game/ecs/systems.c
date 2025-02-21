@@ -41,39 +41,35 @@ void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, 
     //update_pathfinding_system(elt, roomPos);
     update_item(elt);
     update_physics(elt, delta);
+    
+    update_anim(elt);
 }
 
 // Render all entities
-void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* renderer) {
-    render_background(cam, renderer, get_sprites()->background_texture);
-    //for(int i = 0; i < amount; i++) {
-    for(Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
-        //u_int32_t id = entities[i];
-        u_int32_t id = e;
-        PositionComponent* position = ECS_GetComponent(id, POSITION);
-        SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
-        if(!position || !sprite) continue;
+void render_entity(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {
+    PositionComponent* position = ECS_GetComponent(id, POSITION);
+    SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
+    if(!position || !sprite) return;
 
-        if(!(position->x + sprite->width >= cam.x &&
-        position->x <= cam.x + cam.w &&
-        position->y + sprite->height >= cam.y &&
-        position->y <= cam.y + cam.h)) continue;
+    if(!(position->x + sprite->width >= cam.x &&
+    position->x <= cam.x + cam.w &&
+    position->y + sprite->height >= cam.y &&
+    position->y <= cam.y + cam.h)) return;
 
-        PathfindingComponent* targetComp = ECS_GetComponent(id, PATHFINDING);
-        if(targetComp) {
-            PositionComponent* targetPos = ECS_GetComponent(targetComp->target, POSITION);
-            if(targetPos) {
-                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-                for(int j = 0; j < targetComp->path_length - 1; j++) {
-                    SDL_RenderDrawRect(renderer, &(SDL_Rect) {
-                        targetComp->path[2 * j] - cam.x + 16,
-                        targetComp->path[2 * j + 1] - cam.y + 16,
-                        32, 32
-                    });
-                }
+    PathfindingComponent* targetComp = ECS_GetComponent(id, PATHFINDING);
+    if(targetComp) {
+        PositionComponent* targetPos = ECS_GetComponent(targetComp->target, POSITION);
+        if(targetPos) {
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+            for(int j = 0; j < targetComp->path_length - 1; j++) {
+                SDL_RenderDrawRect(renderer, &(SDL_Rect) {
+                    targetComp->path[2 * j] - cam.x + 16,
+                    targetComp->path[2 * j + 1] - cam.y + 16,
+                    32, 32
+                });
             }
         }
-        
-        render_component(id, cam, renderer);
     }
+    
+    render_component(id, cam, renderer);
 }

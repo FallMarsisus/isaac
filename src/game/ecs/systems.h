@@ -68,4 +68,4 @@ void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, 
  * @param cam Camera rectangle for viewport calculations
  * @param renderer SDL renderer to use for drawing
  */
-void render_systems(uint32_t* entities, int amount, SDL_Rect cam, SDL_Renderer* renderer);
+void render_entity(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer);

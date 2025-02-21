@@ -12,12 +12,14 @@ void free_anim_component(AnimationComponent* animation);
 void free_all_render_components(uint32_t id);
 
 int add_anim(AnimationComponent* animation, float interval, int amount);
+int add_anim_tile(AnimationComponent* animation, int start_x, int start_y, float interval, int amount);
 
 void set_active_anim(AnimationComponent* anim, int index);
 void play_anim(AnimationComponent* anim);
 void pause_anim(AnimationComponent* anim);
 void stop_anim(AnimationComponent* anim);
 
+void update_anim(uint32_t id);
 
 /**
  * @brief Renders the background texture to the screen.

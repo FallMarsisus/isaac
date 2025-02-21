@@ -18,6 +18,8 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
     body->forceX = 0;
     body->forceY = 0;
 	body->forces = create_array();
+
+    body->active = true;
 }
 
 bool isColliding(PositionComponent* p1, RigidbodyComponent* r1, 
@@ -140,7 +142,7 @@ void update_physics(uint32_t id, float delta) {
         if (!otherPos || !otherBody) continue;
 
         if (isColliding(position, body, otherPos, otherBody)) {
-            if (body->is_dynamic && !otherBody->is_dynamic) {
+            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active) {
                 position->x = originalX;
                 resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
             }
@@ -174,7 +176,7 @@ void update_physics(uint32_t id, float delta) {
         if (!otherPos || !otherBody) continue;
 
         if (isColliding(position, body, otherPos, otherBody)) {
-            if (body->is_dynamic && !otherBody->is_dynamic) {
+            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active) {
                 position->y = originalY;
                 resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
             }

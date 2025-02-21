@@ -40,7 +40,7 @@ void load_sprites(SDL_Renderer* ren) {
     sl->background_texture = load_texture("assets/tilemap/background.bmp", ren);
 
     sl->tileset_texture = load_texture("assets/AssetPack/Backgrounds/Tilesets/TilesetDungeon.png", ren);
-    sl->tileset_texture_tiled = load_texture("assets/maps/tiled/Dungeon_Tileset.png", ren);
+    sl->tileset_texture_tiled = load_texture("assets/maps/tiled/Dungeon_Tileset_nobg.png", ren);
 
     sl->red_heart_full_texture = load_texture("assets/health/red_heart_full.bmp", ren);
     sl->red_heart_half_texture = load_texture("assets/health/red_heart_half.bmp", ren);

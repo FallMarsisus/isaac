@@ -1,4 +1,4 @@
-#include "teleport.h"
+#include "scripts.h"
 
 void update_teleporter(u_int32_t id, SDL_Rect cam) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
@@ -24,6 +24,22 @@ void update_teleporter(u_int32_t id, SDL_Rect cam) {
                     return;
                 }
             }
+        }
+    }
+}
+
+void update_trap(u_int32_t id, SDL_Rect cam) {
+    PositionComponent* position = ECS_GetComponent(id, POSITION);
+    SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
+    AnimationComponent* animation = ECS_GetComponent(id, ANIMATION);
+    RigidbodyComponent* body = ECS_GetComponent(id, BODY);
+
+    if(position && sprite && animation) {
+        if(animation->counter == 0 && !body->active) {
+            body->active = true;
+        }
+        if(animation->counter == 1 && body->active) {
+            body->active = false;
         }
     }
 }

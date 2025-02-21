@@ -1,7 +1,5 @@
 #include "roomGeneration.h"
 
-int nocollision_tiles[] = {10, 37, 7, 101, 96, 22, 34, 21, 33, 19};
-
 void parse_tiled_map(int rX, int rY, uint32_t player_id, int layout_type) {
     int start_x = rX * 1920;
     int start_y = rY * 1280;
@@ -172,7 +170,7 @@ void generate_room(int rX, int rY, uint32_t player_id) {
     // Choose a random room layout type
     int layout_type = rand() % 5;
 
-    parse_tiled_map(rX, rY, player_id, layout_type);
+    parse_map(rX, rY, player_id, layout_type);
     generate_enemies(rX, rY, player_id, layout_type);
     generate_items(rX, rY, player_id, layout_type);
 }

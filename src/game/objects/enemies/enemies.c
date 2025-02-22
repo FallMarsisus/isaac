@@ -34,6 +34,7 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     body->is_dynamic = true;
 
     init_sprite_component(sprite, width, height, texture);
+    sprite->layer = 1;
 
     return enemy;
 }

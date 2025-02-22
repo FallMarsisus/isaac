@@ -1,5 +1,8 @@
 #include "roomGeneration.h"
 
+int layer2[] = {37, 101, 96, 7, 10};
+int layer2_len = 5;
+
 void parse_tiled_map(int rX, int rY, uint32_t player_id, int layout_type) {
     int start_x = rX * 1920;
     int start_y = rY * 1280;
@@ -47,8 +50,15 @@ void parse_tiled_map(int rX, int rY, uint32_t player_id, int layout_type) {
                 int tile_x = tile_id % 12; // Assuming 12 columns in the tileset
                 int tile_y = tile_id / 12;
                 bool has_collision = (collision_id != -1); // Collision data determines flag
+                bool is_layer2 = false;
+                for(int i = 0; i < layer2_len; i++) {
+                    if(layer2[i] == tile_id) {
+                        is_layer2 = true;
+                        break;
+                    }
+                }
 
-                add_tile(world_x, world_y, tile_x, tile_y, get_sprites()->tileset_texture_tiled, has_collision);
+                add_tile(world_x, world_y, tile_x, tile_y, get_sprites()->tileset_texture_tiled, has_collision, (is_layer2 ? 2 : 0));
             }
 
             // Move to the next tokens
@@ -82,7 +92,7 @@ void parse_map(int rX, int rY, uint32_t player_id, int layout_type) {
     while (fgets(line, sizeof(line), map_file)) {
         for(int i = 0; i < strlen(line); i++) {
             if(line[i] == '1') {
-                add_tile(start_x + i * 64, start_y + j * 64, 0, 0, get_sprites()->tileset_texture, true);
+                add_tile(start_x + i * 64, start_y + j * 64, 0, 0, get_sprites()->tileset_texture, true, 0);
             }
             if(line[i] == '.') {
                 add_door(start_x + i * 64, start_y + j * 64);
@@ -170,7 +180,7 @@ void generate_room(int rX, int rY, uint32_t player_id) {
     // Choose a random room layout type
     int layout_type = rand() % 5;
 
-    parse_map(rX, rY, player_id, layout_type);
+    parse_tiled_map(rX, rY, player_id, layout_type);
     generate_enemies(rX, rY, player_id, layout_type);
     generate_items(rX, rY, player_id, layout_type);
 }

@@ -10,6 +10,8 @@
 void init_position_component(PositionComponent* position, float x, float y);
 void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY, int width, int height);
 
+void free_rigidbody_component(uint32_t entity);
+
 void apply_one_force(RigidbodyComponent* body, float fx, float fy);
 
 void add_force(uint32_t entity, Force* f);

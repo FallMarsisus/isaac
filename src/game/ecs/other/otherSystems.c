@@ -1,9 +1,5 @@
 #include "otherSystems.h"
 
-void init_timer_component(TimerComponent* timer, float chrono) {
-    timer->last = SDL_GetTicks();
-    timer->time = chrono;
-}
 void init_parent_component(ParentComponent* parent) {
     parent->children = create_id_array();
 }
@@ -28,6 +24,12 @@ void remove_child(ParentComponent* parent, uint32_t id) {
     remove_id(parent->children, id);
 }
 
+void free_script_component(ScriptComponent* script) {
+    if(script) {
+        free(script->data);
+        script->data = NULL;
+    }
+}
 void free_parent_component(ParentComponent* parent) {
     if(parent) free_id_array(parent->children);
 }
@@ -35,6 +37,10 @@ void free_all_other_components(uint32_t id) {
     ParentComponent* parent = ECS_GetComponent(id, PARENT);
     if(parent) {
         free_parent_component(parent);
+    }
+    ScriptComponent* script = ECS_GetComponent(id, SCRIPT);
+    if(script) {
+        free_script_component(script);
     }
 }
 

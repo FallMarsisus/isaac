@@ -28,6 +28,8 @@ uint32_t add_player(float x, float y) {
 
     init_health_component(player, 12, 100, 0);
     init_sprite_component(sprite, 64, 64, get_sprites()->player_texture);
+    sprite->layer = 1;
+    
     init_anim_component(animation, 16, 16);
 
     init_parent_component(parent);

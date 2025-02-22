@@ -42,7 +42,7 @@ typedef struct {
     bool camFixed;
 } PositionComponent;
 
-typedef struct RigidbodyComponent {
+typedef struct {
 	SDL_Rect hitbox;
     bool is_dynamic;
     float friction;
@@ -58,6 +58,7 @@ typedef struct RigidbodyComponent {
 // Sprite component (for rendering a texture)
 typedef struct {
     int width, height; // Dimensions of the entity
+    int layer;
 
     float angle; // set the angle.
     SDL_Point* center; // the center where the texture will be rotated.
@@ -94,12 +95,6 @@ typedef struct {
     float speed;
     int last_update;
 } PathfindingComponent;
-
-typedef struct {
-    int last;
-    float time;
-    bool playing;
-} TimerComponent;
 
 typedef struct {
     void* data;

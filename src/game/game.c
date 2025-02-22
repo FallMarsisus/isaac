@@ -134,6 +134,31 @@ void change_room(int x, int y) {
 void test_damage(Game* game) {
 }
 
+int compare_positions(const void* a, const void* b) {
+    uint32_t id1 = *(uint32_t*)a;
+    uint32_t id2 = *(uint32_t*)b;
+
+    SpriteComponent* sprite1 = ECS_GetComponent(id1, SPRITE);
+    SpriteComponent* sprite2 = ECS_GetComponent(id2, SPRITE);
+
+    if (!sprite1 || !sprite2) {
+        return 0;
+    }
+
+    if (sprite1->layer != sprite2->layer) {
+        return sprite1->layer - sprite2->layer;
+    }
+
+    PositionComponent* pos1 = ECS_GetComponent(id1, POSITION);
+    PositionComponent* pos2 = ECS_GetComponent(id2, POSITION);
+
+    if (!pos1 || !pos2) {
+        return 0;
+    }
+
+    return pos1->y - pos2->y;
+}
+
 void update_game(int win_width, int win_height, float delta)
 {
     SDL_Rect room_pos = {
@@ -196,6 +221,13 @@ void update_game(int win_width, int win_height, float delta)
     }
 
     ECS_ProcessRemovals();
+
+    qsort(
+        get_entities(game->current_room), 
+        get_entity_amount(game->current_room), 
+        sizeof(uint32_t), 
+        compare_positions
+    );
 }
 
 void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_width, int true_height)

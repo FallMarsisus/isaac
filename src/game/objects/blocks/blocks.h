@@ -14,7 +14,7 @@
 
 #include "scripts.h"
 
-uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset_texture, bool has_collision);
+uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset_texture, bool has_collision, int layer);
 
 uint32_t add_background_tile(float x, float y);
 

@@ -9,6 +9,7 @@ typedef struct {
 } Anim;
 
 void init_sprite_component(SpriteComponent* sprite, int width, int height, SDL_Texture* tex) {
+    sprite->layer = 0;
     sprite->width = width; sprite->height = height;
 
     sprite->texture = tex;

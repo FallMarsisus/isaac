@@ -1,6 +1,6 @@
 #include "blocks.h"
 
-uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset_texture, bool has_collision) {
+uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset_texture, bool has_collision, int layer) {
     uint32_t tile = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(tile, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(tile, SPRITE, sizeof(SpriteComponent));
@@ -8,6 +8,7 @@ uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset
 
     init_position_component(position, x, y);
     init_sprite_component(sprite, 64, 64, tileset_texture);
+    sprite->layer = layer;
     init_tile_component(tile_comp, tile_x, tile_y, 16, 16);
 
     if(has_collision) {
@@ -56,12 +57,12 @@ uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
 }
 
 uint32_t add_door(float x, float y) {
-    uint32_t door = add_tile(x, y, 0, 0, get_sprites()->tileset_texture, true);
+    uint32_t door = add_tile(x, y, 0, 0, get_sprites()->tileset_texture, true, 0);
     return door;
 }
 
 uint32_t add_trap(float x, float y) {
-    uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, true);
+    uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, true, 0);
     ScriptComponent* script = ECS_AddComponent(trap, SCRIPT, sizeof(ScriptComponent));
     init_trap(script);
 

@@ -22,6 +22,14 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
     body->active = true;
 }
 
+void free_rigidbody_component(uint32_t entity) {
+    RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
+    if (!body) return;
+
+    free_array(body->forces);
+    body->forces = NULL;
+}
+
 bool isColliding(PositionComponent* p1, RigidbodyComponent* r1, 
                  PositionComponent* p2, RigidbodyComponent* r2) {
     return (p1->x + r1->hitbox.x < p2->x + r2->hitbox.x + r2->hitbox.w &&

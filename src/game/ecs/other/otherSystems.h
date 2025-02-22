@@ -5,7 +5,6 @@
 #include "../../../utils/betterArrays/id_array.h"
 
 void init_timer_component(TimerComponent* timer, float chrono);
-void init_script_component(ScriptComponent* script, void (*update)(uint32_t entity, SDL_Rect cam));
 void init_parent_component(ParentComponent* parent);
 void init_child_component(ChildComponent* child, float x, float y, bool relative, uint32_t parent);
 void init_effect_component(EffectComponent* effect, uint32_t id, float time);

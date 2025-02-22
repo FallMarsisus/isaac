@@ -19,14 +19,12 @@ bool apply_damage(uint32_t entity, uint32_t target)
 {
     DamagerComponent* damager = ECS_GetComponent(entity, DAMAGER);
     HealthComponent* health = ECS_GetComponent(target, HEALTH);
-    PlayerMovementComponent* player = ECS_GetComponent(target, PLAYER);
 
-    if (damager == NULL|| health == NULL || player == NULL) {
+    if (damager == NULL|| health == NULL) {
         return false;
     }
 
     damage(target, damager->damage);
-    // player->speed = -player->speed*2; NONONONONOONN
 
     return true;
 }

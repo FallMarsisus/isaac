@@ -1,8 +1,12 @@
-#include "playerSystems.h"
+#include "scripts.h"
 
-void init_player_component(PlayerMovementComponent* player) {
-    player->speed = 200;
-    player->direction = (Vector) {0, 0};
+void init_player(ScriptComponent* script) {
+    PlayerData* data = malloc(sizeof(PlayerData));
+    data->speed = 3.5;
+    data->direction = (Vector) {0, 0};
+
+    script->data = data;
+    script->update = update_player;
 }
 
 static void handle_movement_input(int* dx, int* dy) {
@@ -47,7 +51,7 @@ static void handle_mouse_input(uint32_t player) {
     }
 }
 
-static void update_movement_and_animation(PlayerMovementComponent* movement, PositionComponent* position, 
+static void update_movement_and_animation(PlayerData* movement, PositionComponent* position, 
                                        AnimationComponent* anim, int dx, int dy, float distance) {
     if(distance > 0.01) {
         position->vx = (dx / distance) * movement->speed;
@@ -105,12 +109,15 @@ static void handle_combat(uint32_t player, PositionComponent* position, SwordCom
     }
 }
 
-void update_player(uint32_t player) {
+void update_player(u_int32_t player, SDL_Rect cam) {
+    ScriptComponent* script = ECS_GetComponent(player, SCRIPT);
+    if(!script) return;
+
     int dx = 0, dy = 0;
     handle_movement_input(&dx, &dy);
     float distance = sqrt(pow(dx, 2) + pow(dy, 2));
 
-    PlayerMovementComponent* movement = ECS_GetComponent(player, PLAYER);
+    PlayerData* movement = (PlayerData*)script->data;
     PositionComponent* position = ECS_GetComponent(player, POSITION);
     AnimationComponent* anim = ECS_GetComponent(player, ANIMATION);
     InventoryComponent* inv = ECS_GetComponent(player, INVENT);

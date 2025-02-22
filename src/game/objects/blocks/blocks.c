@@ -46,15 +46,11 @@ uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
     uint32_t obj = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(obj, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(obj, SPRITE, sizeof(SpriteComponent));
-    TeleporterComponent* teleport = ECS_AddComponent(obj, TELEPORT, sizeof(TeleporterComponent));
     ScriptComponent* script = ECS_AddComponent(obj, SCRIPT, sizeof(ScriptComponent));
 
     init_position_component(position, x, y);
-    
     init_sprite_component(sprite, 64, 64, get_sprites()->teleporter_texture);
-    init_script_component(script, update_teleporter);
-
-    teleport->posX = xTarget; teleport->posY = yTarget;
+    init_teleporter(script, xTarget, yTarget);
 
     return obj;
 }
@@ -67,7 +63,7 @@ uint32_t add_door(float x, float y) {
 uint32_t add_trap(float x, float y) {
     uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, true);
     ScriptComponent* script = ECS_AddComponent(trap, SCRIPT, sizeof(ScriptComponent));
-    init_script_component(script, update_trap);
+    init_trap(script);
 
     AnimationComponent* anim = ECS_AddComponent(trap, ANIMATION, sizeof(AnimationComponent));
     init_anim_component(anim, 16, 16);

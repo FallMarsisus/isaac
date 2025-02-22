@@ -4,9 +4,6 @@ void init_timer_component(TimerComponent* timer, float chrono) {
     timer->last = SDL_GetTicks();
     timer->time = chrono;
 }
-void init_script_component(ScriptComponent* script, void (*update)(uint32_t entity, SDL_Rect cam)) {
-    script->update = update;
-}
 void init_parent_component(ParentComponent* parent) {
     parent->children = create_id_array();
 }

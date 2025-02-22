@@ -85,13 +85,6 @@ typedef struct {
     int tile_height;
 } TileComponent;
 
-// Player movement component
-typedef struct {
-    float speed;  // Movement speed of the player
-
-    Vector direction;
-} PlayerMovementComponent;
-
 typedef struct {
     int* path;          // Dynamic array to store the path (x, y pairs)
     int path_length;    // Number of steps in the path
@@ -109,12 +102,10 @@ typedef struct {
 } TimerComponent;
 
 typedef struct {
+    void* data;
+
     void (*update)(uint32_t entity, SDL_Rect cam);
 } ScriptComponent;
-
-typedef struct {
-    int posX; int posY;
-} TeleporterComponent;
 
 typedef struct {
     ID_array* children;

@@ -21,6 +21,8 @@
 
 #include "../blocks/blocks.h"
 
+#include "scripts.h"
+
 /**
  * @brief Creates a player entity at specified coordinates
  * @param x X coordinate for player spawn

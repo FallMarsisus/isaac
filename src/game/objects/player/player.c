@@ -6,11 +6,13 @@ uint32_t add_player(float x, float y) {
     InventoryComponent* inv = ECS_AddComponent(player, INVENT, sizeof(InventoryComponent));
     PositionComponent* position = ECS_AddComponent(player, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(player, SPRITE, sizeof(SpriteComponent));
-    PlayerMovementComponent* movement = ECS_AddComponent(player, PLAYER, sizeof(PlayerMovementComponent));
     AnimationComponent* animation = ECS_AddComponent(player, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(player, BODY, sizeof(RigidbodyComponent));
     ParentComponent* parent = ECS_AddComponent(player, PARENT, sizeof(ParentComponent));
     SwordComponent* sword = ECS_AddComponent(player, SWORD_C, sizeof(SwordComponent));
+    ScriptComponent* script = ECS_AddComponent(player, SCRIPT, sizeof(ScriptComponent));
+
+    init_player(script);
     
     create_sword(sword, SWORD, 10, 64, 1);
     init_position_component(position, x, y);
@@ -23,7 +25,6 @@ uint32_t add_player(float x, float y) {
 
     init_rigidbody_component(body, 2, 2, 60, 60);
     body->is_dynamic = true;
-
 
     init_health_component(player, 12, 100, 0);
     init_sprite_component(sprite, 64, 64, get_sprites()->player_texture);
@@ -38,8 +39,6 @@ uint32_t add_player(float x, float y) {
 
     set_active_anim(animation, 1);
     play_anim(animation);
-
-    movement->speed = 3.5;
 
     return player;
 }

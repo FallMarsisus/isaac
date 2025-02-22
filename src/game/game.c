@@ -145,9 +145,6 @@ void update_game(int win_width, int win_height, float delta)
     update_timer_system(delta);
     call_events();
 
-    update_player(game->player);
-    update_player_positions(game->player);
-
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
         u_int32_t id = get_entities(game->current_room)[i];
         PositionComponent* position = ECS_GetComponent(id, POSITION);
@@ -162,6 +159,8 @@ void update_game(int win_width, int win_height, float delta)
             delta
         );
     }
+
+    update_player_positions(game->player);
 
     test_damage(game);
     // is_colliding_with_item(game->player);

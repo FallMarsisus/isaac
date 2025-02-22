@@ -47,20 +47,22 @@ uint32_t add_flame(float x, float y, float vx, float vy) {
 
 uint32_t add_sword(uint32_t player, SwordComponent* sword_component) {
     //Player relative components
-    PlayerMovementComponent* player_movement = ECS_GetComponent(player, PLAYER);
     PositionComponent* player_position = ECS_GetComponent(player, POSITION);
-    SpriteComponent* player_sprite = ECS_GetComponent(player, SPRITE);
-    ParentComponent* parent = ECS_GetComponent(player, PARENT);
-
-    if (!player_position || !player_movement) {
-        printf("Position or movement component not found for entity %u\n", player);
+    ScriptComponent* script = ECS_GetComponent(player, SCRIPT);
+    if (!player_position || !script) {
+        printf("Position or script component not found for entity %u\n", player);
         return SDL_MAX_UINT32;
     }
 
+    SpriteComponent* player_sprite = ECS_GetComponent(player, SPRITE);
+    ParentComponent* parent = ECS_GetComponent(player, PARENT);
+
+    PlayerData* player_data = (PlayerData*)script->data;
+
     int width = 128;
     int height = 128;
-    float offsetX = player_movement->direction.x * 24;
-    float offsetY = player_movement->direction.y * 24;
+    float offsetX = player_data->direction.x * 24;
+    float offsetY = player_data->direction.y * 24;
 
     //Sword relative components
     uint32_t sword = add_effect(
@@ -72,7 +74,7 @@ uint32_t add_sword(uint32_t player, SwordComponent* sword_component) {
     SpriteComponent* sprite = ECS_GetComponent(sword, SPRITE);
     AnimationComponent* animation = ECS_AddComponent(sword, ANIMATION, sizeof(AnimationComponent));
 
-    sprite->angle = atan2(player_movement->direction.y, player_movement->direction.x) * 180 / PI;
+    sprite->angle = atan2(player_data->direction.y, player_data->direction.x) * 180 / PI;
 
     init_anim_component(animation, 32, 32);
     add_anim(animation, 0.05, 3);

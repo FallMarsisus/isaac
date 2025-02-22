@@ -1,5 +1,8 @@
+#pragma once
+
 #include "../../../display.h"
 
+#include "../player/scripts.h"
 
 #include "../../ecs/components.h"
 #include "../../ecs/ecs.h"

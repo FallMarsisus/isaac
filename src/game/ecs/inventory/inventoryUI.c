@@ -148,12 +148,18 @@ int on_clic(uint32_t entity, int mouseX, int mouseY) {
         return -1;
 
     if (invent->selected_slot == -1) {
+
         invent->selected_slot = get_slot_of_mouse(entity, mouseX, mouseY);
 
         free_action(invent->selected_slot_actions);
         free(invent->selected_slot_actions);
 
-        invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
+		if (invent->selected_slot != -1) {
+        	invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
+		} else {
+			invent->selected_slot_actions = NULL;
+		}
+
         return invent->selected_slot;
     }
 
@@ -178,8 +184,12 @@ int on_clic(uint32_t entity, int mouseX, int mouseY) {
     free_action(invent->selected_slot_actions);
     free(invent->selected_slot_actions);
 
-    invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
-
+	if (invent->selected_slot != -1) {
+		invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
+	} else {
+		invent->selected_slot_actions = NULL;
+	}
+	
     return invent->selected_slot;
 }
 

@@ -19,7 +19,7 @@
 #include "health/healthSystem.h"
 #include "items/itemSystem.h"
 #include "damager/damagerSystem.h"
-#include "player/playerSystems.h"
+#include "inventory/inventorySystem.h"
 
 #include "../objects/enemies/enemies.h"
 #include "../objects/player/player.h"

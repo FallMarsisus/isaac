@@ -8,8 +8,6 @@
 #include "event/eventSystem.h"
 #include "event/events/listeners.h"
 
-#include "ecs/ecs.h"
-#include "ecs/components.h"
 #include "ecs/systems.h"
 
 typedef struct game_s Game;

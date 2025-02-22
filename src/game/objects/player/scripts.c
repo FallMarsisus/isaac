@@ -26,6 +26,7 @@ static void handle_movement_input(int* dx, int* dy) {
 
 static void handle_inventory_display(InventoryComponent* inv) {
     static bool is_it_wanting_to_display = false;
+	static bool is_displaying_in_console = false;
     const Uint8* state = SDL_GetKeyboardState(NULL);
     
     if (state[SDL_SCANCODE_E] && !is_it_wanting_to_display) {
@@ -35,6 +36,13 @@ static void handle_inventory_display(InventoryComponent* inv) {
     else if (!state[SDL_SCANCODE_E]) {
         is_it_wanting_to_display = false;
     }
+
+	if (!is_displaying_in_console && state[SDL_SCANCODE_B]) {
+		is_displaying_in_console = true;
+		print_inv_debug(inv);
+	} else if (!state[SDL_SCANCODE_B]) {
+		is_displaying_in_console = false;
+	}
 }
 
 static void handle_mouse_input(uint32_t player) {

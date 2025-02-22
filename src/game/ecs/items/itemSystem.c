@@ -76,7 +76,7 @@ Action* get_item_actions(enum ItemID id) {
         action->titles[0] = "\xE9\quiper";
 
         action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
-        action->functions[0] = item_do_nothing; 
+        action->functions[0] = weapon_item_equip; 
         break;
 
     case KEY:
@@ -207,7 +207,7 @@ bool handle_collision_item(uint32_t entity1, uint32_t entity2) {
         return false;
     }
 
-    printf("Transfert ID de dropper: %u, receiver: %u\n", itemComp->dropper, receiver);
+    printf("Transfert ID de dropper: %u, receiver: %u of item : %d\n", itemComp->dropper, receiver, itemComp->item.id);
 
     if (!transfer_item_into_inventory(item, receiver)) return false;
 

@@ -4,6 +4,7 @@
 #include "../../ecs/ecs.h"
 
 #include "../../ecs/inventory/inventorySystem.h"
+#include "../../ecs/inventory/inventoryUI.h"
 #include "../../ecs/sword/swordSystem.h"
 #include "../enemies/enemies.h"
 

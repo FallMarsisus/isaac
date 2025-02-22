@@ -16,6 +16,7 @@
 #include "other/otherSystems.h"
 #include "pathFinding/pathfindingSystems.h"
 #include "inventory/inventorySystem.h"
+#include "inventory/inventoryUI.h"
 #include "health/healthSystem.h"
 #include "items/itemSystem.h"
 #include "damager/damagerSystem.h"

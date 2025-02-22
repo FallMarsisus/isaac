@@ -1,6 +1,7 @@
 #include "itemsFunctions.h"
 #include "../inventory/inventorySystem.h"
 #include "../systems.h"
+#include "../../../utils/ouputColors.h"
 
 void item_heal(uint32_t entity, ItemData currentItem) {
 	InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
@@ -28,7 +29,17 @@ void dropItem(uint32_t entity, ItemData currentItem) {
 
 	if (pos == NULL || !remove_item_from_inventory(entity, currentItem)) return;
 
-	add_item_entity(pos->x, pos->y, currentItem, entity, true);
+
+	printf(CYAN "Dropping item: %d\n" RESET, currentItem.id);
+	add_item_entity(pos->x+5, pos->y+5, currentItem, entity, true);
+}
+
+void weapon_item_equip(uint32_t entity, ItemData currentItem) {
+	InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
+
+	if (!invent) return;
+
+	swap_items_inventory(entity, invent->selected_slot, invent->max_nb_items);
 }
 
 ActionFunction get_constant_functions(int i) {

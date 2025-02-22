@@ -10,6 +10,7 @@
 #include "../../ecs/physics/physicsSystems.h"
 #include "../../ecs/other/otherSystems.h"
 #include "../../ecs/inventory/inventorySystem.h"
+#include "../../ecs/inventory/inventoryUI.h"
 #include "../../ecs/health/healthSystem.h"
 #include "../../ecs/items/itemSystem.h"
 #include "../../ecs/damager/damagerSystem.h"

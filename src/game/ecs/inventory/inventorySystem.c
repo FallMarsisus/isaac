@@ -1,53 +1,77 @@
 #include "../../../utils/mouse.h"
 #include "../../../utils/displayText.h"
+#include "../../../utils/ouputColors.h"
 #include "../ecs.h"
 #include "../items/itemSystem.h"
 #include "./inventoryComponent.h"
+#include "./inventorySystem.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
 
-// valeurs pour l'affichage de l'inventaire
-#define NB_ROWS 5
-#define SLOT_SIZE 32
-#define MARGIN 5
-#define SPACING 10
 
-void initialize_inventory(InventoryComponent* invent, int maxItems, bool isDisplayed)
-{
+void reset_item(InventoryComponent* invent, int i) {
+    if (i < 0 || i > invent->max_nb_items + NB_CST_SLOTS) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, RED "reset_item: index out of bounds" RESET);
+        return;
+    }
+
+    invent->items[i].id = -1;
+    invent->items[i].name = "";
+    invent->items[i].description = "";
+    invent->items[i].value = -1;
+}
+
+
+void initialize_inventory(InventoryComponent* invent, int maxItems, bool isDisplayed) {
     invent->isDisplayed = isDisplayed;
     invent->max_nb_items = maxItems;
     invent->nb_items = 0;
     invent->selected_slot = -1;
     invent->selected_slot_actions = NULL;
 
-    invent->items = malloc(sizeof(ItemData) * maxItems);
+    invent->items = malloc(sizeof(ItemData) * (maxItems+NB_CST_SLOTS));
 
-    for (int i = 0; i < maxItems; i++) {
-        invent->items[i].id = -1;
-        invent->items[i].name = "";
-        invent->items[i].description = "";
-        invent->items[i].value = -1;
+    for (int i = 0; i < maxItems+NB_CST_SLOTS; i++) {
+        reset_item(invent, i);
     }
 }
+
+
 void free_inventory(InventoryComponent* invent) {
     free(invent->items);
     if (invent->selected_slot_actions != NULL) {
         free_action(invent->selected_slot_actions);
-        invent->selected_slot_actions = NULL;
+        invent->selected_slot_actions = NULL; // on sait jamais
     }
 }
 
+
 bool add_item_to_inventory(uint32_t entity, ItemData item) {
-	InventoryComponent* inventory = ECS_GetComponent(entity , INVENT);
-    if (inventory && inventory->nb_items < inventory->max_nb_items) {
-        inventory->items[inventory->nb_items] = item;
-        inventory->nb_items++;
-        return true;
+    InventoryComponent* inventory = ECS_GetComponent(entity , INVENT);
+    
+    if (!inventory) {
+        fprintf(stderr, RED "Entity has no invent\n" RESET);
+        return false;
     }
-    printf("maxi fail");
+    
+    if (inventory->nb_items >= inventory->max_nb_items) {
+        fprintf(stderr, YELLOW "Inventory is full\n" RESET);
+        return false;
+    }
+
+    for (int i = 0; i < inventory->max_nb_items; i++) {
+        if (inventory->items[i].id == -1) {
+            inventory->items[i] = item;
+            inventory->nb_items++;
+            return true;
+        }
+    }
+
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, RED "invent failed to add item" RESET);
     return false;
 }
+
 
 bool remove_item_from_inventory(uint32_t entity, ItemData item) { //faudra mettre l'id plus tard plutot que l'item entier
     InventoryComponent* inventory = ECS_GetComponent(entity, INVENT);
@@ -55,7 +79,7 @@ bool remove_item_from_inventory(uint32_t entity, ItemData item) { //faudra mettr
         return false;
     }
 
-    if (inventory->selected_slot != -1 &&  inventory->items[inventory->selected_slot].id == item.id) {
+    if (inventory->selected_slot != -1 && inventory->items[inventory->selected_slot].id == item.id) {
         free_action(inventory->selected_slot_actions);
         free(inventory->selected_slot_actions);
 
@@ -64,20 +88,9 @@ bool remove_item_from_inventory(uint32_t entity, ItemData item) { //faudra mettr
     }
 
     // Remove the element from the array
-    for (int i = 0; i < inventory->nb_items; i++) {
+    for (int i = 0; i < inventory->max_nb_items; i++) {
         if (inventory->items[i].id == item.id) { // Pour l'instant l'id est pas unique donc ça suppr pas forcément le bon
-			for (int j = i; j < inventory->nb_items-1; j++) {
-				inventory->items[j] = inventory->items[j+1];
-            }
-            inventory->items[inventory->nb_items].id = -1; // Giga important pour enpêcher de draw un objet vide
-            inventory->nb_items--;
-
-
-            // change the selected item
-            if (i < inventory->selected_slot) {
-                inventory->selected_slot--;
-            }
-
+            reset_item(inventory, i);
             return true;
         }
     }
@@ -86,306 +99,55 @@ bool remove_item_from_inventory(uint32_t entity, ItemData item) { //faudra mettr
 }
 
 
-bool mouse_in_slot(int x, int y, int row, int col) {
-    // les noms des variables c'est empirique (ce sens marche)
-	return (MARGIN+SPACING) + col * (SPACING+SLOT_SIZE) <= x && x <= (MARGIN+SPACING) + (col+1) * (SPACING+SLOT_SIZE) && // check x coord
-		   (MARGIN+SPACING) + row * (SPACING+SLOT_SIZE) <= y && y <= (MARGIN+SPACING) + (row+1) * (SPACING+SLOT_SIZE); // check y coord
-}
-
-bool mouse_in_any_slot(uint32_t entity, int x, int y) {
-    InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
-    if (invent == NULL || !invent->isDisplayed) {
+bool remove_item_index_invent(uint32_t entity, int i) {
+    InventoryComponent* inventory = ECS_GetComponent(entity, INVENT);
+    if (!inventory) {
+        fprintf(stderr, RED "Entity has no inventory component\n" RESET);
         return false;
     }
 
-    int nbCol = (invent->max_nb_items + NB_ROWS - 1) / NB_ROWS; // arrondi supérieur (c'est un peu magique)
-
-    x -= MARGIN + SPACING; // remove margin
-    y -= MARGIN + SPACING; // same
-
-
-	return x % (SPACING + SLOT_SIZE) < SLOT_SIZE && x / (SPACING + SLOT_SIZE) < nbCol && 
-		   y % (SPACING + SLOT_SIZE) < SLOT_SIZE && y / (SPACING + SLOT_SIZE) < NB_ROWS;
-}
-
-int get_slot_of_mouse(uint32_t entity, int x, int y) {
-    InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
-
-    // prevent no inventory && inventory not displayed
-    if (invent == NULL || !invent->isDisplayed) {
-        invent->selected_slot = -1;
-        return -1;
+    if (i < 0 || i >= inventory->max_nb_items + NB_CST_SLOTS) {
+        fprintf(stderr, RED "swap_items_inventory: index out of bounds" RESET);
+        return false;
     }
 
-    int nbCol = (invent->max_nb_items + NB_ROWS - 1) / NB_ROWS; // arrondi supérieur (c'est un peu magique)
-
-	x -= MARGIN + SPACING; // remove margin
-	y -= MARGIN + SPACING; // same
-
-    // check if the mouse is in a slot
-	if (!(x % (SPACING + SLOT_SIZE) < SLOT_SIZE && x / (SPACING + SLOT_SIZE) < nbCol && 
-		   y % (SPACING + SLOT_SIZE) < SLOT_SIZE && y / (SPACING + SLOT_SIZE) < NB_ROWS)) { 
-        return -1;
+    if (i >= inventory->max_nb_items) {
+        printf(YELLOW "beware, removing from constant slots" RESET);
     }
 
-    invent->selected_slot = NB_ROWS * (x / (SLOT_SIZE + SPACING)) + y / (SLOT_SIZE + SPACING);
 
-    return NB_ROWS * (x / (SLOT_SIZE + SPACING)) + y / (SLOT_SIZE + SPACING);
+    if (inventory->selected_slot == i) {
+        free_action(inventory->selected_slot_actions);
+        free(inventory->selected_slot_actions);
+        inventory->selected_slot = -1;
+        inventory->selected_slot_actions = NULL;
+    }
+
+    if (inventory->items[i].id != -1)
+        inventory->nb_items--;
+
+    reset_item(inventory, i);
+
+    return true;
 }
 
 
-int get_clicked_acion(InventoryComponent* invent, int x, int y) {
-    if (!invent || invent->selected_slot == -1 || invent->selected_slot_actions == NULL) {
-        return -1;
-    }
-
-    int nbRows = NB_ROWS;
-    int widthPos = invent->selected_slot % nbRows;
-    int heightPos = invent->selected_slot / nbRows;
-
-    int xPos = (MARGIN + SPACING + SLOT_SIZE) + heightPos * (SPACING + SLOT_SIZE);
-
-    for (int i = 0; i < invent->selected_slot_actions->nb_actions; i++) {
-        int yPos = (MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE);
-        SDL_Rect actions_rect = {
-            xPos,
-            yPos,
-            160,
-            SPACING + SLOT_SIZE
-        };
-
-        if (mouse_in_rect(x, y, actions_rect)) {
-            return i;
-        }
-    }
-
-    for (int i = invent->selected_slot_actions->nb_actions; i < invent->selected_slot_actions->nb_actions + 2; i++) {
-        int yPos = (MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE);
-        SDL_Rect actions_rect = {
-            xPos,
-            yPos,
-            160,
-            SPACING + SLOT_SIZE
-        };
-
-        if (mouse_in_rect(x, y, actions_rect)) {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-void executeAction(uint32_t entity, InventoryComponent* invent, int selectedAction) {
-    // fonction super moche
-    (invent->selected_slot_actions->functions[selectedAction])(entity, invent->items[invent->selected_slot]);
-}
-
-int on_clic(uint32_t entity, int x, int y) {
-
-    InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
-    if (!invent)
-        return -1;
-
-    if (invent->selected_slot == -1) {
-        invent->selected_slot = get_slot_of_mouse(entity, x, y);
-
-        free_action(invent->selected_slot_actions);
-        free(invent->selected_slot_actions);
-
-        invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
-        return invent->selected_slot;
-    }
-
-    // pour gérer le cas si y'a déjà un slot sélectionné
-    int action = get_clicked_acion(invent, x, y);
-
-    if (invent->selected_slot_actions && invent->selected_slot != -1 && action >= invent->selected_slot_actions->nb_actions) {
-        get_constant_functions(action - invent->selected_slot_actions->nb_actions)(entity, invent->items[invent->selected_slot]);
-        return -1;
-    } else if (action >= 0) {
-        executeAction(entity, invent, action);
-        return -1;
-    }
-    invent->selected_slot = get_slot_of_mouse(entity, x, y);
-
-    free_action(invent->selected_slot_actions);
-    free(invent->selected_slot_actions);
-
-    invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
-
-    return invent->selected_slot;
-}
-
-
-
-void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, int trueWidth, int renderWidth) {
-
-    double scaleFactor = (double) renderWidth / trueWidth;
-
-
-    // si pas besoin d'iter à afficher
-    if (!inventory || inventory->selected_slot == -1 || inventory->selected_slot_actions == NULL) return;
-
-    // si pas d'item dans la case
-    if (inventory->selected_slot >= inventory->nb_items || inventory->items[inventory->selected_slot].id == -1) return;
-
-    int nbRows = NB_ROWS;
-    int widthPos = inventory->selected_slot % nbRows;
-    int heightPos = inventory->selected_slot / nbRows;
-
-    int xPos = ((MARGIN + SPACING + SLOT_SIZE) + heightPos * (SPACING + SLOT_SIZE)) * scaleFactor; // fixeds
-    SDL_Rect actions_rect;
-
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
-
-	SDL_Color textColor = {255, 255, 255, 255};
-	int fontSize = SLOT_SIZE * scaleFactor / 2;
-	int yOffset = 2;
-	int xOffset = 10;
-
-    for (int i = 0; i < inventory->selected_slot_actions->nb_actions; i++) {
-
-        int yPos = ((MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE)) * scaleFactor;
-
-        actions_rect = (SDL_Rect) {
-            xPos,
-            yPos,
-            160 * scaleFactor,
-            (SPACING + SLOT_SIZE) * scaleFactor
-        };
-
-        if (mouse_in_rect_fix_drift(mouseX, mouseY, &actions_rect, trueWidth, renderWidth)) {
-            SDL_SetRenderDrawColor(renderer, 64, 72, 120, 240);
-        } else {
-            SDL_SetRenderDrawColor(renderer, 32, 36, 60, 240);
-        }
-
-        SDL_RenderFillRect(renderer, &actions_rect);
-
-		display_text(inventory->selected_slot_actions->titles[i], renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
-    }
-
-    // techniquemement ça marche de deux manières donc je préfère faire deux boucles
-    for (int i = inventory->selected_slot_actions->nb_actions; i < inventory->selected_slot_actions->nb_actions + 2; i++) {
-
-        int yPos = ((MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE)) * scaleFactor;
-        actions_rect = (SDL_Rect) {
-            xPos,
-            yPos,
-            160 * scaleFactor,
-            (SPACING + SLOT_SIZE) * scaleFactor
-        };
-
-        if (mouse_in_rect_fix_drift(mouseX, mouseY, &actions_rect, trueWidth, renderWidth)) {
-            SDL_SetRenderDrawColor(renderer, 64, 72, 120, 240);
-        } else {
-            SDL_SetRenderDrawColor(renderer, 32, 36, 60, 240);
-        }
-
-        SDL_RenderFillRect(renderer, &actions_rect);
-		display_text(get_actions_name(i - inventory->selected_slot_actions->nb_actions), renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
-
-    }
-}
-
-void displayConstantSlot(SDL_Renderer* renderer, int win_width, int win_height, int true_width, int true_height, int nbRows, 
-	int mouseX, int mouseY, int nth, SDL_Texture* texture) {
-
-    // display hand slot
-    SDL_Rect slotRect = {
-        ((MARGIN + SPACING) + nth * (SPACING + SLOT_SIZE)) * win_width / (double)true_width,
-        ((MARGIN + 2*SPACING) + nbRows * (SPACING + SLOT_SIZE)) * win_height / (double)true_height,
-        SLOT_SIZE * win_width / (double)true_width,
-        SLOT_SIZE * win_height / (double)true_height
-    };
-
-    if (mouse_in_rect_fix_drift(mouseX, mouseY, &slotRect, true_width, win_width)) {
-        SDL_SetRenderDrawColor(renderer, 200, 200, 255, 128);
-    } else {
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
-    }
-
-    SDL_RenderFillRect(renderer, &slotRect);
-    SDL_RenderCopy(renderer, texture, NULL, &slotRect);
-
-}
-
-void draw_inventory(uint32_t entity, SDL_Renderer* renderer, int win_width, int win_height, int true_width , int true_height) {
+bool swap_items_inventory(uint32_t entity, int i, int j) {
     InventoryComponent* inventory = ECS_GetComponent(entity, INVENT);
-    if (!inventory || !inventory->isDisplayed) {
-        return;
+    if (!inventory) {
+        fprintf(stderr, RED "Entity has no inventory component\n" RESET);
+        return false;
     }
 
-    int nbRows = NB_ROWS;
-
-    // Enable alpha blending
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
-    // Draw the semi-transparent background
-    SDL_SetRenderDrawColor(renderer, 32, 36, 60, 210); // rgba(50, 54, 96, 0.82)
-
-    // trust me ça marche ça
-    SDL_Rect backgroundRect = {
-        MARGIN * win_width/1920,
-        MARGIN * win_height/1280,
-        ((inventory->max_nb_items + nbRows - 1) / nbRows * (SLOT_SIZE + SPACING) + (MARGIN + SPACING)) * win_width / true_width,
-        ((nbRows+1) * (SLOT_SIZE + SPACING) + (MARGIN + 2*SPACING)) * win_height/true_height
-    }; // retirer le + nb - 1 si ça fait de la merde
-
-    SDL_RenderFillRect(renderer, &backgroundRect);
-
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
-
-    // draw the and items inside
-    for (int i = 0; i < inventory->max_nb_items; i++) {
-        int widthPos = i % nbRows;
-        int heightPos = i / nbRows;
-
-        // 42 = 10 (margin) + 32 (size of slot)
-        SDL_Rect itemRect = {
-            ((MARGIN + SPACING) + heightPos * (SPACING + SLOT_SIZE)) * win_width / (double)true_width,
-            ((MARGIN + SPACING) + widthPos * (SPACING + SLOT_SIZE)) * win_height / (double)true_height,
-            SLOT_SIZE * win_width / (double)true_width,
-            SLOT_SIZE * win_height / (double)true_height
-        }; // Position and size of each item
-
-        // change the color according to pos of mouse and if slot is full
-        if (i < inventory->nb_items && inventory->items[i].id != -1) {
-
-            // change the color according to pos of mouse
-            if (mouse_in_rect_fix_drift(mouseX, mouseY, &itemRect, true_width, win_width)) {
-                SDL_SetRenderDrawColor(renderer, 200, 200, 255, 255);
-            } else {
-                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            }
-
-            SDL_RenderFillRect(renderer, &itemRect);
-            SDL_RenderCopy(renderer, get_texture_from_Id(inventory->items[i].id), NULL, &itemRect);
-        } else {
-
-            // change color if mouse in slot
-            if (mouse_in_rect_fix_drift(mouseX, mouseY, &itemRect, true_width, win_width)) {
-                SDL_SetRenderDrawColor(renderer, 200, 200, 255, 128);
-            } else {
-                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
-            }
-
-            SDL_RenderFillRect(renderer, &itemRect);
-        }
+    if (i < 0 || i >= inventory->max_nb_items + NB_CST_SLOTS || j < 0 || j >= inventory->max_nb_items + NB_CST_SLOTS) {
+        fprintf(stderr, RED "swap_items_inventory: index out of bounds" RESET);
+        return false;
     }
 
 
-	// weapon slot
-	displayConstantSlot(renderer, win_width, win_height, true_width, true_height, nbRows, mouseX, mouseY, 0, get_sprites()->sword_slot_texture);
-	
-	// armor slot s
-	displayConstantSlot(renderer, win_width, win_height, true_width, true_height, nbRows, mouseX, mouseY, 1, get_sprites()->armor_slot_texture);
+    ItemData temp = inventory->items[i];
+    inventory->items[i] = inventory->items[j];
+    inventory->items[j] = temp;
 
-
-    draw_item_actions(inventory, renderer, true_width, win_width);
-
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+    return true;
 }

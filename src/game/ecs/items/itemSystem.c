@@ -43,7 +43,7 @@ SDL_Texture* get_texture_from_Id(enum ItemID id) {
     return get_sprites()->unknown_item_texture;
 }
 
-Action* get_item_actions(enum ItemID id) {
+Action* get_item_actions(enum ItemID id, slots slot) {
     if (id == -1) return NULL;
 
     Action* action = malloc(sizeof(Action));
@@ -73,10 +73,16 @@ Action* get_item_actions(enum ItemID id) {
         action->nb_actions = 1;
         
         action->titles = malloc(sizeof(char*) * action->nb_actions);
-        action->titles[0] = "\xE9\quiper";
-
         action->functions = malloc(sizeof(ActionFunction) * action->nb_actions);
-        action->functions[0] = weapon_item_equip; 
+
+		if (slot == NORMAL_SLOT) {
+			action->titles[0] = "\xE9\quiper";
+			action->functions[0] = weapon_item_equip; 
+		} else {
+			action->titles[0] = "des\xE9\quiper";
+			action->functions[0] = weapon_item_unequip;
+		}
+
         break;
 
     case KEY:

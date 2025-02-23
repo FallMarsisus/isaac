@@ -45,7 +45,17 @@ void weapon_item_equip(uint32_t entity, ItemData currentItem) {
 	swap_items_inventory(entity, invent->selected_slot, invent->max_nb_items);
 }
 
-ActionFunction get_constant_functions(int i) {
+void weapon_item_unequip(uint32_t entity, ItemData currentItem) {
+	InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
+
+	if (!invent) return;
+
+	if (!add_item_to_inventory(entity, currentItem)) return;
+
+	remove_item_index_invent(entity, invent->selected_slot);
+}
+
+ActionFunction get_constant_functions(int i, slots slot) {
 	// à changer pour mettre un array à la place
 
 	switch (i) {
@@ -62,7 +72,7 @@ ActionFunction get_constant_functions(int i) {
 	}
 }
 
-char* get_actions_name(int i) {
+char* get_actions_name(int i, slots slot) {
 
 	switch (i) {
 	case 0:
@@ -74,6 +84,6 @@ char* get_actions_name(int i) {
 		break;
 
 	default:
-		return "should no happen";
+		return "should not happen";
 	}
 }

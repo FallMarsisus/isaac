@@ -141,6 +141,14 @@ void executeAction(uint32_t entity, InventoryComponent* invent, int selectedActi
     (invent->selected_slot_actions->functions[selectedAction])(entity, invent->items[invent->selected_slot]);
 }
 
+slots indexToSlot(InventoryComponent* invent, int index) {
+	if (index < invent->max_nb_items) {
+		return NORMAL_SLOT;
+	} else {
+		return (slots) 1 + index - invent->max_nb_items;
+	}
+}
+
 int on_clic(uint32_t entity, int mouseX, int mouseY) {
 
     InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
@@ -155,7 +163,8 @@ int on_clic(uint32_t entity, int mouseX, int mouseY) {
         free(invent->selected_slot_actions);
 
 		if (invent->selected_slot != -1) {
-        	invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
+			printf("Index to slot: %d\n", indexToSlot(invent, invent->selected_slot));
+        	invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id, indexToSlot(invent, invent->selected_slot));
 		} else {
 			invent->selected_slot_actions = NULL;
 		}
@@ -173,7 +182,7 @@ int on_clic(uint32_t entity, int mouseX, int mouseY) {
     }
 
     if (invent->selected_slot_actions && invent->selected_slot != -1 && action >= invent->selected_slot_actions->nb_actions) {
-        get_constant_functions(action - invent->selected_slot_actions->nb_actions)(entity, invent->items[invent->selected_slot]);
+        get_constant_functions(action - invent->selected_slot_actions->nb_actions, indexToSlot(invent, invent->selected_slot))(entity, invent->items[invent->selected_slot]);
         return -1;
     } else if (action >= 0) {
         executeAction(entity, invent, action);
@@ -185,7 +194,8 @@ int on_clic(uint32_t entity, int mouseX, int mouseY) {
     free(invent->selected_slot_actions);
 
 	if (invent->selected_slot != -1) {
-		invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id);
+		printf("Index to slot: %d\n", indexToSlot(invent, invent->selected_slot));
+		invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id, indexToSlot(invent, invent->selected_slot));
 	} else {
 		invent->selected_slot_actions = NULL;
 	}
@@ -272,7 +282,8 @@ void draw_item_actions(InventoryComponent* invent, SDL_Renderer* renderer, int t
         }
 
         SDL_RenderFillRect(renderer, &actions_rect);
-		display_text(get_actions_name(i - invent->selected_slot_actions->nb_actions), renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
+		printf("Index to slot: %d\n", indexToSlot(invent, invent->selected_slot));
+		display_text(get_actions_name(i - invent->selected_slot_actions->nb_actions, indexToSlot(invent, invent->selected_slot)), renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
 
     }
 }

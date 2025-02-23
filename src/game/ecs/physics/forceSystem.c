@@ -26,6 +26,24 @@ bool wind_force(uint32_t entity, Force* f, void* args) {
 	return false;
 }
 
+// bool knockback_force(uint32_t entity, Force* f, void* args) {
+//     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
+//     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
+    
+//     if (!pos || !body) return true;
+    
+//     float targetVX = ((float*)args)[0];
+//     float targetVY = ((float*)args)[1];
+//     float strength = ((float*)args)[2];
+    
+//     f->Fx = strength * targetVX;
+//     f->Fy = strength * targetVY;
+    
+//     printf("Applying knockback force: Fx=%f, Fy=%f to entity %u\n", f->Fx, f->Fy, entity);
+    
+//     return true;
+// }
+
 bool knockback_force(uint32_t entity, Force* f, void* args) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);

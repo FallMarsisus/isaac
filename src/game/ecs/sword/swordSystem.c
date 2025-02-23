@@ -62,9 +62,9 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
             }
             
             float* knockbackArgs = malloc(sizeof(float) * 3);
-            knockbackArgs[0] = dx * 15.0f;      // Vitesse X augmentée
-            knockbackArgs[1] = dy * 15.0f;      // Vitesse Y augmentée
-            knockbackArgs[2] = 15000.0f;        // Force augmentée
+            knockbackArgs[0] = dx * 2.0f;       // Vitesse X réduite
+            knockbackArgs[1] = dy * 2.0f;       // Vitesse Y réduite
+            knockbackArgs[2] = 500.0f;         // Force réduite
             
             RigidbodyComponent* enemyBody = ECS_GetComponent(enemy, BODY);
             PositionComponent* enemyPosition = ECS_GetComponent(enemy, POSITION);

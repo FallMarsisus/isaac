@@ -30,30 +30,29 @@ bool knockback_force(uint32_t entity, Force* f, void* args) {
     
     if (!pos || !body) return true;
     
-    float dirX = ((float*)args)[0];
-    float dirY = ((float*)args)[1];
-    float strength = ((float*)args)[2];
+    static float decay = 0.90f;
+    static float velocityFactor = 0.02f;
     
-    static float decay = 0.98f;  // Décroissance plus lente
-    static float velocityFactor = 0.05f;  // Facteur plus petit pour une vélocité plus douce
+    // Stocker la force initiale dans additionalArgs[3] si pas encore fait
+    float* forceArgs = (float*)f->additionalArgs;
+    float dirX = forceArgs[0];
+    float dirY = forceArgs[1];
+    if (forceArgs[2] <= 0) return true;  // Force épuisée
     
-    f->Fx = strength * dirX * decay;
-    f->Fy = strength * dirY * decay;
+    // Appliquer la décroissance
+    forceArgs[2] *= decay;
     
-    // Application plus progressive de la vélocité
-    pos->vx += f->Fx * velocityFactor;
-    pos->vy += f->Fy * velocityFactor;
+    // Appliquer la force
+    f->Fx = forceArgs[2] * dirX;
+    f->Fy = forceArgs[2] * dirY;
     
-    // Limiter la vélocité maximale
-    float maxVelocity = 10.0f;
-    if (fabs(pos->vx) > maxVelocity) {
-        pos->vx = (pos->vx > 0) ? maxVelocity : -maxVelocity;
-    }
-    if (fabs(pos->vy) > maxVelocity) {
-        pos->vy = (pos->vy > 0) ? maxVelocity : -maxVelocity;
-    }
+    // Mise à jour de la vélocité
+    pos->vx = f->Fx * velocityFactor;
+    pos->vy = f->Fy * velocityFactor;
     
-    return (fabs(f->Fx) < 1.0f && fabs(f->Fy) < 1.0f);
+    printf("Force remaining: %f\n", forceArgs[2]);
+    
+    return (forceArgs[2] < 10.0f);  // Arrêter quand la force devient très faible
 }
 
 bool solid_drag_force(uint32_t entity, Force* f, void* args) {

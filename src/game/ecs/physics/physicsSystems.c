@@ -105,7 +105,7 @@ void add_force(uint32_t entity, Force* f) {
 	append(body->forces, f);
 }
 
-void update_physics(uint32_t id, float delta) {
+void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(id, BODY);
     if(!position || !body) return;
@@ -142,7 +142,8 @@ void update_physics(uint32_t id, float delta) {
 
     // Process X-axis collisions
     position->x += position->vx * 60 * delta;
-    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+    for (int i = 0; i < amount; i++) {
+        uint32_t e = entities[i];
         if (e == id) continue;
         
         PositionComponent* otherPos = ECS_GetComponent(e, POSITION);
@@ -176,7 +177,8 @@ void update_physics(uint32_t id, float delta) {
 
     // Process Y-axis collisions
     position->y += position->vy * 60 * delta;
-    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+    for (int i = 0; i < amount; i++) {
+        uint32_t e = entities[i];
         if (e == id) continue;
         
         PositionComponent* otherPos = ECS_GetComponent(e, POSITION);

@@ -31,7 +31,7 @@ bool solid_drag_force(uint32_t entity, Force* f, void* args) {
 
 	float coeff = ((float*)args)[0];
 
-	if (pos->vx <= 0.001f && pos->vy <= 0.001f) return true;
+	if (fabs(pos->vx) <= 0.001f && fabs(pos->vy) <= 0.001f) return true;
 
 	f->Fx = - coeff * pos->vx;
 	f->Fy = - coeff * pos->vy;

@@ -19,4 +19,4 @@ void apply_all_forces(uint32_t entity, RigidbodyComponent* body);
 bool isColliding(PositionComponent* p1, RigidbodyComponent* r1, PositionComponent* p2, RigidbodyComponent* r2);
 bool checkCircleCollision(PositionComponent* p1, RigidbodyComponent* r1, float cX, float cY, float radius);
 
-void update_physics(uint32_t id, float delta);
+void update_physics(uint32_t id, uint32_t* entities, int amount, float delta);

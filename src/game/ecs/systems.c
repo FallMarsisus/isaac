@@ -25,6 +25,8 @@ void free_one_entity(uint32_t entity) {
     free_pathfinding_component(ECS_GetComponent(entity, PATHFINDING));
     free_all_other_components(entity);
     free_all_render_components(entity);
+
+    free_rigidbody_component(entity);
     
     ECS_RemoveEntity(entity);
 }
@@ -40,7 +42,7 @@ void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, 
     update_others(elt, roomPos);
     //update_pathfinding_system(elt, roomPos);
     update_item(elt);
-    update_physics(elt, delta);
+    update_physics(elt, entities, amount, delta);
     
     update_anim(elt);
 }

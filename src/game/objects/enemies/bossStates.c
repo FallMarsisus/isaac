@@ -75,5 +75,5 @@ void on_attack_boss_exit(State* state, uint32_t id) {
 }
 void on_attack_boss_free(State* state, uint32_t id) {
     AttackBossStateVars* vars = (AttackBossStateVars*)state->vars;
-    if(vars) return; free(vars);
+    if(vars) free(vars);
 }

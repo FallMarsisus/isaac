@@ -11,6 +11,7 @@ uint32_t add_player(float x, float y) {
     ParentComponent* parent = ECS_AddComponent(player, PARENT, sizeof(ParentComponent));
     SwordComponent* sword = ECS_AddComponent(player, SWORD_C, sizeof(SwordComponent));
     ScriptComponent* script = ECS_AddComponent(player, SCRIPT, sizeof(ScriptComponent));
+    HealthComponent* health = ECS_AddComponent(player, HEALTH, sizeof(HealthComponent));
 
     init_player(script);
     
@@ -26,7 +27,7 @@ uint32_t add_player(float x, float y) {
     init_rigidbody_component(body, 2, 2, 60, 60);
     body->is_dynamic = true;
 
-    init_health_component(player, 12, 100, 0);
+    init_health_component(health, 12, 100, 0);
     init_sprite_component(sprite, 64, 64, get_sprites()->player_texture);
     sprite->layer = 1;
     

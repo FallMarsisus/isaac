@@ -26,7 +26,10 @@ void free_rigidbody_component(uint32_t entity) {
     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
     if (!body) return;
 
-    free_array(body->forces);
+    for (int i = 0; i < get_len(body->forces); i++) {
+        free_force(get_elt(body->forces, i));
+    }
+    free_array(body->forces, false);
     body->forces = NULL;
 }
 
@@ -142,6 +145,7 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
 
     // Process X-axis collisions
     position->x += position->vx * 60 * delta;
+    /*
     for (int i = 0; i < amount; i++) {
         uint32_t e = entities[i];
         if (e == id) continue;
@@ -174,9 +178,11 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
             }
         }
     }
+    */
 
     // Process Y-axis collisions
     position->y += position->vy * 60 * delta;
+    /*
     for (int i = 0; i < amount; i++) {
         uint32_t e = entities[i];
         if (e == id) continue;
@@ -208,4 +214,5 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
             }
         }
     }
+    */
 }

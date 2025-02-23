@@ -99,7 +99,7 @@ typedef struct {
 typedef struct {
     void* data;
 
-    void (*update)(uint32_t entity, SDL_Rect cam);
+    void (*update)(uint32_t entity, SDL_Rect cam, uint32_t* entities, int amount);
 } ScriptComponent;
 
 typedef struct {

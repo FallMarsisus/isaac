@@ -172,7 +172,6 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
 	((float*) windArgs)[1] = 2;
 	((float*) windArgs)[2] = 10;
 	Force* f = create_force(wind_force, windArgs); 
-
 	add_force(itemEntity, f);
 
     itemC->isGettable = true;

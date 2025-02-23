@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../../display.h"
-
 #include "../../ecs/components.h"
 #include "../../ecs/ecs.h"
 
@@ -29,7 +28,7 @@ uint32_t add_trap(float x, float y);
  * @return true if the entity is colliding with a chest
  * @return false if the entity is not colliding with a chest
  */
-bool is_colliding_with_chest(uint32_t entity);
+bool is_colliding_with_chest(uint32_t entity, uint32_t* entities, int amount);
 
 /**
  * @brief Creates a teleporter entity linking two positions

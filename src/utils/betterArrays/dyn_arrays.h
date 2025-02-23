@@ -3,13 +3,15 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 typedef struct dyn_array_s dyn_array;
 
 dyn_array* create_array();
 dyn_array* convert(int len, void** list);
 
-void free_array(dyn_array* da);
+void free_array(dyn_array* da, bool free_elements);
 
 int get_len(dyn_array* da);
 void* get_elt(dyn_array* da, int index);

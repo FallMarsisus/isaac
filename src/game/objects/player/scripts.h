@@ -15,4 +15,4 @@ typedef struct {
 
 void init_player(ScriptComponent* script);
 
-void update_player(u_int32_t player, SDL_Rect cam);
+void update_player(u_int32_t player, SDL_Rect cam, uint32_t* entities, int amount);

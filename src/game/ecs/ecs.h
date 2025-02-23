@@ -9,10 +9,6 @@
 #include "../event/eventSystem.h"
 #include "components.h"
 
-// Limits – adjust as needed
-#define MAX_ENTITIES   1280
-#define MAX_COMPONENTS 32
-
 typedef uint32_t Entity;
 
 // Core ECS functions
@@ -21,9 +17,11 @@ void ECS_DestroyManager();
 
 Entity ECS_CreateEntity();
 void ECS_RemoveEntity(Entity entity);
+void add_removal_flag(Entity entity);
+
 void ECS_ProcessRemovals();
 
-void* ECS_AddComponent(Entity entity, ComponentType component_type, int component_size);
+void* ECS_AddComponent(Entity entity, ComponentType component_type, size_t component_size);
 void* ECS_GetComponent(Entity entity, ComponentType component_type);
 bool ECS_HasComponent(Entity entity, ComponentType component_type);
 

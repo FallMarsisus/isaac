@@ -15,4 +15,4 @@ void free_parent_component(ParentComponent* parent);
 void free_script_component(ScriptComponent* script);
 void free_all_other_components(uint32_t id);
 
-void update_others(uint32_t id, SDL_Rect cam);
+void update_others(uint32_t id, SDL_Rect cam, uint32_t* entities, int amount);

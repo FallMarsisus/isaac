@@ -15,10 +15,11 @@ void init_teleporter(ScriptComponent* script, int posX, int posY) {
 }
 
 void init_trap(ScriptComponent* script) {
+    script->data = NULL;
     script->update = update_trap;
 }
 
-void update_teleporter(u_int32_t id, SDL_Rect cam) {
+void update_teleporter(u_int32_t id, SDL_Rect cam, uint32_t* entities, int amount) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
 
@@ -26,9 +27,9 @@ void update_teleporter(u_int32_t id, SDL_Rect cam) {
     TeleporterData* teleport = (TeleporterData*)script->data;
 
     if(position && sprite && teleport) {
-        for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
-            PositionComponent* otherPos = ECS_GetComponent(e, POSITION);
-            SpriteComponent* otherSprite = ECS_GetComponent(e, SPRITE);
+        for (int i = 0; i < amount; i++) {
+            PositionComponent* otherPos = ECS_GetComponent(entities[i], POSITION);
+            SpriteComponent* otherSprite = ECS_GetComponent(entities[i], SPRITE);
 
             if(otherPos && otherSprite) {
                 if (position->x < otherPos->x + otherSprite->width &&
@@ -47,7 +48,7 @@ void update_teleporter(u_int32_t id, SDL_Rect cam) {
     }
 }
 
-void update_trap(u_int32_t id, SDL_Rect cam) {
+void update_trap(u_int32_t id, SDL_Rect cam, uint32_t* entities, int amount) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
     AnimationComponent* animation = ECS_GetComponent(id, ANIMATION);

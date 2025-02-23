@@ -24,11 +24,17 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
 
 void free_rigidbody_component(uint32_t entity) {
     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
-    if (!body) return;
+    if (!body || !body->forces) return;
 
-    for (int i = 0; i < get_len(body->forces); i++) {
-        free_force(get_elt(body->forces, i));
+    // Nettoyer toutes les forces restantes
+    while (get_len(body->forces) > 0) {
+        Force* f = get_elt(body->forces, 0);
+        if (f) {
+            free_force(f);
+        }
+        remove_dynarr(body->forces, 0);
     }
+    
     free_array(body->forces, false);
     body->forces = NULL;
 }
@@ -79,26 +85,21 @@ void apply_one_force(RigidbodyComponent* body, float fx, float fy) {
 }
 
 void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
-	bool shouldBeRemoved;
-	Force* currentForce;
+    if (!body->forces || get_len(body->forces) == 0) return;
+    
+    for (int i = 0; i < get_len(body->forces); i++) {
+        Force* currentForce = (Force*)get_elt(body->forces, i);
+        if (!currentForce) continue;
 
-	if (!body->forces || get_len(body->forces) == 0) return;
-	
-	for (int i = 0; i < get_len(body->forces); i++) {
+        bool shouldBeRemoved = update_entity_force(entity, currentForce);
+        apply_one_force(body, currentForce->Fx, currentForce->Fy);
 
-		currentForce = (Force*) get_elt(body->forces, i);
-		shouldBeRemoved = update_entity_force(entity, currentForce);
-		apply_one_force(body, currentForce->Fx, currentForce->Fy);
-
-		if (shouldBeRemoved) {
-			// printf("Removing force: Fx = %f, Fy = %f\n", currentForce->Fx, currentForce->Fy);
-			free_force(get_elt(body->forces, i));
-			remove_dynarr(body->forces, i);
-			i--;
-		}
-	}
-
-	// printf("Sum of forces: Fx = %f, Fy = %f\n\n", body->forceX, body->forceY);
+        if (shouldBeRemoved) {
+            free_force(currentForce);  // Libérer la force
+            remove_dynarr(body->forces, i);
+            i--;
+        }
+    }
 }
 
 void add_force(uint32_t entity, Force* f) {

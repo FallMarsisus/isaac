@@ -52,6 +52,7 @@ bool knockback_force(uint32_t entity, Force* f, void* args) {
     
     printf("Force remaining: %f\n", forceArgs[2]);
     
+    // Ne pas libérer la mémoire ici, laisser free_force s'en charger
     return (forceArgs[2] < 10.0f);  // Arrêter quand la force devient très faible
 }
 
@@ -84,8 +85,11 @@ bool update_entity_force(uint32_t entity, Force* f)
 }
 
 void free_force(Force* f) {
+    if (!f) return;  // Vérification de sécurité
+    
+    // Ne libérer additionalArgs que s'il existe
     if (f->additionalArgs) {
-        free(f->additionalArgs);
+        f->additionalArgs = NULL;  // Éviter la double libération
     }
     free(f);
 }

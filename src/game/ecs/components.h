@@ -31,7 +31,8 @@ typedef enum {
     STATE_MACHINE,
     SWORD_C,
     EFFECT,
-    TILE
+    TILE,
+    STUN  // Nouvelle composante
 } ComponentType;
 
 // Position and velocity component
@@ -121,3 +122,8 @@ typedef struct {
 
     bool has_physics; // If the effect is removed when it collides with a object
 } EffectComponent;
+
+typedef struct {
+    int duration;  // Durée du stun en millisecondes
+    int start_time;  // Temps de début du stun
+} StunComponent;

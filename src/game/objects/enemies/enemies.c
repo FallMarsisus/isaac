@@ -7,6 +7,9 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     RigidbodyComponent* body = ECS_AddComponent(enemy, BODY, sizeof(RigidbodyComponent));
     StateMachineComponent* sm = ECS_AddComponent(enemy, STATE_MACHINE, sizeof(StateMachineComponent));
     HealthComponent* health = ECS_AddComponent(enemy, HEALTH, sizeof(HealthComponent));
+    StunComponent* stun = ECS_AddComponent(enemy, STUN, sizeof(StunComponent));
+    stun->duration = 0;
+    stun->start_time = 0;
     
     init_health_component(health, 100, 10, 0);
     init_state_machine(sm, enemy);

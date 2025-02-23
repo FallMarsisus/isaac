@@ -30,16 +30,30 @@ bool knockback_force(uint32_t entity, Force* f, void* args) {
     
     if (!pos || !body) return true;
     
-    float targetVX = ((float*)args)[0];
-    float targetVY = ((float*)args)[1];
+    float dirX = ((float*)args)[0];
+    float dirY = ((float*)args)[1];
     float strength = ((float*)args)[2];
     
-    f->Fx = strength * targetVX;
-    f->Fy = strength * targetVY;
+    static float decay = 0.98f;  // Décroissance plus lente
+    static float velocityFactor = 0.05f;  // Facteur plus petit pour une vélocité plus douce
     
-    printf("Applying knockback force: Fx=%f, Fy=%f to entity %u\n", f->Fx, f->Fy, entity);
+    f->Fx = strength * dirX * decay;
+    f->Fy = strength * dirY * decay;
     
-    return true;
+    // Application plus progressive de la vélocité
+    pos->vx += f->Fx * velocityFactor;
+    pos->vy += f->Fy * velocityFactor;
+    
+    // Limiter la vélocité maximale
+    float maxVelocity = 10.0f;
+    if (fabs(pos->vx) > maxVelocity) {
+        pos->vx = (pos->vx > 0) ? maxVelocity : -maxVelocity;
+    }
+    if (fabs(pos->vy) > maxVelocity) {
+        pos->vy = (pos->vy > 0) ? maxVelocity : -maxVelocity;
+    }
+    
+    return (fabs(f->Fx) < 1.0f && fabs(f->Fy) < 1.0f);
 }
 
 bool solid_drag_force(uint32_t entity, Force* f, void* args) {

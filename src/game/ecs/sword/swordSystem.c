@@ -62,18 +62,28 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
             }
             
             float* knockbackArgs = malloc(sizeof(float) * 3);
-            knockbackArgs[0] = dx * 10.0f;      // Vitesse X désirée
-            knockbackArgs[1] = dy * 10.0f;      // Vitesse Y désirée
-            knockbackArgs[2] = 100000.0f;       // Force beaucoup plus grande
+            knockbackArgs[0] = dx * 15.0f;      // Vitesse X augmentée
+            knockbackArgs[1] = dy * 15.0f;      // Vitesse Y augmentée
+            knockbackArgs[2] = 15000.0f;        // Force augmentée
             
             RigidbodyComponent* enemyBody = ECS_GetComponent(enemy, BODY);
+            PositionComponent* enemyPosition = ECS_GetComponent(enemy, POSITION);
             if (enemyBody) {
-                enemyBody->is_dynamic = true;  // S'assurer que l'ennemi peut bouger
+                enemyBody->is_dynamic = true;
+                enemyPosition->vx = 0;  // Réinitialiser la vitesse actuelle
+                enemyPosition->vy = 0;
                 Force* knockback = create_force(knockback_force, knockbackArgs);
                 add_force(enemy, knockback);
             }
 
             damage(enemy, sword->damage);
+            
+            // Mettre à jour le stun existant au lieu d'en créer un nouveau
+            StunComponent* stun = ECS_GetComponent(enemy, STUN);
+            if (stun) {
+                stun->duration = 500;  // Stun de 500ms
+                stun->start_time = SDL_GetTicks();
+            }
         } else {
             printf("Health component not found for enemy %u\n", enemy);
         }

@@ -91,8 +91,8 @@ int get_clicked_acion(InventoryComponent* invent, int mouseX, int mouseY) {
         fprintf(stderr, RED "invalud argument on get_clicked_action\n" RESET);
 		return -1;
     }
-	printf(GREEN "get_clicked_action called with mouseX: %d, mouseY: %d\n" RESET, mouseX, mouseY);
-    int nbRows = NB_ROWS;
+
+	int nbRows = NB_ROWS;
 	int xPos, defaultY;
 
 	if (invent->selected_slot >= invent->max_nb_items) {
@@ -195,22 +195,33 @@ int on_clic(uint32_t entity, int mouseX, int mouseY) {
 
 
 
-void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, int trueWidth, int renderWidth) {
+void draw_item_actions(InventoryComponent* invent, SDL_Renderer* renderer, int trueWidth, int renderWidth) {
 
     double scaleFactor = (double) renderWidth / trueWidth;
 
 
     // si pas besoin d'iter à afficher
-    if (!inventory || inventory->selected_slot == -1 || inventory->selected_slot_actions == NULL) return;
+    if (!invent || invent->selected_slot == -1 || invent->selected_slot_actions == NULL) return;
+
+	//si selectedSlot invalide
+	if (invent->selected_slot < 0 || invent->selected_slot >= invent->max_nb_items + NB_CST_SLOTS) return;
 
     // si pas d'item dans la case
-    if (inventory->selected_slot >= inventory->nb_items || inventory->items[inventory->selected_slot].id == -1) return;
+    if (invent->items[invent->selected_slot].id == -1) return;
 
     int nbRows = NB_ROWS;
-    int widthPos = inventory->selected_slot % nbRows;
-    int heightPos = inventory->selected_slot / nbRows;
 
-    int xPos = ((MARGIN + SPACING + SLOT_SIZE) + heightPos * (SPACING + SLOT_SIZE)) * scaleFactor; // fixeds
+	int xPos, defaultY;
+	if (invent->selected_slot >= invent->max_nb_items) {
+		xPos = (MARGIN + SPACING + SLOT_SIZE) + (invent->selected_slot - invent->max_nb_items) * (SPACING + SLOT_SIZE);
+        defaultY = (MARGIN + 2*SPACING) + NB_ROWS * (SPACING + SLOT_SIZE);
+    } else {
+		xPos = (MARGIN + SPACING + SLOT_SIZE) + (invent->selected_slot / nbRows) * (SPACING + SLOT_SIZE);
+		defaultY = (MARGIN + SPACING) + (invent->selected_slot % nbRows) * (SPACING + SLOT_SIZE);
+	}
+	xPos *= scaleFactor;
+	defaultY *= scaleFactor;
+
     SDL_Rect actions_rect;
 
     int mouseX, mouseY;
@@ -221,9 +232,9 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
 	int yOffset = 2;
 	int xOffset = 10;
 
-    for (int i = 0; i < inventory->selected_slot_actions->nb_actions; i++) {
+    for (int i = 0; i < invent->selected_slot_actions->nb_actions; i++) {
 
-        int yPos = ((MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE)) * scaleFactor;
+        int yPos = defaultY + i * (SPACING + SLOT_SIZE) * scaleFactor;
 
         actions_rect = (SDL_Rect) {
             xPos,
@@ -240,13 +251,13 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
 
         SDL_RenderFillRect(renderer, &actions_rect);
 
-		display_text(inventory->selected_slot_actions->titles[i], renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
+		display_text(invent->selected_slot_actions->titles[i], renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
     }
 
     // techniquemement ça marche de deux manières donc je préfère faire deux boucles
-    for (int i = inventory->selected_slot_actions->nb_actions; i < inventory->selected_slot_actions->nb_actions + 2; i++) {
+    for (int i = invent->selected_slot_actions->nb_actions; i < invent->selected_slot_actions->nb_actions + 2; i++) {
 
-        int yPos = ((MARGIN + SPACING) + (widthPos + i) * (SPACING + SLOT_SIZE)) * scaleFactor;
+        int yPos = defaultY + i * (SPACING + SLOT_SIZE) * scaleFactor;
         actions_rect = (SDL_Rect) {
             xPos,
             yPos,
@@ -261,7 +272,7 @@ void draw_item_actions(InventoryComponent* inventory, SDL_Renderer* renderer, in
         }
 
         SDL_RenderFillRect(renderer, &actions_rect);
-		display_text(get_actions_name(i - inventory->selected_slot_actions->nb_actions), renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
+		display_text(get_actions_name(i - invent->selected_slot_actions->nb_actions), renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
 
     }
 }

@@ -107,12 +107,12 @@ bool remove_item_index_invent(uint32_t entity, int i) {
     }
 
     if (i < 0 || i >= inventory->max_nb_items + NB_CST_SLOTS) {
-        fprintf(stderr, RED "swap_items_inventory: index out of bounds" RESET);
+        fprintf(stderr, RED "swap_items_inventory: index out of bounds\n" RESET);
         return false;
     }
 
     if (i >= inventory->max_nb_items) {
-        printf(YELLOW "beware, removing from constant slots" RESET);
+        printf(YELLOW "beware, removing from constant slots\n" RESET);
     }
 
 

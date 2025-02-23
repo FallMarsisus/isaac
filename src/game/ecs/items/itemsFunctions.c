@@ -26,15 +26,18 @@ void unselectItem(uint32_t entity, ItemData currentItem) {
 
 void dropItem(uint32_t entity, ItemData currentItem) {
 	PositionComponent* pos = ECS_GetComponent(entity, POSITION);
+	InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
+	if (!invent) return;
 
-	if (pos == NULL || !remove_item_from_inventory(entity, currentItem)) return;
+	if (pos == NULL || !remove_item_index_invent(entity, invent->selected_slot)) return;
 
 
-	printf(CYAN "Dropping item: %d\n" RESET, currentItem.id);
+	// printf(CYAN "Dropping item: %d\n" RESET, currentItem.id);
 	add_item_entity(pos->x+5, pos->y+5, currentItem, entity, true);
 }
 
 void weapon_item_equip(uint32_t entity, ItemData currentItem) {
+	// printf("equiping item : %d\n", currentItem.id);
 	InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
 
 	if (!invent) return;

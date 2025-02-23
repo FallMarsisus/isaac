@@ -2,7 +2,7 @@
 
 void init_player(ScriptComponent* script) {
     PlayerData* data = malloc(sizeof(PlayerData));
-    data->speed = 100;
+    data->speed = 5;
     data->direction = (Vector) {0, 0};
 
     script->data = data;

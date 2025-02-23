@@ -8,9 +8,11 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     StateMachineComponent* sm = ECS_AddComponent(enemy, STATE_MACHINE, sizeof(StateMachineComponent));
     HealthComponent* health = ECS_AddComponent(enemy, HEALTH, sizeof(HealthComponent));
     
-    init_health_component(health, 1, 10, 0);
+    init_health_component(health, 100, 10, 0);
     init_state_machine(sm, enemy);
+    
 
+     
     State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
     idle_state->vars = create_idle_vars(pl);
     add_state(sm , idle_state);

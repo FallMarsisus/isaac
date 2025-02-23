@@ -13,6 +13,7 @@
 #include "../../ecs/damager/damagerSystem.h"
 
 #include "../../event/eventSystem.h"
+#include "../../ecs/physics/forceSystem.h"
 
 #include "enemyStates.h"
 #include "bossStates.h"

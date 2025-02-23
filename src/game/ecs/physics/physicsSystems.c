@@ -145,7 +145,7 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
 
     // Process X-axis collisions
     position->x += position->vx * 60 * delta;
-    /*
+    
     for (int i = 0; i < amount; i++) {
         uint32_t e = entities[i];
         if (e == id) continue;
@@ -154,8 +154,10 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
         RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
         if (!otherPos || !otherBody) continue;
 
+        // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
+        HealthComponent* health = ECS_GetComponent(e, HEALTH);
         if (isColliding(position, body, otherPos, otherBody)) {
-            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active) {
+            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active && !health) {
                 position->x = originalX;
                 resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
             }
@@ -178,11 +180,10 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
             }
         }
     }
-    */
 
     // Process Y-axis collisions
     position->y += position->vy * 60 * delta;
-    /*
+    
     for (int i = 0; i < amount; i++) {
         uint32_t e = entities[i];
         if (e == id) continue;
@@ -191,8 +192,10 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
         RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
         if (!otherPos || !otherBody) continue;
 
+        // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
+        HealthComponent* health = ECS_GetComponent(e, HEALTH);
         if (isColliding(position, body, otherPos, otherBody)) {
-            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active) {
+            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active && !health) {
                 position->y = originalY;
                 resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
             }
@@ -214,5 +217,4 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
             }
         }
     }
-    */
 }

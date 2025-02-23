@@ -7,6 +7,7 @@
 #include "../health/healthSystem.h"
 #include "swordComponent.h"
 #include "../../objects/others/others.h"
+#include "../physics/forceSystem.h"
 
 bool create_sword(SwordComponent* sword, enum ItemID id, int damage, int range, int cooldown);
 uint32_t use_sword(uint32_t entity, uint32_t enemy);

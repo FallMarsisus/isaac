@@ -41,6 +41,7 @@ bool damage(uint32_t entity, int damage) {
 
 	if(isDead(entity)) {
 		health->health = 0;
+		
 		ECS_RemoveEntity(entity);
 	}
 

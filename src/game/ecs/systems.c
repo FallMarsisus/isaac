@@ -31,7 +31,7 @@ void free_one_entity(uint32_t entity) {
     ECS_RemoveEntity(entity);
 }
 
-void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, float delta) {
+void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect cam, float delta) {
     StateMachineComponent* sm = ECS_GetComponent(elt, STATE_MACHINE);
     ParentComponent* parent = ECS_GetComponent(elt, PARENT);
 
@@ -39,8 +39,8 @@ void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, 
         update_state_machine(sm);
     }
     
-    update_others(elt, roomPos);
-    //update_pathfinding_system(elt, roomPos);
+    update_others(elt, cam);
+    //update_pathfinding_system(elt, cam);
     update_item(elt);
     update_physics(elt, entities, amount, delta);
     

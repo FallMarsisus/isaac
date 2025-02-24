@@ -1,6 +1,6 @@
 #include "player.h"
 
-uint32_t add_player(float x, float y) {
+uint32_t add_player(float x, float y, int win_width, int true_width) {
     // Create a player entity
     uint32_t player = ECS_CreateEntity();
     InventoryComponent* inv = ECS_AddComponent(player, INVENT, sizeof(InventoryComponent));
@@ -9,19 +9,24 @@ uint32_t add_player(float x, float y) {
     AnimationComponent* animation = ECS_AddComponent(player, ANIMATION, sizeof(AnimationComponent));
     RigidbodyComponent* body = ECS_AddComponent(player, BODY, sizeof(RigidbodyComponent));
     ParentComponent* parent = ECS_AddComponent(player, PARENT, sizeof(ParentComponent));
-    SwordComponent* sword = ECS_AddComponent(player, SWORD_C, sizeof(SwordComponent));
+    SwordComponent* swordC = ECS_AddComponent(player, SWORD_C, sizeof(SwordComponent));
     ScriptComponent* script = ECS_AddComponent(player, SCRIPT, sizeof(ScriptComponent));
 
-    init_player(script);
+    init_player(script, win_width, true_width);
     
-    create_sword(sword, SWORD, 10, 64, 1);
+    create_sword(swordC, SWORD, 10, 64, 1);
     init_position_component(position, x, y);
+
+	ItemData** itemListe = itemList;
 
     // Initialize components
     initialize_inventory(inv, 20, false);
     for (int j  = 0; j < itemCount - 1; j++) {
+
         add_item_to_inventory(player, *itemList[j]);
     }
+	add_item_to_inventory(player, sword);
+	swap_items_inventory(player, itemCount-1, inv->max_nb_items);
 
     init_rigidbody_component(body, 2, 2, 60, 60);
     body->is_dynamic = true;

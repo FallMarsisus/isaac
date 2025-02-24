@@ -56,7 +56,7 @@ void update_others(uint32_t id, SDL_Rect cam) {
     }
 
     ScriptComponent* script = ECS_GetComponent(id, SCRIPT);
-    if(script) {
+    if(script && script->update) {
         script->update(id, cam);
     }
 

@@ -20,6 +20,7 @@ void reset_item(InventoryComponent* invent, int i) {
     invent->items[i].name = "";
     invent->items[i].description = "";
     invent->items[i].value = -1;
+	invent->items[i].throwProp = NULL;
 }
 
 

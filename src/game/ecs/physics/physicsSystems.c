@@ -78,12 +78,18 @@ void apply_one_force(RigidbodyComponent* body, float fx, float fy) {
 void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
 	bool shouldBeRemoved;
 	Force* currentForce;
+	int solidDIndex = -1;
 
 	if (!body->forces || get_len(body->forces) == 0) return;
 	
 	for (int i = 0; i < get_len(body->forces); i++) {
 
 		currentForce = (Force*) get_elt(body->forces, i);
+		if (currentForce->func = solid_drag_force) {
+			solidDIndex = i;
+			continue;
+		}
+
 		shouldBeRemoved = update_entity_force(entity, currentForce);
 		apply_one_force(body, currentForce->Fx, currentForce->Fy);
 
@@ -92,6 +98,19 @@ void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
 			free_force(get_elt(body->forces, i));
 			remove_dynarr(body->forces, i);
 			i--;
+		}
+	}
+
+	// the solid drag force has to be applied in last :)
+	if (solidDIndex >= 0) {
+		currentForce = (Force*) get_elt(body->forces, solidDIndex);
+
+		shouldBeRemoved = update_entity_force(entity, currentForce);
+		apply_one_force(body, currentForce->Fx, currentForce->Fy);
+
+		if (shouldBeRemoved) {
+			free_force(get_elt(body->forces, solidDIndex));
+			remove_dynarr(body->forces, solidDIndex);
 		}
 	}
 

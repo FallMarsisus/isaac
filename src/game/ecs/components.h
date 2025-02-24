@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMPONENTS_H
+#define COMPONENTS_H
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -121,3 +122,6 @@ typedef struct {
 
     bool has_physics; // If the effect is removed when it collides with a object
 } EffectComponent;
+
+
+#endif //COMPONENTS_H

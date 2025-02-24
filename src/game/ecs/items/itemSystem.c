@@ -149,8 +149,6 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
     itemC->dropper = dropper;
     if (dropper != -1 && playerLocked) {
 
-        printf("adding timer !!\n");
-    
         uint32_t* arguments = malloc(sizeof(uint32_t));
 		*arguments = itemEntity;
 
@@ -171,7 +169,7 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
 	((float*) windArgs)[0] = 3;
 	((float*) windArgs)[1] = 2;
 	((float*) windArgs)[2] = 10;
-	Force* f = create_force(wind_force, windArgs); 
+	Force* f = create_force(wind_force, windArgs, true); 
 
 	add_force(itemEntity, f);
 

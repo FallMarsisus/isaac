@@ -14,8 +14,7 @@ SDL_Rect cam = {
     0, 0, 0, 0 // Initialize to 0, will be set in create_game
 };
 
-void create_game(int win_width, int win_height)
-{
+void create_game(int win_width, int win_height, int true_width, int true_height) {
     game = malloc(sizeof(Game));
 
     // Set camera dimensions based on window size
@@ -23,12 +22,13 @@ void create_game(int win_width, int win_height)
     cam.y = 32;
     cam.w = win_width;
     cam.h = win_height;
-
+	
     init_event_system();
+	initDefaultItems();
 
     ECS_CreateManager();
 
-    game->player = add_player(1920 / 2 - 32, 1280 - 64);
+    game->player = add_player(1920 / 2 - 32, 1280 - 64, win_width, true_width);
     init_player_positions(game->player);
 
     game->map = create_map();
@@ -159,8 +159,7 @@ int compare_positions(const void* a, const void* b) {
     return pos1->y - pos2->y;
 }
 
-void update_game(int win_width, int win_height, float delta)
-{
+void update_game(int win_width, int win_height, float delta) {
     SDL_Rect room_pos = {
         get_x(game->current_room) * 1920,
         get_y(game->current_room) * 1280,
@@ -180,7 +179,7 @@ void update_game(int win_width, int win_height, float delta)
             id,
             get_entities(game->current_room),
             get_entity_amount(game->current_room),
-            room_pos,
+            cam,
             delta
         );
     }

@@ -52,7 +52,7 @@ int main() {
     double current_time = SDL_GetTicks() / 1000.;
     double accumulator = 0.;
 
-    create_game(win_width, win_height);
+    create_game(win_width, win_height, true_width, true_height);
 
     while (running) {
         while(SDL_PollEvent(&event)) {

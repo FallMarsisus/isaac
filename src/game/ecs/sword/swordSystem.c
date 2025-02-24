@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "../../../display.h"
 #include "../../objects/blocks/blocks.h"
+#include "../../../utils/ouputColors.h"
 
 bool create_sword(SwordComponent* sword, enum ItemID id, int damage, int range, int cooldown)
 {
@@ -44,17 +45,17 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
     int dy = pos2->y - pos1->y;
     int distance = sqrt(dx * dx + dy * dy);
 
-    printf("Enemy %u is at distance %d from entity %u\n", enemy, distance, entity);
+    // printf("Enemy %u is at distance %d from entity %u\n", enemy, distance, entity);
 
     if (distance <= sword->range) {
-        printf("Enemy %u is within range of entity %u\n", enemy, entity);
+        // printf("Enemy %u is within range of entity %u\n", enemy, entity);
         // Collision detected, apply damage or other logic
         HealthComponent* health = ECS_GetComponent(enemy, HEALTH);
         if (health) {
-            printf("Applying %d damage to enemy %u\n", sword->damage, enemy);
+            // printf("Applying %d damage to enemy %u\n", sword->damage, enemy);
             damage(enemy, sword->damage);
         } else {
-            printf("Health component not found for enemy %u\n", enemy);
+            printf(RED "Health component not found for enemy %u\n" RESET, enemy);
         }
     }
     

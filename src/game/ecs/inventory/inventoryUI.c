@@ -163,7 +163,6 @@ int on_clic(uint32_t entity, int mouseX, int mouseY) {
         free(invent->selected_slot_actions);
 
 		if (invent->selected_slot != -1) {
-			printf("Index to slot: %d\n", indexToSlot(invent, invent->selected_slot));
         	invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id, indexToSlot(invent, invent->selected_slot));
 		} else {
 			invent->selected_slot_actions = NULL;
@@ -194,7 +193,6 @@ int on_clic(uint32_t entity, int mouseX, int mouseY) {
     free(invent->selected_slot_actions);
 
 	if (invent->selected_slot != -1) {
-		printf("Index to slot: %d\n", indexToSlot(invent, invent->selected_slot));
 		invent->selected_slot_actions = get_item_actions(invent->items[invent->selected_slot].id, indexToSlot(invent, invent->selected_slot));
 	} else {
 		invent->selected_slot_actions = NULL;
@@ -282,7 +280,6 @@ void draw_item_actions(InventoryComponent* invent, SDL_Renderer* renderer, int t
         }
 
         SDL_RenderFillRect(renderer, &actions_rect);
-		printf("Index to slot: %d\n", indexToSlot(invent, invent->selected_slot));
 		display_text(get_actions_name(i - invent->selected_slot_actions->nb_actions, indexToSlot(invent, invent->selected_slot)), renderer, get_fonts()->calibri, &textColor, xPos + xOffset, yPos + yOffset, fontSize);
 
     }
@@ -362,7 +359,7 @@ void draw_inventory(uint32_t entity, SDL_Renderer* renderer, int win_width, int 
         }; // Position and size of each item
 
         // change the color according to pos of mouse and if slot is full
-        if (i < inventory->nb_items && inventory->items[i].id != -1) {
+        if (inventory->items[i].id != -1) {
 
             // change the color according to pos of mouse
             if (mouse_in_rect_fix_drift(mouseX, mouseY, &itemRect, true_width, win_width)) {

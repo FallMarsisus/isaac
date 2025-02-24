@@ -13,4 +13,6 @@ extern ItemData shield;
 
 extern ItemData* itemList[];
 
+void initDefaultItems(); 
+
 #endif // ITEM_LIST_H

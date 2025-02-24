@@ -7,6 +7,11 @@ void normalize(Vector* v) {
     v->y = v->y / len;
 }
 
+void vector_multiply(Vector* v, float factor) {
+	v->x *= factor;
+	v->y *= factor;
+}
+
 float vector_size(Vector* v) {
     return sqrt(v->x * v->x + v->y * v->y);
 }

@@ -17,6 +17,8 @@ void item_do_nothing(u_int32_t entity, ItemData currentItem);
 void unselectItem(uint32_t entity, ItemData currentItem);
 void weapon_item_equip(uint32_t entity, ItemData currentItem);
 void weapon_item_unequip(uint32_t entity, ItemData currentItem);
+void throwItemAtMouse(uint32_t player, int itemIndex, SDL_Rect cam, int win_width, int true_width);
+void throwItem(uint32_t player, int itemIndex, Vector* throwDirection);
 
 ActionFunction get_constant_functions(int i, slots slot);
 char* get_actions_name(int i, slots slot);

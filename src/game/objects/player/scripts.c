@@ -1,9 +1,11 @@
 #include "scripts.h"
 
-void init_player(ScriptComponent* script) {
+void init_player(ScriptComponent* script, int win_width, int true_width) {
     PlayerData* data = malloc(sizeof(PlayerData));
     data->speed = 3.5;
     data->direction = (Vector) {0, 0};
+	data->win_width = win_width;
+	data->true_width = true_width;
 
     script->data = data;
     script->update = update_player;
@@ -24,7 +26,7 @@ static void handle_movement_input(int* dx, int* dy) {
     }
 }
 
-static void handle_inventory_display(InventoryComponent* inv) {
+static void handle_inventory_display(InventoryComponent* inv, uint32_t player, SDL_Rect cam, int win_width, int true_width) {
     static bool is_it_wanting_to_display = false;
 	static bool is_displaying_in_console = false;
     const Uint8* state = SDL_GetKeyboardState(NULL);
@@ -42,6 +44,18 @@ static void handle_inventory_display(InventoryComponent* inv) {
 		print_inv_debug(inv);
 	} else if (!state[SDL_SCANCODE_B]) {
 		is_displaying_in_console = false;
+	}
+
+	static bool is_j_pressed = false;
+	if (state[SDL_SCANCODE_J] && !is_j_pressed) {
+		is_j_pressed = true;
+
+		if (inv->items[inv->max_nb_items].id != -1) {
+			throwItemAtMouse(player, inv->max_nb_items, cam, win_width, true_width);
+		}
+		
+	} else if (!state[SDL_SCANCODE_J]) {
+		is_j_pressed = false;
 	}
 }
 
@@ -132,7 +146,7 @@ void update_player(u_int32_t player, SDL_Rect cam) {
     SwordComponent* sword = ECS_GetComponent(player, SWORD_C);
 
     if (movement && position) {
-        handle_inventory_display(inv);
+        handle_inventory_display(inv, player, cam, movement->win_width, movement->true_width);
         handle_mouse_input(player);
         update_movement_and_animation(movement, position, anim, dx, dy, distance);
     }

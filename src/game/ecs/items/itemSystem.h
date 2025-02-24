@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "../ecs.h"
 #include "itemData.h"
-#include "itemComponent.h"
+#include "./itemComponent.h"
 #include "../inventory/inventoryComponent.h"
 #include "./itemsFunctions.h"
 

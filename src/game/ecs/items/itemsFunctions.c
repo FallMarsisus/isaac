@@ -49,6 +49,8 @@ void activateScriptOnTimerEnd(Timer* timer, void* user_data) {
 
 	script->data = item->item.throwProp->script->data;
 	script->update = item->item.throwProp->script->update;
+
+	free(user_data);
 }
 
 void throwItemAtMouse(uint32_t player, int itemIndex, SDL_Rect cam, int win_width, int true_width) {
@@ -93,17 +95,16 @@ void throwItem(uint32_t player, int itemIndex, Vector* throwDirection) {
 	}
 
     uint32_t itemEntity = add_item_entity(pos->x+5, pos->y+5, itemD, player, true);
+
+	free_itemData(&itemD);
+
     ItemComponent* item = ECS_GetComponent(itemEntity, ITEM);
     PositionComponent* itemPos = ECS_GetComponent(itemEntity, POSITION);
     RigidbodyComponent* itemBody = ECS_GetComponent(itemEntity, BODY);
-    if (!item || !itemBody) return;
-    
-	// printf("Item throw properties: %d\n", item->item.throwProp);
-	// printf("Time before script activation: %f\n", item->item.throwProp->timeBeforeScriptActivation);
-	// printf("Script data: %p\n", item->item.throwProp->script->data);
-	// printf("Script update function: %p\n", item->item.throwProp->script->update);
-    if (item->item.throwProp != NULL) {
 
+    if (!item || !itemBody || !itemBody) return;
+
+    if (item->item.throwProp != NULL) {
 		uint32_t* argument = malloc(sizeof(uint32_t));
 		*argument = itemEntity;
         Timer* timer = create_timer(item->item.throwProp->timeBeforeScriptActivation, activateScriptOnTimerEnd, argument);
@@ -117,14 +118,15 @@ void throwItem(uint32_t player, int itemIndex, Vector* throwDirection) {
         pop(itemBody->forces); //pour suppr le vent de con que j'ai ajouté
     }
 
-    float* dragCoef = malloc(sizeof(float)*6);
-	dragCoef[0] = 150;
-	dragCoef[1] = 500;
-	dragCoef[2] = 0;
-	dragCoef[3] = 0;
-	dragCoef[4] = 0;
-	dragCoef[5] = 0;
-    Force* f = create_force(solid_drag_force, dragCoef, true);
+    sdfArgs* dragCoef = malloc(sizeof(sdfArgs));
+	dragCoef->movingCoef = 150;
+	dragCoef->staticCoef = 500;
+	dragCoef->lastSignX = 0;
+	dragCoef->timesOsciliatingX = 0;
+	dragCoef->lastSignY = 0;
+	dragCoef->timesOsciliatingY = 0;
+	printf("adding force de con\n");
+    Force* f = create_force(solid_drag_force, dragCoef);
     add_force(itemEntity, f);
 }
 

@@ -47,8 +47,11 @@ void free_sprite_component(SpriteComponent* sprite) {
 }
 void free_anim_component(AnimationComponent* animation) {
     free(animation->current_img);
+	animation->current_img = NULL;
     free_array(animation->animations, true);
+	animation->animations = NULL;
 }
+
 void free_all_render_components(uint32_t id) {
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
     if(sprite) {

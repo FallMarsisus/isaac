@@ -67,6 +67,8 @@ void free_game()
     ECS_DestroyManager();
 
     free_event_system();
+	freeDefaultItems();
+
 
     free(game);
 }

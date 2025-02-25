@@ -8,6 +8,7 @@
 #include "../ecs.h"
 #include "../inventory/inventoryComponent.h"
 #include "../inventory/inventorySystem.h"
+#include "./throwScripts.h"
 #include "../../../utils/vector.h"
 #include "../systems.h"
 
@@ -127,7 +128,6 @@ void timer_make_item_grabbable_by_dropper(Timer* self, void* arguments) {
     uint32_t* entityAdress = arguments;
     ItemComponent* item = ECS_GetComponent(*entityAdress, ITEM);
 
-    free_timer(self);
     free(arguments);
 
     if (!item) {
@@ -139,6 +139,11 @@ void timer_make_item_grabbable_by_dropper(Timer* self, void* arguments) {
 
 uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, bool playerLocked) {
     uint32_t itemEntity = ECS_CreateEntity();
+
+	if (itemEntity == 137) {
+		printf("tagrossmère");
+	}
+
     PositionComponent* position = ECS_AddComponent(itemEntity, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(itemEntity, SPRITE, sizeof(SpriteComponent));
     ItemComponent* itemC = ECS_AddComponent(itemEntity, ITEM, sizeof(ItemComponent));
@@ -165,16 +170,11 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
     body->is_dynamic = true;
 	body->mass = 20;
 
-	void* windArgs = malloc(sizeof(int)*3);
-	((float*) windArgs)[0] = 3;
-	((float*) windArgs)[1] = 2;
-	((float*) windArgs)[2] = 10;
-	Force* f = create_force(wind_force, windArgs, true); 
-
-	add_force(itemEntity, f);
-
     itemC->isGettable = true;
     itemC->item = itemType;
+
+	ThrowProperties* tp = get_default_throw_prop(itemType.id);
+	itemC->item.throwProp = tp;
 
     return itemEntity;
 }
@@ -229,4 +229,21 @@ bool transfer_item_into_inventory(uint32_t itemEntity, uint32_t targetEntity) {
     }
 
     return add_item_to_inventory(targetEntity, item->item);
+}
+
+void free_item_component(uint32_t entity) {
+	ItemComponent* item = ECS_GetComponent(entity, ITEM);
+	if (!item) return;
+
+	free_throw_properties(item->item.throwProp);
+	free(item->item.throwProp);
+	item->item.throwProp = NULL;
+}
+
+void free_itemData(ItemData* itemD) {
+    if (itemD->throwProp) {
+        free_throw_properties(itemD->throwProp);
+        free(itemD->throwProp);
+        itemD->throwProp = NULL;
+    }
 }

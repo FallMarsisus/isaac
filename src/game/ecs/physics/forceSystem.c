@@ -5,6 +5,7 @@
 #include "../components.h"
 #include "../ecs.h"
 #include "../../../utils/ouputColors.h"
+#include "../../../display.h"
 
 bool wind_force(uint32_t entity, Force* f, void* args) {
 	PositionComponent* pos = ECS_GetComponent(entity, POSITION);
@@ -89,7 +90,8 @@ bool fluid_drag_force(uint32_t entity, Force* f, void* args) {
     return (forceArgs[2] < 10.0f);  // Arrêter quand la force devient très faible
 }
 
-bool fluid_drag_force(uint32_t entity, Force* f, void* args) {
+
+bool fluid_drag_forcev2(uint32_t entity, Force* f, void* args) {
 	PositionComponent* pos = ECS_GetComponent(entity, POSITION);
 	
 	if (!pos) return true;
@@ -106,7 +108,7 @@ bool fluid_drag_force(uint32_t entity, Force* f, void* args) {
 	return false;
 }
 
-void stopLeMassacre(PositionComponent* pos, RigidbodyComponent* body, Force* f, bool X, bool Y) {
+void stop_oscillation(PositionComponent* pos, RigidbodyComponent* body, Force* f, bool X, bool Y) {
 	if (X) {
 		f->Fx = 0;
 		pos->vx = 0;
@@ -121,7 +123,24 @@ void stopLeMassacre(PositionComponent* pos, RigidbodyComponent* body, Force* f, 
 	}
 }
 
-bool solid_drag_force(uint32_t entity, Force* f, void* args) {
+bool solid_drag_force(uint32_t entity, Force* f, void* arguments) {
+	printf(MAGENTA "Applying solid drag force to entity %u\n" RESET, entity);
+	SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
+	sprite_list* l =  get_sprites();
+
+
+	if (!arguments || !f) {
+		fprintf(stderr, RED "Error: Invalid arguments or force structure.\n" RESET);
+		return true;
+	};
+
+	sdfArgs* args = (sdfArgs*) arguments;
+	if (!args) {
+		fprintf(stderr, RED "Error: Invalid arguments.\n" RESET);
+		return true;
+	}
+
+
 	PositionComponent* pos = ECS_GetComponent(entity, POSITION);
 	RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
 	
@@ -129,23 +148,24 @@ bool solid_drag_force(uint32_t entity, Force* f, void* args) {
 
 	int seuil = 5;
 
-	float movingCoeff = *(float*)args;
-	float staticCoef = ((float*)args)[1];
+
+	float movingCoeff = args->movingCoef;
+	float staticCoef = args->staticCoef;
 
 	// to prevent oscilations
-	float lastSignX = ((float*)args)[2]; 
-	float timesOsciliatingX = ((float*)args)[3];
-	float lastSignY = ((float*)args)[4];
-	float timesOsciliatingY = ((float*)args)[5];
+	float lastSignX = args->lastSignX;
+	int timesOsciliatingX = args->timesOsciliatingX;
+	float lastSignY = args->lastSignY;
+	int timesOsciliatingY = args->timesOsciliatingY;
 
 	float allForces = sqrt(body->forceX * body->forceX + body->forceY * body->forceY);
 	float speedNorm = sqrt(pos->vx * pos->vx + pos->vy * pos->vy);
 
-	((float*)args)[2] = (pos->vx > 0) ? 1 : -1;
-	((float*)args)[4] = (pos->vy > 0) ? 1 : -1;
+	args->lastSignX = (pos->vx > 0) ? 1 : -1;
+	args->lastSignY = (pos->vy > 0) ? 1 : -1;
 
 	if (speedNorm <= 0.07f && allForces <= staticCoef) {
-		stopLeMassacre(pos, body, f, true, true);
+		stop_oscillation(pos, body, f, true, true);
 		return false;
 	};
 
@@ -157,34 +177,34 @@ bool solid_drag_force(uint32_t entity, Force* f, void* args) {
 	if ((pos->vx > 0 && lastSignX < 0) || (pos->vx < 0 && lastSignX > 0)) {
 		// printf(YELLOW "Increasing timesOsciliatingX: %.2f\n" RESET, timesOsciliatingX + 1);
 		timesOsciliatingX++;
-		((float*)args)[3] += 1.;
+		args->timesOsciliatingX++;
 
 	} else if (fabs(pos->vx) > 0.3f) {
 		timesOsciliatingX = 0;
-		((float*)args)[3] = 0;
+		args->timesOsciliatingX = 0;
 	}
 
 	if ((pos->vy > 0 && lastSignY < 0) || (pos->vy < 0 && lastSignY > 0)) {
 		// printf(YELLOW "Increasing timesOsciliatingY: %.2f\n" RESET, timesOsciliatingY + 1);
 		timesOsciliatingY++;
-		((float*)args)[5] += 1.;
+		args->timesOsciliatingY++;
 	} else if (fabs(pos->vy) > 0.3f) {
 		timesOsciliatingY = 0;
-		((float*)args)[5] = 0;
+		args->timesOsciliatingY = 0;
 	}
 
 	Vector direction = {pos->vx, pos->vy};
 	if (timesOsciliatingX >= seuil && timesOsciliatingY >= seuil) {
-		stopLeMassacre(pos, body, f, true, true);
+		stop_oscillation(pos, body, f, true, true);
 		return false;
 	}
 	if (timesOsciliatingX >= seuil) {
-		stopLeMassacre(pos, body, f, true, false);
+		stop_oscillation(pos, body, f, true, false);
 		f->Fy = - movingCoeff * direction.y;
 		return false;
 	}
 	if (timesOsciliatingY >= seuil) {
-		stopLeMassacre(pos, body, f, false, true);
+		stop_oscillation(pos, body, f, false, true);
 		f->Fx = - movingCoeff * direction.x;
 		return false;
 	}
@@ -199,27 +219,32 @@ bool solid_drag_force(uint32_t entity, Force* f, void* args) {
 }
 
 
-Force* create_force(ForceFunction func, void* additionalArgs, bool argsAreMalloc) {
+Force* create_force(ForceFunction func, void* additionalArgs) {
 	Force* f = malloc(sizeof(Force));
 	f->func = func;
 	f->Fx = 0;
 	f->Fy = 0;
 	f->additionalArgs = additionalArgs;
-	f->argsAreMalloc = argsAreMalloc;
 	return f;
 }
 
-bool update_entity_force(uint32_t entity, Force* f)
-{
+bool update_entity_force(uint32_t entity, Force* f) {
     return (*f->func)(entity, f, f->additionalArgs);
 }
 
 void free_force(Force* f) {
-    if (!f) return;  // Vérification de sécurité
-    
-    // Ne libérer additionalArgs que s'il existe
-    if (f->additionalArgs) {
-        f->additionalArgs = NULL;  // Éviter la double libération
-    }
-    free(f);
+	if (!f) return;  // Vérification de sécurité
+	
+	// Ne libérer additionalArgs que s'il existe
+	if (f->additionalArgs) {
+		free(f->additionalArgs);
+		f->additionalArgs = NULL;  // Éviter la double libération
+	}
+	free(f);
+}
+
+void pop_force(RigidbodyComponent* body) {
+	Force* f = get_elt(body->forces, get_len(body->forces)-1);
+	free_force(f);
+	pop(body->forces);
 }

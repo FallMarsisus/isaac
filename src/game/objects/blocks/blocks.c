@@ -2,6 +2,12 @@
 
 uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset_texture, bool has_collision, int layer) {
     uint32_t tile = ECS_CreateEntity();
+
+	
+	if (tile == 137) {
+		printf("tile ID is 137\n");
+	}
+
     PositionComponent* position = ECS_AddComponent(tile, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(tile, SPRITE, sizeof(SpriteComponent));
     TileComponent* tile_comp = ECS_AddComponent(tile, TILE, sizeof(TileComponent));
@@ -20,6 +26,7 @@ uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset
 }
 uint32_t add_background_tile(float x, float y) {
     uint32_t block = ECS_CreateEntity();
+
     PositionComponent* position = ECS_AddComponent(block, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(block, SPRITE, sizeof(SpriteComponent));
 
@@ -31,6 +38,7 @@ uint32_t add_background_tile(float x, float y) {
 }
 uint32_t add_chest(float x, float y) {
     uint32_t chest = ECS_CreateEntity();
+
     PositionComponent* position = ECS_AddComponent(chest, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(chest, SPRITE, sizeof(SpriteComponent));
 
@@ -42,6 +50,7 @@ uint32_t add_chest(float x, float y) {
 }
 uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
     uint32_t obj = ECS_CreateEntity();
+
     PositionComponent* position = ECS_AddComponent(obj, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(obj, SPRITE, sizeof(SpriteComponent));
     ScriptComponent* script = ECS_AddComponent(obj, SCRIPT, sizeof(ScriptComponent));
@@ -54,10 +63,13 @@ uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
 }
 uint32_t add_door(float x, float y) {
     uint32_t door = add_tile(x, y, 0, 0, get_sprites()->tileset_texture, true, 0);
+
+	
     return door;
 }
 uint32_t add_trap(float x, float y) {
     uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, true, 0);
+
     ScriptComponent* script = ECS_AddComponent(trap, SCRIPT, sizeof(ScriptComponent));
     init_trap(script);
 

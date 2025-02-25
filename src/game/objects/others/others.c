@@ -32,7 +32,9 @@ uint32_t add_projectile(float x, float y, float vx, float vy, float time, SDL_Te
 
 uint32_t add_flame(float x, float y, float vx, float vy) {
     uint32_t flame = add_projectile(x, y, vx, vy, 5, get_sprites()->flame_texture);
-    AnimationComponent* animation = ECS_AddComponent(flame, ANIMATION, sizeof(AnimationComponent));
+
+
+	AnimationComponent* animation = ECS_AddComponent(flame, ANIMATION, sizeof(AnimationComponent));
 
     create_damager(flame, (DamagerComponent) {1, 0, false, 0});
     

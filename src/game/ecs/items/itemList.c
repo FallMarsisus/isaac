@@ -16,3 +16,11 @@ void initDefaultItems() {
 		itemList[i]->throwProp = get_default_throw_prop(itemList[i]->id);
 	}
 }
+
+void freeDefaultItems() {
+	for (int i = 0; i < itemCount; i++) {
+		free_throw_properties(itemList[i]->throwProp);
+		free(itemList[i]->throwProp);
+		itemList[i]->throwProp = NULL;
+	}
+}

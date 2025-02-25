@@ -4,10 +4,13 @@
 #include "../../../utils/ouputColors.h"
 
 void free_throw_properties(ThrowProperties* tp) {
-	free_script_component((ScriptComponent*) tp->script);
+	if (tp) {
+		free(tp->script);
+		tp->script = NULL;
+	}
 }
 
-void thrownSwordHit(uint32_t entity, SDL_Rect cam) {
+void thrownSwordHit(uint32_t entity, SDL_Rect cam, uint32_t* entites, int amount) {
 	//make the sword hit surrounding ennemies and rotate the sprite 
 	ItemComponent* item = ECS_GetComponent(entity, ITEM);
 	if (!item) return;
@@ -18,11 +21,11 @@ void thrownSwordHit(uint32_t entity, SDL_Rect cam) {
 	// /!\ todo
 }
 
-void printToDebug(uint32_t entity, SDL_Rect cam) {
+void printToDebug(uint32_t entity, SDL_Rect cam, uint32_t* entites, int amount) {
 	printf("fonction de con called");
 }
 
-void selfDestroyingFunc(uint32_t entity, SDL_Rect cam) {
+void selfDestroyingFunc(uint32_t entity, SDL_Rect cam, uint32_t* entites, int amount) {
 	/*
 	Pour avoir un modèle (immonde) de fonction qui s'appelle une seule fois quand le timer est fini 
 	*/
@@ -32,8 +35,8 @@ void selfDestroyingFunc(uint32_t entity, SDL_Rect cam) {
 	ScriptComponent* script = ECS_GetComponent(entity, SCRIPT);
 	if (!script) return;
 
-	script->update = NULL;
 	free(script->data);
+	script->update = NULL;
 	script->data = NULL;
 	
 	printf(RED "self destroying func called (and destroyed)\n" RESET);
@@ -51,7 +54,7 @@ ThrowProperties* get_default_throw_prop(enum ItemID itemType) {
 		int* dmg = malloc(sizeof(int));
 		*dmg = 1;
 		tp->script->data = dmg;
-		tp->script->update = &selfDestroyingFunc;
+		tp->script->update = &thrownSwordHit;
 		tp->timeBeforeScriptActivation = 1;
 		break;
 	

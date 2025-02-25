@@ -2,6 +2,12 @@
 
 uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl, SDL_Texture* texture) {
     uint32_t enemy = ECS_CreateEntity();
+
+
+	if (enemy == 137) {
+		printf("enemy ID is 137\n");
+	}
+
     PositionComponent* position = ECS_AddComponent(enemy, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(enemy, SPRITE, sizeof(SpriteComponent));
     RigidbodyComponent* body = ECS_AddComponent(enemy, BODY, sizeof(RigidbodyComponent));
@@ -45,6 +51,12 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
 }
 uint32_t add_goblin(float x, float y, uint32_t pl) {
     uint32_t goblin = add_standard_enemy(x, y, 64, 64, pl, get_sprites()->goblin_texture);
+
+
+	if (goblin == 137) {
+		printf("goblin ID is 137\n");
+	}
+
     AnimationComponent* animation = ECS_AddComponent(goblin, ANIMATION, sizeof(AnimationComponent));
     init_anim_component(animation, 16, 16);
 
@@ -58,6 +70,11 @@ uint32_t add_goblin(float x, float y, uint32_t pl) {
 }
 uint32_t add_slime(float x, float y, uint32_t pl) {
     uint32_t slime = add_standard_enemy(x, y, 64, 64, pl, get_sprites()->slime_texture);
+
+	if (slime == 137) {
+		printf("slime ID is 137\n");
+	}
+
     AnimationComponent* animation = ECS_AddComponent(slime, ANIMATION, sizeof(AnimationComponent));
     init_anim_component(animation, 16, 16);
 
@@ -68,6 +85,12 @@ uint32_t add_slime(float x, float y, uint32_t pl) {
 }
 uint32_t add_alien(float x, float y, uint32_t pl) {
     uint32_t alien = add_standard_enemy(x, y, 64, 64, pl, get_sprites()->alien_texture);
+
+
+	if (alien == 137) {
+		printf("alin ID is 137\n");
+	}
+
     AnimationComponent* animation = ECS_AddComponent(alien, ANIMATION, sizeof(AnimationComponent));
     init_anim_component(animation, 16, 16);
 
@@ -82,6 +105,7 @@ uint32_t add_alien(float x, float y, uint32_t pl) {
 
 uint32_t add_boss(float x, float y, uint32_t pl) {
     uint32_t boss = ECS_CreateEntity();
+
     PositionComponent* position = ECS_AddComponent(boss, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(boss, SPRITE, sizeof(SpriteComponent));
     RigidbodyComponent* body = ECS_AddComponent(boss, BODY, sizeof(RigidbodyComponent));

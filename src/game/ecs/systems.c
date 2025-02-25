@@ -26,6 +26,8 @@ void free_one_entity(uint32_t entity) {
     free_all_other_components(entity);
     free_all_render_components(entity);
 
+	free_item_component(entity);
+
     free_rigidbody_component(entity);
 
     add_removal_flag(entity);

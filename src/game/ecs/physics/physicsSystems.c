@@ -88,26 +88,27 @@ void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
 	bool shouldBeRemoved;
 	Force* currentForce;
 	int solidDIndex = -1;
+	SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
+	sprite_list* l =  get_sprites();
+
+	ForceFunction sdf = solid_drag_force;
+
 
 	if (!body->forces || get_len(body->forces) == 0) return;
 	
 	for (int i = 0; i < get_len(body->forces); i++) {
-    if (!body->forces || get_len(body->forces) == 0) return;
-    
-    for (int i = 0; i < get_len(body->forces); i++) {
-        Force* currentForce = (Force*)get_elt(body->forces, i);
-        if (!currentForce) continue;
 
-		currentForce = (Force*) get_elt(body->forces, i);
-		if (currentForce->func = solid_drag_force) {
+		currentForce = get_elt(body->forces, i);
+        if (!currentForce) continue;
+		
+		if (currentForce->func == sdf) {
 			solidDIndex = i;
 			continue;
 		}
+		printf("Applying force: Fx = %d\n", currentForce->func);
 
 		shouldBeRemoved = update_entity_force(entity, currentForce);
 		apply_one_force(body, currentForce->Fx, currentForce->Fy);
-        bool shouldBeRemoved = update_entity_force(entity, currentForce);
-        apply_one_force(body, currentForce->Fx, currentForce->Fy);
 
         if (shouldBeRemoved) {
             free_force(currentForce);  // Libérer la force
@@ -115,6 +116,14 @@ void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
             i--;
         }
     }
+
+	if (solidDIndex >= 0) {
+
+		currentForce = get_elt(body->forces, solidDIndex);
+
+		update_entity_force(entity, currentForce);
+		apply_one_force(body, currentForce->Fx, currentForce->Fy);
+	}
 }
 
 void add_force(uint32_t entity, Force* f) {
@@ -215,6 +224,7 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
                 position->y = originalY;
                 resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
             }
+
             if (id < e || !body->is_dynamic || !otherBody->is_dynamic) {
                 bool alreadyTriggered = false;
                 for (int i = 0; i < collidedCount; i++) {

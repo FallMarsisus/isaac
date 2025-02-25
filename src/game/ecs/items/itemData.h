@@ -8,7 +8,7 @@
 typedef struct {
     void* data;
 
-    void (*update)(uint32_t entity, SDL_Rect cam);
+    void (*update)(uint32_t entity, SDL_Rect cam, uint32_t* entites, int amount);
 } ScriptDeWish;
 
 enum ItemID {

@@ -26,24 +26,6 @@ bool wind_force(uint32_t entity, Force* f, void* args) {
 	return false;
 }
 
-// bool knockback_force(uint32_t entity, Force* f, void* args) {
-//     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
-//     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
-    
-//     if (!pos || !body) return true;
-    
-//     float targetVX = ((float*)args)[0];
-//     float targetVY = ((float*)args)[1];
-//     float strength = ((float*)args)[2];
-    
-//     f->Fx = strength * targetVX;
-//     f->Fy = strength * targetVY;
-    
-//     printf("Applying knockback force: Fx=%f, Fy=%f to entity %u\n", f->Fx, f->Fy, entity);
-    
-//     return true;
-// }
-
 bool knockback_force(uint32_t entity, Force* f, void* args) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
@@ -102,7 +84,7 @@ bool fluid_drag_force(uint32_t entity, Force* f, void* args) {
     pos->vx = f->Fx * velocityFactor;
     pos->vy = f->Fy * velocityFactor;
     
-    printf("Force remaining: %f\n", forceArgs[2]);
+    // printf("Force remaining: %f\n", forceArgs[2]);
     
     // Ne pas libérer la mémoire ici, laisser free_force s'en charger
     return (forceArgs[2] < 10.0f);  // Arrêter quand la force devient très faible
@@ -121,8 +103,8 @@ bool fluid_drag_forcev2(uint32_t entity, Force* f, void* args) {
 	float norm = sqrt(pos->vx * pos->vx + pos->vy * pos->vy);
 	f->Fx = - coeff * pos->vx * norm;
 	f->Fy = - coeff * pos->vy * norm;
-	printf("\nnorm = %.5f, pos->vx = %.5f, pos->vy = %.5f, coeff = %.5f\n", norm, pos->vx, pos->vy, coeff);
-	printf(BLUE "applying solid drag: force = %.5f N\n" RESET, sqrt(f->Fx * f->Fx + f->Fy * f->Fy));
+	// printf("\nnorm = %.5f, pos->vx = %.5f, pos->vy = %.5f, coeff = %.5f\n", norm, pos->vx, pos->vy, coeff);
+	// printf(BLUE "applying solid drag: force = %.5f N\n" RESET, sqrt(f->Fx * f->Fx + f->Fy * f->Fy));
 	return false;
 }
 
@@ -142,7 +124,6 @@ void stop_oscillation(PositionComponent* pos, RigidbodyComponent* body, Force* f
 }
 
 bool solid_drag_force(uint32_t entity, Force* f, void* arguments) {
-	printf(MAGENTA "Applying solid drag force to entity %u\n" RESET, entity);
 	SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
 	sprite_list* l =  get_sprites();
 

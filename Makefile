@@ -1,13 +1,13 @@
 # Compiler
 CC = gcc
 
-CFLAGS = -Wall -Wextra -g -fsanitize=address
+CFLAGS = -Wall -Wextra -g #-fsanitize=address
 LFLAGS = -lm -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer
 
 # Detect OS
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S), Darwin)
-	CFLAGS += -I/opt/homebrew/include -fsanitize=address
+	CFLAGS += -I/opt/homebrew/include #-fsanitize=address
 	LFLAGS += -L/opt/homebrew/lib -lSDL2_image
 endif
 

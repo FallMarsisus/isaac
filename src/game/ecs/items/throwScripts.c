@@ -5,8 +5,14 @@
 
 void free_throw_properties(ThrowProperties* tp) {
 	if (tp) {
-		free(tp->script);
-		tp->script = NULL;
+		if (tp->script) {
+			if (tp->script->data) {
+				free(tp->script->data);
+				tp->script->data = NULL;
+			}
+			free(tp->script);
+			tp->script = NULL;
+		}
 	}
 }
 

@@ -110,10 +110,12 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     StateMachineComponent* sm = ECS_AddComponent(boss, STATE_MACHINE, sizeof(StateMachineComponent));
     HealthComponent* health = ECS_AddComponent(boss, HEALTH, sizeof(HealthComponent));
     AnimationComponent* animation = ECS_AddComponent(boss, ANIMATION, sizeof(AnimationComponent));
-
     StunComponent* stun = ECS_AddComponent(boss, STUN, sizeof(StunComponent));
     stun->duration = 0;
     stun->start_time = 0;
+    
+    // Initialize components
+    init_position_component(position, x, y);
     
     init_health_component(health, 1000, 10, 0);
     init_state_machine(sm, boss);
@@ -125,8 +127,6 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     switch_state(sm, "attack");
     
     create_damager(boss, (DamagerComponent) {1, 0, false, 0});
-    // Initialize components
-    init_position_component(position, x, y);
 
     init_rigidbody_component(body, 2, 2, 150 - 4, 150 - 4);
     body->is_dynamic = true;

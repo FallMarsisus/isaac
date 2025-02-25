@@ -20,8 +20,6 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     init_health_component(health, 100, 10, 0);
     init_state_machine(sm, enemy);
     
-
-     
     State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
     idle_state->vars = create_idle_vars(pl);
     add_state(sm , idle_state);
@@ -112,8 +110,12 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     StateMachineComponent* sm = ECS_AddComponent(boss, STATE_MACHINE, sizeof(StateMachineComponent));
     HealthComponent* health = ECS_AddComponent(boss, HEALTH, sizeof(HealthComponent));
     AnimationComponent* animation = ECS_AddComponent(boss, ANIMATION, sizeof(AnimationComponent));
+
+    StunComponent* stun = ECS_AddComponent(boss, STUN, sizeof(StunComponent));
+    stun->duration = 0;
+    stun->start_time = 0;
     
-    init_health_component(health, 1, 10, 0);
+    init_health_component(health, 1000, 10, 0);
     init_state_machine(sm, boss);
 
     State* attack_state = create_state("attack", on_attack_boss_enter, on_attack_boss_update, on_attack_boss_exit, on_attack_boss_free);

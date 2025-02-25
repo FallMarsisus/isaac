@@ -2,7 +2,7 @@
 
 void init_player(ScriptComponent* script, int win_width, int true_width) {
     PlayerData* data = malloc(sizeof(PlayerData));
-    data->speed = 5;
+    data->speed = 3.5;
     data->direction = (Vector) {0, 0};
 	data->win_width = win_width;
 	data->true_width = true_width;

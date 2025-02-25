@@ -19,7 +19,7 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
     body->forceY = 0;
 	body->forces = create_array();
 
-    body->active = true;
+    body->colliding = false;
 }
 
 void free_rigidbody_component(uint32_t entity) {
@@ -182,7 +182,7 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
         // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
         HealthComponent* health = ECS_GetComponent(e, HEALTH);
         if (isColliding(position, body, otherPos, otherBody)) {
-            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active && !health) {
+            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->colliding && !health) {
                 position->x = originalX;
                 resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
             }
@@ -220,7 +220,7 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
         // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
         HealthComponent* health = ECS_GetComponent(e, HEALTH);
         if (isColliding(position, body, otherPos, otherBody)) {
-            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active && !health) {
+            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->colliding && !health) {
                 position->y = originalY;
                 resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
             }

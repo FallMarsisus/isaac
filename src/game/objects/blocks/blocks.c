@@ -17,10 +17,9 @@ uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset
     sprite->layer = layer;
     init_tile_component(tile_comp, tile_x, tile_y, 16, 16);
 
-    if(has_collision) {
-        RigidbodyComponent* body = ECS_AddComponent(tile, BODY, sizeof(RigidbodyComponent));
-        init_rigidbody_component(body, 2, 2, 60, 60);
-    }
+    RigidbodyComponent* body = ECS_AddComponent(tile, BODY, sizeof(RigidbodyComponent));
+    init_rigidbody_component(body, 2, 2, 60, 60);
+    body->colliding = has_collision;
 
     return tile;
 }
@@ -68,19 +67,10 @@ uint32_t add_door(float x, float y) {
     return door;
 }
 uint32_t add_trap(float x, float y) {
-    uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, true, 0);
-
+    uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, false, 0);
     ScriptComponent* script = ECS_AddComponent(trap, SCRIPT, sizeof(ScriptComponent));
     init_trap(script);
-
-    AnimationComponent* anim = ECS_AddComponent(trap, ANIMATION, sizeof(AnimationComponent));
-    init_anim_component(anim, 16, 16);
-
-    add_anim_tile(anim, 4, 1, 1, 2);
-
-    set_active_anim(anim, 0);
-    play_anim(anim);
-
+    
     return trap;
 }
 

@@ -54,7 +54,7 @@ typedef struct {
     float forceY;
 	dyn_array* forces;
 
-    bool active;
+    bool colliding;
 } RigidbodyComponent;
 
 // Sprite component (for rendering a texture)

@@ -1,7 +1,6 @@
 #include "healthSystem.h"
 
-bool init_health_component(uint32_t entity, int max_health, int max_mana, int shield) {
-    HealthComponent* health = ECS_AddComponent(entity, HEALTH, sizeof(HealthComponent));
+bool init_health_component(HealthComponent* health, int max_health, int max_mana, int shield) {
 	health->health = max_health;
 	health->mana = 0;
 	health->max_health = max_health;
@@ -42,6 +41,7 @@ bool damage(uint32_t entity, int damage) {
 
 	if(isDead(entity)) {
 		health->health = 0;
+		
 		ECS_RemoveEntity(entity);
 	}
 

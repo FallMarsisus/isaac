@@ -13,6 +13,7 @@
 #include "../../ecs/damager/damagerSystem.h"
 
 #include "../../event/eventSystem.h"
+#include "../../ecs/physics/forceSystem.h"
 
 #include "enemyStates.h"
 #include "bossStates.h"
@@ -34,11 +35,11 @@ uint32_t add_boss(float x, float y, uint32_t player);
  * @param entity Entity ID to check collisions for
  * @return true if collision detected, false otherwise
  */
-bool is_colliding_with_enemy(uint32_t entity);
+bool is_colliding_with_enemy(uint32_t entity, uint32_t* entities, int amount);
 
 /**
  * @brief Finds the nearest enemy to a given entity
  * @param entity Entity ID to find nearest enemy to
  * @return Entity ID of the nearest enemy
  */
-uint32_t get_nearest_enemy(uint32_t entity);
+uint32_t get_nearest_enemy(uint32_t entity, uint32_t* entities, int amount);

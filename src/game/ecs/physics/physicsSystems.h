@@ -3,6 +3,8 @@
 #include "../components.h"
 #include "../ecs.h"
 #include "./forceSystem.h"
+#include "../health/healthComponent.h"
+#include "../health/healthSystem.h"
 
 #include "../../event/eventList.h"
 #include "../../event/eventSystem.h"

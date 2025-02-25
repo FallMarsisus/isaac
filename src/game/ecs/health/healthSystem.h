@@ -5,7 +5,7 @@
 #include "healthComponent.h"
 #include "../../../display.h"
 
-bool init_health_component(uint32_t entity, int max_health, int max_mana, int shield);
+bool init_health_component(HealthComponent* health, int max_health, int max_mana, int shield);
 bool damage_bypass_shield(uint32_t entity, int damage);
 bool damage(uint32_t entity, int damage);
 bool heal(uint32_t entity, int healAmount);

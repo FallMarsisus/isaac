@@ -18,7 +18,6 @@ uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset
 
     return tile;
 }
-
 uint32_t add_background_tile(float x, float y) {
     uint32_t block = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(block, POSITION, sizeof(PositionComponent));
@@ -30,7 +29,6 @@ uint32_t add_background_tile(float x, float y) {
 
     return block;
 }
-
 uint32_t add_chest(float x, float y) {
     uint32_t chest = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(chest, POSITION, sizeof(PositionComponent));
@@ -42,7 +40,6 @@ uint32_t add_chest(float x, float y) {
 
     return chest;
 }
-
 uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
     uint32_t obj = ECS_CreateEntity();
     PositionComponent* position = ECS_AddComponent(obj, POSITION, sizeof(PositionComponent));
@@ -55,12 +52,10 @@ uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
 
     return obj;
 }
-
 uint32_t add_door(float x, float y) {
     uint32_t door = add_tile(x, y, 0, 0, get_sprites()->tileset_texture, true, 0);
     return door;
 }
-
 uint32_t add_trap(float x, float y) {
     uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, true, 0);
     ScriptComponent* script = ECS_AddComponent(trap, SCRIPT, sizeof(ScriptComponent));
@@ -77,13 +72,13 @@ uint32_t add_trap(float x, float y) {
     return trap;
 }
 
-bool is_colliding_with_chest(uint32_t entity) {
+bool is_colliding_with_chest(uint32_t entity, uint32_t* entities, int amount) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
 
-    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
-        if(e == entity) continue;
-        PositionComponent* chest_pos = ECS_GetComponent(e, POSITION);
-        SpriteComponent* chest_sprite = ECS_GetComponent(e, SPRITE);
+    for (int i = 0; i < amount; i++) {
+        if(entities[i] == entity) continue;
+        PositionComponent* chest_pos = ECS_GetComponent(entities[i], POSITION);
+        SpriteComponent* chest_sprite = ECS_GetComponent(entities[i], SPRITE);
         
         // Check if entity is a chest by checking its texture
         if (chest_sprite && chest_sprite->texture == get_sprites()->chest_closed_texture) {
@@ -97,7 +92,7 @@ bool is_colliding_with_chest(uint32_t entity) {
                     // Change chest texture to opened
                     chest_sprite->texture = get_sprites()->chest_opened_texture;
                     ChestOpenedEvent* event = malloc(sizeof(ChestOpenedEvent));
-                    event->chest_id = e;
+                    event->chest_id = entities[i];
                     event->player_id = entity;
                     event->x = chest_pos->x; event->y = chest_pos->y;
                     trigger_event(EVENT_CHEST_OPENED, event, true);

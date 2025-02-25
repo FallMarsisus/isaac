@@ -27,8 +27,8 @@ void free_one_entity(uint32_t entity) {
     free_all_render_components(entity);
 
     free_rigidbody_component(entity);
-    
-    ECS_RemoveEntity(entity);
+
+    add_removal_flag(entity);
 }
 
 void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect cam, float delta) {
@@ -39,8 +39,8 @@ void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect cam, floa
         update_state_machine(sm);
     }
     
-    update_others(elt, cam);
-    //update_pathfinding_system(elt, cam);
+    update_others(elt, cam, entities, amount);
+    //update_pathfinding_system(elt, roomPos);
     update_item(elt);
     update_physics(elt, entities, amount, delta);
     

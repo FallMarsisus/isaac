@@ -2,7 +2,7 @@
 
 void init_player(ScriptComponent* script, int win_width, int true_width) {
     PlayerData* data = malloc(sizeof(PlayerData));
-    data->speed = 3.5;
+    data->speed = 5;
     data->direction = (Vector) {0, 0};
 	data->win_width = win_width;
 	data->true_width = true_width;
@@ -96,12 +96,12 @@ static void update_movement_and_animation(PlayerData* movement, PositionComponen
     }
 }
 
-static void handle_combat(uint32_t player, PositionComponent* position, SwordComponent* sword) {
+static void handle_combat(uint32_t player, PositionComponent* position, SwordComponent* sword, uint32_t* entities, int amount) {
     static bool attacked = false;
     static bool sword_used = false;
     static int sword_counter = 0;
     const Uint8* state = SDL_GetKeyboardState(NULL);
-    uint32_t nearest_enemy = get_nearest_enemy(player);
+    uint32_t nearest_enemy = get_nearest_enemy(player, entities, amount);
 
     if (sword_used) {
         sword_counter++;
@@ -116,7 +116,7 @@ static void handle_combat(uint32_t player, PositionComponent* position, SwordCom
         sword_used = true;
         sword_counter = 0;
 
-        if (nearest_enemy != -1 && is_colliding_with_enemy(player) && !attacked) {
+        if (nearest_enemy != -1 && is_colliding_with_enemy(player, entities, amount) && !attacked) {
             attacked = true;
             if (apply_damage(nearest_enemy, player) == false) {
                 printf("ERROR : Player not found\n");
@@ -126,12 +126,12 @@ static void handle_combat(uint32_t player, PositionComponent* position, SwordCom
         }
     }
     
-    if (!is_colliding_with_enemy(player)) {
+    if (!is_colliding_with_enemy(player, entities, amount)) {
         attacked = false;
     }
 }
 
-void update_player(u_int32_t player, SDL_Rect cam) {
+void update_player(u_int32_t player, SDL_Rect cam, uint32_t* entities, int amount) {
     ScriptComponent* script = ECS_GetComponent(player, SCRIPT);
     if(!script) return;
 
@@ -152,6 +152,6 @@ void update_player(u_int32_t player, SDL_Rect cam) {
     }
 
     if (position && sword) {
-        handle_combat(player, position, sword);
+        handle_combat(player, position, sword, entities, amount);
     }
 }

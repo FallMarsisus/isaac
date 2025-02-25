@@ -7,10 +7,15 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     RigidbodyComponent* body = ECS_AddComponent(enemy, BODY, sizeof(RigidbodyComponent));
     StateMachineComponent* sm = ECS_AddComponent(enemy, STATE_MACHINE, sizeof(StateMachineComponent));
     HealthComponent* health = ECS_AddComponent(enemy, HEALTH, sizeof(HealthComponent));
+    StunComponent* stun = ECS_AddComponent(enemy, STUN, sizeof(StunComponent));
+    stun->duration = 0;
+    stun->start_time = 0;
     
-    init_health_component(enemy, 1, 10, 0);
+    init_health_component(health, 100, 10, 0);
     init_state_machine(sm, enemy);
+    
 
+     
     State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
     idle_state->vars = create_idle_vars(pl);
     add_state(sm , idle_state);
@@ -84,7 +89,7 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     HealthComponent* health = ECS_AddComponent(boss, HEALTH, sizeof(HealthComponent));
     AnimationComponent* animation = ECS_AddComponent(boss, ANIMATION, sizeof(AnimationComponent));
     
-    init_health_component(boss, 1, 10, 0);
+    init_health_component(health, 1, 10, 0);
     init_state_machine(sm, boss);
 
     State* attack_state = create_state("attack", on_attack_boss_enter, on_attack_boss_update, on_attack_boss_exit, on_attack_boss_free);
@@ -110,39 +115,39 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     return boss;
 }
 
-uint32_t get_nearest_enemy(uint32_t entity) {
+uint32_t get_nearest_enemy(uint32_t entity, uint32_t* entities, int amount) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     if(!pos) return -1;
 
     int min_dist = 1000;
     int nearest_enemy = -1;
 
-    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
-        if(e == entity) continue;
+    for (int i = 0; i < amount; i++) {
+        if(entities[i] == entity) continue;
         
-        PositionComponent* enemy_pos = ECS_GetComponent(e, POSITION);
-        HealthComponent* health_comp = ECS_GetComponent(e, HEALTH);
+        PositionComponent* enemy_pos = ECS_GetComponent(entities[i], POSITION);
+        HealthComponent* health_comp = ECS_GetComponent(entities[i], HEALTH);
         
         if (enemy_pos && health_comp) {
             int dist = sqrt(pow(pos->x - enemy_pos->x, 2) + pow(pos->y - enemy_pos->y, 2));
             if (dist < min_dist) {
                 min_dist = dist;
-                nearest_enemy = e;
+                nearest_enemy = entities[i];
             }
         }
     }
     return nearest_enemy;
 }
-bool is_colliding_with_enemy(uint32_t entity) {
+bool is_colliding_with_enemy(uint32_t entity, uint32_t* entities, int amount) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
     if(!pos || !body) return false;
     
-    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
-        if(e == entity) continue;
-        PositionComponent* enemy_pos = ECS_GetComponent(e, POSITION);
-        RigidbodyComponent* enemy_body = ECS_GetComponent(e, BODY);
-        DamagerComponent* damager = ECS_GetComponent(e, DAMAGER);
+    for (int i = 0; i < amount; i++) {
+        if(entities[i] == entity) continue;
+        PositionComponent* enemy_pos = ECS_GetComponent(entities[i], POSITION);
+        RigidbodyComponent* enemy_body = ECS_GetComponent(entities[i], BODY);
+        DamagerComponent* damager = ECS_GetComponent(entities[i], DAMAGER);
         if(!enemy_body || !enemy_pos || !damager) continue;
         
         if (isColliding(pos, body, enemy_pos, enemy_body)) return true;

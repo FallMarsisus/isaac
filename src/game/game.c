@@ -89,8 +89,7 @@ void on_entity_created(Event event) {
 
     add_entity(room, e->entity);
 }
-void on_entity_removed(Event event)
-{
+void on_entity_removed(Event event) {
     EntityRemovedEvent* rEvent = event.data;
 
     ChildComponent* child = ECS_GetComponent(rEvent->entity, CHILD);
@@ -102,6 +101,8 @@ void on_entity_removed(Event event)
         }
     }
     remove_entity(game->current_room, rEvent->entity);
+
+    free_one_entity(rEvent->entity);
 }
 
 void change_room(int x, int y) {
@@ -188,7 +189,7 @@ void update_game(int win_width, int win_height, float delta) {
 
     test_damage(game);
     // is_colliding_with_item(game->player);
-    is_colliding_with_chest(game->player);
+    is_colliding_with_chest(game->player, get_entities(game->current_room), get_entity_amount(game->current_room));
 
     PositionComponent* pos = ECS_GetComponent(game->player, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(game->player, SPRITE);

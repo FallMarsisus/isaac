@@ -25,6 +25,70 @@ bool wind_force(uint32_t entity, Force* f, void* args) {
 	return false;
 }
 
+bool knockback_force(uint32_t entity, Force* f, void* args) {
+    PositionComponent* pos = ECS_GetComponent(entity, POSITION);
+    RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
+    
+    if (!pos || !body) return true;
+    
+    static float decay = 0.90f;
+    static float velocityFactor = 0.02f;
+    
+    // Stocker la force initiale dans additionalArgs[3] si pas encore fait
+    float* forceArgs = (float*)f->additionalArgs;
+    float dirX = forceArgs[0];
+    float dirY = forceArgs[1];
+    if (forceArgs[2] <= 0) return true;  // Force épuisée
+    
+    // Appliquer la décroissance
+    forceArgs[2] *= decay;
+    
+    // Appliquer la force
+    f->Fx = forceArgs[2] * dirX;
+    f->Fy = forceArgs[2] * dirY;
+    
+    // Mise à jour de la vélocité
+    pos->vx = f->Fx * velocityFactor;
+    pos->vy = f->Fy * velocityFactor;
+    
+    printf("Force remaining: %f\n", forceArgs[2]);
+    
+    // Ne pas libérer la mémoire ici, laisser free_force s'en charger
+    return (forceArgs[2] < 10.0f);  // Arrêter quand la force devient très faible
+}
+
+bool fluid_drag_force(uint32_t entity, Force* f, void* args) {
+    PositionComponent* pos = ECS_GetComponent(entity, POSITION);
+    RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
+    
+    if (!pos || !body) return true;
+    
+    static float decay = 0.90f;
+    static float velocityFactor = 0.02f;
+    
+    // Stocker la force initiale dans additionalArgs[3] si pas encore fait
+    float* forceArgs = (float*)f->additionalArgs;
+    float dirX = forceArgs[0];
+    float dirY = forceArgs[1];
+    if (forceArgs[2] <= 0) return true;  // Force épuisée
+    
+    // Appliquer la décroissance
+    forceArgs[2] *= decay;
+    
+    // Appliquer la force
+    f->Fx = forceArgs[2] * dirX;
+    f->Fy = forceArgs[2] * dirY;
+    
+    // Mise à jour de la vélocité
+    pos->vx = f->Fx * velocityFactor;
+    pos->vy = f->Fy * velocityFactor;
+    
+    printf("Force remaining: %f\n", forceArgs[2]);
+    
+    // Ne pas libérer la mémoire ici, laisser free_force s'en charger
+    return (forceArgs[2] < 10.0f);  // Arrêter quand la force devient très faible
+}
+
 bool fluid_drag_force(uint32_t entity, Force* f, void* args) {
 	PositionComponent* pos = ECS_GetComponent(entity, POSITION);
 	
@@ -151,8 +215,11 @@ bool update_entity_force(uint32_t entity, Force* f)
 }
 
 void free_force(Force* f) {
-	if (f == NULL) return;
-	if (f->argsAreMalloc)
-		free(f->additionalArgs);
-	free(f);
+    if (!f) return;  // Vérification de sécurité
+    
+    // Ne libérer additionalArgs que s'il existe
+    if (f->additionalArgs) {
+        f->additionalArgs = NULL;  // Éviter la double libération
+    }
+    free(f);
 }

@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "dyn_arrays.h"
 
 struct dyn_array_s {
@@ -31,8 +30,13 @@ dyn_array* convert(int len, void** list) {
     return da;
 }
 
-void free_array(dyn_array* da) {
+void free_array(dyn_array* da, bool free_elements) {
     assert(da != NULL); 
+    if(free_elements) {
+        for(int i = 0; i < da->len; i++) {
+            free(da->list[i]);
+        }
+    }
     free(da->list);
     free(da);
 }

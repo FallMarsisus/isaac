@@ -47,10 +47,7 @@ void free_sprite_component(SpriteComponent* sprite) {
 }
 void free_anim_component(AnimationComponent* animation) {
     free(animation->current_img);
-    for(int i = 0; i < get_len(animation->animations); i++) {
-        free((Anim*) get_elt(animation->animations, i));
-    }
-    free_array(animation->animations);
+    free_array(animation->animations, true);
 }
 void free_all_render_components(uint32_t id) {
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);

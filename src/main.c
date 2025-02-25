@@ -17,6 +17,10 @@ int main() {
         printf("SDL_Init Error: %s\n", SDL_GetError());
         return 1;
     }
+    if (SDL_Init(SDL_INIT_AUDIO) != 0) {
+        printf("SDL_Init Error: %s\n", SDL_GetError());
+        return 1;
+    }
 
     // Create a window
 	int true_width = 1280, true_height = 720;

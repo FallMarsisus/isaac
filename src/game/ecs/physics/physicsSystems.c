@@ -24,9 +24,18 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
 
 void free_rigidbody_component(uint32_t entity) {
     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
-    if (!body) return;
+    if (!body || !body->forces) return;
 
-    free_array(body->forces);
+    // Nettoyer toutes les forces restantes
+    while (get_len(body->forces) > 0) {
+        Force* f = get_elt(body->forces, 0);
+        if (f) {
+            free_force(f);
+        }
+        remove_dynarr(body->forces, 0);
+    }
+    
+    free_array(body->forces, false);
     body->forces = NULL;
 }
 
@@ -83,6 +92,11 @@ void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
 	if (!body->forces || get_len(body->forces) == 0) return;
 	
 	for (int i = 0; i < get_len(body->forces); i++) {
+    if (!body->forces || get_len(body->forces) == 0) return;
+    
+    for (int i = 0; i < get_len(body->forces); i++) {
+        Force* currentForce = (Force*)get_elt(body->forces, i);
+        if (!currentForce) continue;
 
 		currentForce = (Force*) get_elt(body->forces, i);
 		if (currentForce->func = solid_drag_force) {
@@ -92,29 +106,15 @@ void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
 
 		shouldBeRemoved = update_entity_force(entity, currentForce);
 		apply_one_force(body, currentForce->Fx, currentForce->Fy);
+        bool shouldBeRemoved = update_entity_force(entity, currentForce);
+        apply_one_force(body, currentForce->Fx, currentForce->Fy);
 
-		if (shouldBeRemoved) {
-			// printf("Removing force: Fx = %f, Fy = %f\n", currentForce->Fx, currentForce->Fy);
-			free_force(get_elt(body->forces, i));
-			remove_dynarr(body->forces, i);
-			i--;
-		}
-	}
-
-	// the solid drag force has to be applied in last :)
-	if (solidDIndex >= 0) {
-		currentForce = (Force*) get_elt(body->forces, solidDIndex);
-
-		shouldBeRemoved = update_entity_force(entity, currentForce);
-		apply_one_force(body, currentForce->Fx, currentForce->Fy);
-
-		if (shouldBeRemoved) {
-			free_force(get_elt(body->forces, solidDIndex));
-			remove_dynarr(body->forces, solidDIndex);
-		}
-	}
-
-	// printf("Sum of forces: Fx = %f, Fy = %f\n\n", body->forceX, body->forceY);
+        if (shouldBeRemoved) {
+            free_force(currentForce);  // Libérer la force
+            remove_dynarr(body->forces, i);
+            i--;
+        }
+    }
 }
 
 void add_force(uint32_t entity, Force* f) {
@@ -161,6 +161,7 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
 
     // Process X-axis collisions
     position->x += position->vx * 60 * delta;
+    
     for (int i = 0; i < amount; i++) {
         uint32_t e = entities[i];
         if (e == id) continue;
@@ -169,8 +170,10 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
         RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
         if (!otherPos || !otherBody) continue;
 
+        // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
+        HealthComponent* health = ECS_GetComponent(e, HEALTH);
         if (isColliding(position, body, otherPos, otherBody)) {
-            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active) {
+            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active && !health) {
                 position->x = originalX;
                 resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
             }
@@ -196,6 +199,7 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
 
     // Process Y-axis collisions
     position->y += position->vy * 60 * delta;
+    
     for (int i = 0; i < amount; i++) {
         uint32_t e = entities[i];
         if (e == id) continue;
@@ -204,8 +208,10 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
         RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
         if (!otherPos || !otherBody) continue;
 
+        // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
+        HealthComponent* health = ECS_GetComponent(e, HEALTH);
         if (isColliding(position, body, otherPos, otherBody)) {
-            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active) {
+            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active && !health) {
                 position->y = originalY;
                 resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
             }

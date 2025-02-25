@@ -2,7 +2,7 @@
 CC = gcc
 
 CFLAGS = -Wall -Wextra -g
-LFLAGS = -lm -lSDL2 -lSDL2_ttf -lSDL2_image
+LFLAGS = -lm -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer
 
 # Detect OS
 UNAME_S := $(shell uname -s)

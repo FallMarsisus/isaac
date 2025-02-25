@@ -25,7 +25,7 @@ void remove_child(ParentComponent* parent, uint32_t id) {
 }
 
 void free_script_component(ScriptComponent* script) {
-    if(script) {
+    if(script && script->data) {
         free(script->data);
         script->data = NULL;
     }
@@ -44,7 +44,7 @@ void free_all_other_components(uint32_t id) {
     }
 }
 
-void update_others(uint32_t id, SDL_Rect cam) {
+void update_others(uint32_t id, SDL_Rect cam, uint32_t* entities, int amount) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     ChildComponent* childComp = ECS_GetComponent(id, CHILD);
     if(childComp && position) {
@@ -57,7 +57,7 @@ void update_others(uint32_t id, SDL_Rect cam) {
 
     ScriptComponent* script = ECS_GetComponent(id, SCRIPT);
     if(script && script->update) {
-        script->update(id, cam);
+        script->update(id, cam, entities, amount);
     }
 
     EffectComponent* effectComp = ECS_GetComponent(id, EFFECT);

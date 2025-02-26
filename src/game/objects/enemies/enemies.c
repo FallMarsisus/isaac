@@ -19,6 +19,7 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     
     init_health_component(health, 100, 10, 0);
     init_state_machine(sm, enemy);
+    init_position_component(position, x, y);
     
     State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
     idle_state->vars = create_idle_vars(pl);
@@ -35,9 +36,6 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     switch_state(sm, "idle");
     
     create_damager(enemy, (DamagerComponent) {1, 0, false, 0});
-    // Initialize components
-
-    init_position_component(position, x, y);
 
     init_rigidbody_component(body, 2, 2, width - 4, height - 4);
     body->is_dynamic = true;
@@ -114,7 +112,6 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     stun->duration = 0;
     stun->start_time = 0;
     
-    // Initialize components
     init_position_component(position, x, y);
     
     init_health_component(health, 1000, 10, 0);

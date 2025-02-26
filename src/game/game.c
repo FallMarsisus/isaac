@@ -203,11 +203,9 @@ void update_game(int win_width, int win_height, float delta) {
             cam.x = pos->x + (sprite->width - cam.w) / 2;
             cam.y = pos->y + (sprite->height - cam.h) / 2;
 
-            // Cache room boundaries
             int room_x = get_x(game->current_room);
             int room_y = get_y(game->current_room);
-
-            // Clamp camera position
+            
             cam.x = fmax(room_x * 1920 + 32, fmin(cam.x, (room_x + 1) * 1920 - cam.w - 32));
             cam.y = fmax(room_y * 1280 + 32, fmin(cam.y, (room_y + 1) * 1280 - cam.h - 32));
         }

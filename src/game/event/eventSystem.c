@@ -1,10 +1,8 @@
 #include "eventSystem.h"
 
-// Global event system and queue
 EventSystem* event_system;
 EventQueue* event_queue;
 
-// Implementation
 EventQueue* create_event_queue(int initial_capacity) {
     EventQueue* queue = (EventQueue*)malloc(sizeof(EventQueue));
     if (!queue) {
@@ -46,7 +44,6 @@ void enqueue_event(EventQueue* queue, EventType type, void* data, bool free_data
     }
 
     if (queue->size == queue->capacity) {
-        // Double the capacity
         int new_capacity = queue->capacity * 2;
         Event* new_events = (Event*)realloc(queue->events, new_capacity * sizeof(Event));
         if (!new_events) {
@@ -54,7 +51,6 @@ void enqueue_event(EventQueue* queue, EventType type, void* data, bool free_data
             return;
         }
 
-        // Adjust for circular behavior after resizing
         if (queue->front > queue->rear) {
             for (int i = 0; i < queue->front; i++) {
                 new_events[queue->size + i] = new_events[i];
@@ -104,7 +100,6 @@ void init_event_system() {
         event_system[i].listeners = (EventListener*)calloc(event_system[i].listener_capacity, sizeof(EventListener));
         if (!event_system[i].listeners) {
             fprintf(stderr, "Failed to allocate memory for event listeners\n");
-            // Free previously allocated listeners
             for (int j = 0; j < i; ++j) {
                 free(event_system[j].listeners);
             }
@@ -207,8 +202,7 @@ void call_events() {
 
     while(event_queue->size > 0) {
         Event event = dequeue_event(event_queue);
-
-        // Call listeners for the event type
+        
         EventSystem* system = &event_system[event.type];
         if (!system) continue;
 
@@ -218,7 +212,6 @@ void call_events() {
             }
         }
 
-        // Free event data if required
         if (event.free_data && event.data) {
             free(event.data);
             event.data = NULL;

@@ -166,7 +166,6 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
     }
 
     // Array to track collisions already triggered with other entities this update.
-    // Assuming a maximum of 128 collisions per update.
     int collidedEntities[128];
     int collidedCount = 0;
 

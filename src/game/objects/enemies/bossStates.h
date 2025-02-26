@@ -30,14 +30,14 @@ typedef struct {
     int last_attack;
     int time_between_attacks;
 
-    float target_x;        // Add target position for wandering
+    float target_x;
     float target_y;
-    float wander_radius;   // Maximum distance from center
-    int next_target_time;  // When to pick a new target
+    float wander_radius;
+    int next_target_time;
     
     float center_x;
     float center_y;
-    float movement_speed;   // Adjusted for smoother movement
+    float movement_speed;
 } AttackBossStateVars;
 
 AttackBossStateVars* create_attack_boss_vars(uint32_t player);

@@ -1,23 +1,20 @@
 #include "a_star.h"
 
-// Directions for neighbors (up, down, left, right, diagonals if allowed)
 int neighbor_offsets[4][2] = {
     {-1, 0}, {1, 0}, {0, -1}, {0, 1} // Up, down, left, right
-    //{-1, -1}, {-1, 1}, {1, -1}, {1, 1} // Diagonals
 };
 
 // Node structure
 typedef struct node_s {
-    int x, y;         // Position
-    float g_cost;     // Cost from start to this node
-    float h_cost;     // Heuristic cost to the goal
-    float f_cost;     // Total cost (g_cost + h_cost)
-    int in_open;      // Flag to indicate if it's in the open list
-    int in_closed;    // Flag to indicate if it's in the closed list
+    int x, y;
+    float g_cost; // Cost from start to this node
+    float h_cost; // Heuristic cost to the goal
+    float f_cost; // Total cost (g_cost + h_cost)
+    int in_open; // Flag to indicate if it's in the open list
+    int in_closed; // Flag to indicate if it's in the closed list
     struct node_s* parent; // Pointer to parent node for path reconstruction
 } Node;
 
-// Allocate a 2D array of nodes
 Node** allocate_node_grid() {
     Node** nodes = malloc(GRID_HEIGHT * sizeof(Node*));
     for (int i = 0; i < GRID_HEIGHT; i++) {
@@ -26,7 +23,6 @@ Node** allocate_node_grid() {
     return nodes;
 }
 
-// Free the 2D array of nodes
 void free_node_grid(Node** nodes) {
     for (int i = 0; i < GRID_HEIGHT; i++) {
         free(nodes[i]);
@@ -34,7 +30,7 @@ void free_node_grid(Node** nodes) {
     free(nodes);
 }
 
-// Heuristic function: Manhattan distance
+// Manhattan distance
 float calculate_heuristic(int x1, int y1, int x2, int y2) {
     return abs(x1 - x2) + abs(y1 - y2);
 }

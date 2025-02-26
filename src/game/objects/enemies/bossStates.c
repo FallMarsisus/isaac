@@ -14,8 +14,8 @@ AttackBossStateVars* create_attack_boss_vars(uint32_t player) {
     vars->last_attack = SDL_GetTicks();
     vars->last_sleep = SDL_GetTicks();
 
-    vars->wander_radius = 150.0f;  // Maximum distance from center to wander
-    vars->movement_speed = 1.0f;   // Adjusted for smoother movement
+    vars->wander_radius = 150.0f;
+    vars->movement_speed = 1.0f;
     vars->target_x = 0;
     vars->target_y = 0;
     vars->next_target_time = SDL_GetTicks();
@@ -29,8 +29,8 @@ void on_attack_boss_enter(State* state, uint32_t id) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     if(!position) return;
 
-    vars->center_x = (0.5 + position->x / 1920) * 1920;
-    vars->center_y = (0.5 + position->y / 1280) * 1280;
+    vars->center_x = (((int) position->x) / 1920) * 1920 + 960 - 64;
+    vars->center_y = (((int) position->y) / 1280) * 1280 + 640 - 64;
 
     vars->last_attack = SDL_GetTicks();
     vars->last_sleep = SDL_GetTicks();
@@ -54,15 +54,41 @@ void on_attack_boss_update(State* state, uint32_t id) {
 
     int current_time = SDL_GetTicks();
 
-    // Pick new target position every few seconds
-    if (current_time > vars->next_target_time) {
-        // Random angle and distance within wander radius
-        float angle = (float)(rand() % 360) * PI / 180.0f;
-        float distance = ((float)rand() / RAND_MAX) * vars->wander_radius;
+    // Calculate direction vector from player to boss (for fleeing)
+    float flee_dx = position->x - player_position->x;
+    float flee_dy = position->y - player_position->y;
+    float flee_distance = sqrt(flee_dx * flee_dx + flee_dy * flee_dy);
+
+    // Update target position based on player proximity
+    if (flee_distance < vars->wander_radius * 1.5f) {
+        // Flee from player while considering center position
+        float flee_weight = 0.7f;  // Weight for flee direction
+        float center_weight = 0.3f; // Weight for center attraction
         
-        vars->target_x = vars->center_x + cos(angle) * distance;
-        vars->target_y = vars->center_y + sin(angle) * distance;
-        vars->next_target_time = current_time + 2000; // New target every 2 seconds
+        // Normalize flee direction
+        float normalized_flee_dx = flee_dx / flee_distance;
+        float normalized_flee_dy = flee_dy / flee_distance;
+        
+        // Calculate direction to center
+        float center_dx = vars->center_x - position->x;
+        float center_dy = vars->center_y - position->y;
+        float center_distance = sqrt(center_dx * center_dx + center_dy * center_dy);
+        float normalized_center_dx = center_dx / (center_distance + 0.0001f);
+        float normalized_center_dy = center_dy / (center_distance + 0.0001f);
+        
+        // Combine flee and center vectors
+        vars->target_x = position->x + (normalized_flee_dx * flee_weight + normalized_center_dx * center_weight) * vars->wander_radius;
+        vars->target_y = position->y + (normalized_flee_dy * flee_weight + normalized_center_dy * center_weight) * vars->wander_radius;
+        
+        // Clamp target position to maximum distance from center
+        float dx_from_center = vars->target_x - vars->center_x;
+        float dy_from_center = vars->target_y - vars->center_y;
+        float dist_from_center = sqrt(dx_from_center * dx_from_center + dy_from_center * dy_from_center);
+        if (dist_from_center > vars->wander_radius) {
+            float scale = vars->wander_radius / dist_from_center;
+            vars->target_x = vars->center_x + dx_from_center * scale;
+            vars->target_y = vars->center_y + dy_from_center * scale;
+        }
     }
 
     // Move towards target position
@@ -77,7 +103,7 @@ void on_attack_boss_update(State* state, uint32_t id) {
         position->y += normalized_dy * vars->movement_speed;
     }
 
-    //Check if wakes up
+    // Check if wakes up
     if(vars->nb_attacks > 3 && current_time > vars->sleep_time + vars->last_sleep) {
         vars->nb_attacks = 0;
     }
@@ -87,7 +113,7 @@ void on_attack_boss_update(State* state, uint32_t id) {
         vars->last_attack = current_time;
 
         if(vars->nb_attacks > 3) {
-            //Make him sleep
+            // Make him sleep
             vars->last_sleep = current_time;
             printf("Sleeping\n");
         }

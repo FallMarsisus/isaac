@@ -1,6 +1,5 @@
 #include "systems.h"
 
-// Initialize the game with entities and components
 void init_room(int rX, int rY, uint32_t player_id) {
     generate_room(rX, rY, player_id);
 }
@@ -49,7 +48,6 @@ void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect cam, floa
     update_anim(elt);
 }
 
-// Render all entities
 void render_entity(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);

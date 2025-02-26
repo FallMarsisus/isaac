@@ -3,10 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
-// Initial capacities - can be adjusted as needed
 #define INITIAL_ENTITY_CAPACITY   1024
 #define INITIAL_COMPONENT_CAPACITY 32
-#define INITIAL_FREELIST_CAPACITY 1024
+#define INITIAL_FREELIST_CAPACITY 512
 
 typedef struct ECSManager {
     Entity nextEntity;
@@ -35,17 +34,14 @@ void ECS_CreateManager() {
     manager->component_capacity = INITIAL_COMPONENT_CAPACITY;
     manager->nextEntity = 0;
     
-    // Allocate active and removal flags arrays
     manager->active = calloc(manager->entity_capacity, sizeof(bool));
     manager->removal_flags = calloc(manager->entity_capacity, sizeof(bool));
     
-    // Allocate components array
     manager->components = malloc(manager->entity_capacity * sizeof(void**));
     for (size_t i = 0; i < manager->entity_capacity; i++) {
         manager->components[i] = calloc(manager->component_capacity, sizeof(void*));
     }
     
-    // Initialize free list
     manager->freeList_capacity = INITIAL_FREELIST_CAPACITY;
     manager->freeList = malloc(manager->freeList_capacity * sizeof(Entity));
     manager->freeList_size = 0;
@@ -69,7 +65,6 @@ void ECS_DestroyManager() {
 void expand_entities() {
     size_t new_cap = manager->entity_capacity * 2;
     
-    // Expand active array
     bool* new_active = realloc(manager->active, new_cap * sizeof(bool));
     if (!new_active) {
         fprintf(stderr, "Failed to expand entity capacity\n");
@@ -77,7 +72,6 @@ void expand_entities() {
     }
     manager->active = new_active;
     
-    // Expand removal flags
     bool* new_removal = realloc(manager->removal_flags, new_cap * sizeof(bool));
     if (!new_removal) {
         fprintf(stderr, "Failed to expand removal flags\n");
@@ -85,7 +79,6 @@ void expand_entities() {
     }
     manager->removal_flags = new_removal;
     
-    // Expand components array
     void*** new_components = realloc(manager->components, new_cap * sizeof(void**));
     if (!new_components) {
         fprintf(stderr, "Failed to expand components array\n");
@@ -93,7 +86,6 @@ void expand_entities() {
     }
     manager->components = new_components;
     
-    // Initialize new entities
     for (size_t e = manager->entity_capacity; e < new_cap; e++) {
         manager->active[e] = false;
         manager->removal_flags[e] = false;
@@ -112,7 +104,6 @@ void expand_components(size_t new_capacity) {
         }
         manager->components[e] = new_comps;
         
-        // Initialize new component slots to NULL
         for (size_t c = manager->component_capacity; c < new_capacity; c++) {
             manager->components[e][c] = NULL;
         }
@@ -125,7 +116,6 @@ Entity ECS_CreateEntity() {
         Entity e = manager->freeList[--manager->freeList_size];
         manager->active[e] = true;
         
-        // Clear components
         for (size_t c = 0; c < manager->component_capacity; c++) {
             free(manager->components[e][c]);
             manager->components[e][c] = NULL;
@@ -177,7 +167,6 @@ void add_removal_flag(Entity entity) {
 void ECS_ProcessRemovals() {
     for (Entity e = 0; e < manager->nextEntity; e++) {
         if (manager->removal_flags[e]) {
-            // Add to free list
             if (manager->freeList_size >= manager->freeList_capacity) {
                 size_t new_cap = manager->freeList_capacity * 2;
                 Entity* new_free = realloc(manager->freeList, new_cap * sizeof(Entity));
@@ -190,7 +179,6 @@ void ECS_ProcessRemovals() {
             }
             manager->freeList[manager->freeList_size++] = e;
             
-            // Cleanup
             manager->active[e] = false;
             manager->removal_flags[e] = false;
         }

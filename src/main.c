@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include "menu/menuManager.h"
@@ -20,6 +21,13 @@ int main() {
     if (SDL_Init(SDL_INIT_AUDIO) != 0) {
         printf("SDL_Init Error: %s\n", SDL_GetError());
         return 1;
+    }
+
+    if (Mix_OpenAudio(96000, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) < 0)
+    {
+        SDL_Log("Erreur initialisation SDL_mixer : %s", Mix_GetError());
+        SDL_Quit();
+        return -1;
     }
 
     // Create a window
@@ -60,6 +68,17 @@ int main() {
 
     init_menu_manager(win, ren);
 
+    Mix_Music* music = Mix_LoadMUS("assets/AssetPack/Musics/21 - Dungeon.ogg");
+    if (music == NULL)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Erreur chargement de la musique : %s", Mix_GetError());
+        Mix_CloseAudio();
+        SDL_Quit();
+        return -1;
+    }
+    Mix_PlayMusic(music, -1); // Joue notre musique
+    Mix_VolumeMusic(16); // Mets le volume a 0
+
     SDL_Event event;
     int running = 1;
     while (running) {
@@ -87,6 +106,8 @@ int main() {
         SDL_RenderPresent(ren);
     }
 
+    Mix_FreeMusic(music); // Libére en mémoire notre musique
+
     free_menu_manager();
 
     ECS_DestroyManager();
@@ -95,6 +116,8 @@ int main() {
     free_event_system();
 	freeDefaultItems();
 	free_fonts();
+
+    Mix_CloseAudio();
 
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);

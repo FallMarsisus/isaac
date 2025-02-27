@@ -1,6 +1,6 @@
 #include "physicsSystems.h"
 
-bool collisions_enabled = false;
+bool collisions_enabled = true;
 
 void init_position_component(PositionComponent* position, float x, float y) {
     position->x = x;

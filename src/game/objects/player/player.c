@@ -25,7 +25,8 @@ uint32_t add_player(float x, float y) {
     }
 
     init_rigidbody_component(body, 2, 2, 60, 60);
-    body->is_dynamic = true;
+    body->is_dynamic = true;  // S'assurer que le joueur peut subir des forces
+    body->mass = 50;          // Masse du joueur pour les forces physiques
 
     init_health_component(health, 12, 100, 0);
     init_sprite_component(sprite, 64, 64, get_sprites()->player_texture);

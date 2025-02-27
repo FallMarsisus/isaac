@@ -9,6 +9,7 @@ void init_position_component(PositionComponent* position, float x, float y) {
     position->ay = 0;
     position->camFixed = false;
 }
+
 void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY, int width, int height) {
     body->is_dynamic = false;
     body->hitbox = (SDL_Rect){offsetX, offsetY, width, height};
@@ -17,8 +18,7 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
     body->mass = 50;
     body->forceX = 0;
     body->forceY = 0;
-	body->forces = create_array();
-
+    body->forces = create_array();
     body->active = true;
 }
 
@@ -79,9 +79,9 @@ void resolveAxis(PositionComponent* position, RigidbodyComponent* body,
 }
 
 void apply_one_force(RigidbodyComponent* body, float fx, float fy) {
-	// printf("Applying force: Fx = %f, Fy = %f\n", fx, fy);
-	body->forceX += fx;
-	body->forceY += fy;
+    // printf("Applying force: Fx = %f, Fy = %f\n", fx, fy);
+    body->forceX += fx;
+    body->forceY += fy;
 }
 
 void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
@@ -103,16 +103,16 @@ void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
 }
 
 void add_force(uint32_t entity, Force* f) {
-	RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
-	if (!body) return;
+    RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
+    if (!body) return;
 
-	append(body->forces, f);
+    append(body->forces, f);
 }
 
 void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(id, BODY);
-    if(!position || !body) return;
+    if (!position || !body) return;
 
     apply_all_forces(id, body);
 
@@ -155,28 +155,19 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
         RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
         if (!otherPos || !otherBody) continue;
 
-        // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
-        HealthComponent* health = ECS_GetComponent(e, HEALTH);
         if (isColliding(position, body, otherPos, otherBody)) {
-            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active && !health) {
-                position->x = originalX;
-                resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
-            }
-            // Only trigger collision event from one side and only once per collision pair.
-            if (id < e || !body->is_dynamic || !otherBody->is_dynamic) {
-                bool alreadyTriggered = false;
-                for (int i = 0; i < collidedCount; i++) {
-                    if (collidedEntities[i] == e) {
-                        alreadyTriggered = true;
-                        break;
-                    }
-                }
-                if (!alreadyTriggered) {
-                    CollisionEvent* event = malloc(sizeof(CollisionEvent));
-                    event->entity1 = id;
-                    event->entity2 = e;
-                    trigger_event(EVENT_COLLISION, event, true);
-                    collidedEntities[collidedCount++] = e;
+            // Toujours déclencher l'événement de collision
+            CollisionEvent* event = malloc(sizeof(CollisionEvent));
+            event->entity1 = id;
+            event->entity2 = e;
+            trigger_event(EVENT_COLLISION, event, true);
+            
+            // Gérer la résolution de collision physique séparément
+            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active) {
+                HealthComponent* health = ECS_GetComponent(e, HEALTH);
+                if (!health) {  // Ne bloquer que si ce n'est pas une entité avec de la santé
+                    position->x = originalX;
+                    resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
                 }
             }
         }
@@ -193,17 +184,23 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
         RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
         if (!otherPos || !otherBody) continue;
 
-        // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
-        HealthComponent* health = ECS_GetComponent(e, HEALTH);
         if (isColliding(position, body, otherPos, otherBody)) {
+            // Toujours déclencher l'événement de collision
+            CollisionEvent* event = malloc(sizeof(CollisionEvent));
+            event->entity1 = id;
+            event->entity2 = e;
+            trigger_event(EVENT_COLLISION, event, true);
+
+            // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
+            HealthComponent* health = ECS_GetComponent(e, HEALTH);
             if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active && !health) {
                 position->y = originalY;
                 resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
             }
             if (id < e || !body->is_dynamic || !otherBody->is_dynamic) {
                 bool alreadyTriggered = false;
-                for (int i = 0; i < collidedCount; i++) {
-                    if (collidedEntities[i] == e) {
+                for (int j = 0; j < collidedCount; j++) {
+                    if (collidedEntities[j] == e) {
                         alreadyTriggered = true;
                         break;
                     }

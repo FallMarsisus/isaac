@@ -30,6 +30,23 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
         return SDL_MAX_UINT32;
     }
 
+    // Déterminer la direction de l'attaque basée sur la vélocité du joueur
+    float attackDirX = pos1->vx;
+    float attackDirY = pos1->vy;
+    
+    // Si le joueur ne bouge pas, utiliser la dernière direction connue (à implémenter plus tard)
+    if (fabs(attackDirX) < 0.001f && fabs(attackDirY) < 0.001f) {
+        attackDirX = 1.0f;  // Par défaut, attaque vers la droite
+        attackDirY = 0.0f;
+    }
+    
+    // Normaliser le vecteur de direction
+    float len = sqrt(attackDirX * attackDirX + attackDirY * attackDirY);
+    if (len > 0) {
+        attackDirX /= len;
+        attackDirY /= len;
+    }
+
     uint32_t sword_temp = add_sword(entity, sword);
 
     if(enemy == -1) return sword_temp;
@@ -44,7 +61,12 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
 
     printf("Enemy %u is at distance %d from entity %u\n", enemy, distance, entity);
 
-    if (distance <= sword->range) {
+    // Calculer l'angle entre la direction d'attaque et la direction vers l'ennemi
+    float dotProduct = (dx * attackDirX + dy * attackDirY) / sqrt(dx * dx + dy * dy);
+    float angle = acos(dotProduct) * 180.0f / M_PI;  // Convertir en degrés
+
+    // Ne frapper que si l'ennemi est dans un cône de 45 degrés dans la direction d'attaque
+    if (distance <= sword->range * 1.5f && angle <= 45.0f) {  // Portée augmentée de 50%
         printf("Enemy %u is within range of entity %u\n", enemy, entity);
         // Collision detected, apply damage or other logic
         HealthComponent* health = ECS_GetComponent(enemy, HEALTH);
@@ -68,10 +90,10 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
             
             RigidbodyComponent* enemyBody = ECS_GetComponent(enemy, BODY);
             PositionComponent* enemyPosition = ECS_GetComponent(enemy, POSITION);
-            if (enemyBody) {
+            SpriteComponent* enemySprite = ECS_GetComponent(enemy, SPRITE);
+            if (enemyBody && enemySprite) {
                 enemyBody->is_dynamic = true;
                 enemyPosition->vx = 0;  // Réinitialiser la vitesse actuelle
-                enemyPosition->vy = 0;
                 Force* knockback = create_force(knockback_force, knockbackArgs);
                 add_force(enemy, knockback);
             }

@@ -93,4 +93,6 @@ uint32_t add_sword(uint32_t player, SwordComponent* sword_component) {
         );
         add_child(parent, sword);
     }
+
+    return sword;
 }

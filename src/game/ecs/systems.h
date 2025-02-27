@@ -33,7 +33,7 @@
 
 #include <SDL2/SDL.h>
 
-#include "rooms/roomGeneration.h"
+#include "../structure/roomGeneration.h"
 
 /**
  * @brief Initializes the game systems and components

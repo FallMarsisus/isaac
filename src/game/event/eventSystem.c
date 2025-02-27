@@ -169,6 +169,8 @@ void unregister_listener(EventType type, EventListener listener) {
 
     EventSystem* system = &event_system[type];
 
+    
+
     for (int i = 0; i < system->listener_count; ++i) {
         if (system->listeners[i] == listener) {
             system->listeners[i] = system->listeners[system->listener_count - 1];

@@ -27,6 +27,8 @@ static void handle_movement_input(int* dx, int* dy) {
 }
 
 static void handle_inventory_display(InventoryComponent* inv, uint32_t player, SDL_Rect cam, int win_width, int true_width) {
+    if (!inv) return;
+    
     static bool is_it_wanting_to_display = false;
 	static bool is_displaying_in_console = false;
     const Uint8* state = SDL_GetKeyboardState(NULL);
@@ -60,12 +62,14 @@ static void handle_inventory_display(InventoryComponent* inv, uint32_t player, S
 }
 
 static void handle_mouse_input(uint32_t player) {
+    InventoryComponent* inv = ECS_GetComponent(player, INVENT);
+    if (!inv) return;
+    
     static bool mouseClicked = false;
     int x, y;
     Uint32 mouseState = SDL_GetMouseState(&x, &y);
-    InventoryComponent* inv = ECS_GetComponent(player, INVENT);
     
-    if ((mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouseClicked && inv != NULL) {
+    if ((mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouseClicked) {
         printf("mouse is in slot n° %d\n", on_clic(player, x, y));
         mouseClicked = true;
     } else if (!(mouseState & SDL_BUTTON(SDL_BUTTON_LEFT))) {
@@ -132,26 +136,38 @@ static void handle_combat(uint32_t player, PositionComponent* position, SwordCom
 }
 
 void update_player(u_int32_t player, SDL_Rect cam, uint32_t* entities, int amount) {
+    // Check for script component and its data
     ScriptComponent* script = ECS_GetComponent(player, SCRIPT);
-    if(!script) return;
-
-    int dx = 0, dy = 0;
-    handle_movement_input(&dx, &dy);
-    float distance = sqrt(pow(dx, 2) + pow(dy, 2));
+    if (!script) return;
 
     PlayerData* movement = (PlayerData*)script->data;
+    if (!movement) return;
+
+    // Check for required position component
     PositionComponent* position = ECS_GetComponent(player, POSITION);
+    if (!position) return;
+
+    // Get optional components
     AnimationComponent* anim = ECS_GetComponent(player, ANIMATION);
     InventoryComponent* inv = ECS_GetComponent(player, INVENT);
     SwordComponent* sword = ECS_GetComponent(player, SWORD_C);
 
-    if (movement && position) {
+    // Handle movement
+    int dx = 0, dy = 0;
+    handle_movement_input(&dx, &dy);
+    float distance = sqrt(pow(dx, 2) + pow(dy, 2));
+    
+    // Update movement and animation (anim can be NULL)
+    update_movement_and_animation(movement, position, anim, dx, dy, distance);
+
+    // Handle inventory if it exists
+    if (inv) {
         handle_inventory_display(inv, player, cam, movement->win_width, movement->true_width);
         handle_mouse_input(player);
-        update_movement_and_animation(movement, position, anim, dx, dy, distance);
     }
 
-    if (position && sword) {
+    // Handle combat if sword component exists
+    if (sword) {
         handle_combat(player, position, sword, entities, amount);
     }
 }

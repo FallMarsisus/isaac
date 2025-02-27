@@ -9,12 +9,17 @@ typedef struct game_s {
 
 Game* game;
 
+bool game_active = false;
+
 bool static_cam = false;
 SDL_Rect cam = {
     0, 0, 0, 0 // Initialize to 0, will be set in create_game
 };
 
 void create_game(SDL_Window* win, SDL_Renderer* renderer) {
+    if(game_active) return;
+
+    game_active = true;
     game = malloc(sizeof(Game));
 
     int win_width, win_height;
@@ -49,6 +54,18 @@ void create_game(SDL_Window* win, SDL_Renderer* renderer) {
     register_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
 }
 void free_game() {
+    if(!game_active) return;
+    game_active = false;
+    
+    free_player_positions();
+
+    for(Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+        ECS_RemoveEntity(e);
+    }
+    call_events();
+
+    ECS_ProcessRemovals();
+
     unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
     unregister_listener(EVENT_CHEST_OPENED, on_chest_open);
     unregister_listener(EVENT_STATE_CHANGE, on_state_change);
@@ -58,9 +75,6 @@ void free_game() {
 
     free_map(game->map);
     free(game);
-
-    free_entities();
-    ECS_ClearManager();
 }
 
 void on_entity_created(Event event) {
@@ -95,6 +109,12 @@ void on_entity_removed(Event event) {
     remove_entity(game->current_room, rEvent->entity);
 
     free_one_entity(rEvent->entity);
+
+    if (rEvent->entity == game->player) {
+        GameOverEvent* gameOverEvent = malloc(sizeof(GameOverEvent));
+        gameOverEvent->player_id = rEvent->entity;
+        trigger_event(EVENT_GAME_OVER, gameOverEvent, true);
+    }
 }
 
 void change_room(int x, int y) {
@@ -149,6 +169,8 @@ int compare_positions(const void* a, const void* b) {
     return pos1->y - pos2->y;
 }
 void update_game(int win_width, int win_height, float delta) {
+    if(!game_active) return;
+
     SDL_Rect room_pos = {
         get_x(game->current_room) * 1920,
         get_y(game->current_room) * 1280,
@@ -215,8 +237,8 @@ void update_game(int win_width, int win_height, float delta) {
     );
 }
 
-void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_width, int true_height)
-{
+void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_width, int true_height) {
+    if(!game_active) return;
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
 

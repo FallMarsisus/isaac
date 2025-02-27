@@ -13,6 +13,8 @@ typedef enum {
     EVENT_COLLISION,
     EVENT_ENTITY_CREATED,
     EVENT_ENTITY_REMOVED,
+    EVENT_GAME_OVER,
+    EVENT_MENU_CHANGE,
     EVENT_MAX // Safeguard to know the number of event types
 } EventType;
 
@@ -49,3 +51,7 @@ typedef struct {
 typedef struct {
     int entity;
 } EntityRemovedEvent;
+
+typedef struct {
+    int player_id;
+} GameOverEvent;

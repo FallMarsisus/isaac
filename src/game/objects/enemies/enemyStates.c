@@ -189,6 +189,10 @@ void init_player_positions(uint32_t id) {
         }
     }
 }
+void free_player_positions() {
+    queue_destroy(player_positions);
+}
+
 void update_player_positions(uint32_t id) {
     if(SDL_GetTicks() - prev_player_pos_update > 200) {
         prev_player_pos_update = SDL_GetTicks();
@@ -250,7 +254,14 @@ void on_follow_update(State* state, uint32_t id) {
     if(!vars) return;
     
     if(vars->currentGoal == get_first_queue_node(player_positions)) {
-        vars->currentGoal = get_next_queue_node(vars->currentGoal);
+        QueueNode* next = get_next_queue_node(vars->currentGoal);
+        if (next && get_data_queue_node(next)) {
+            vars->currentGoal = next;
+        } else {
+            // If there's no valid next node, stay on current goal
+            // This prevents null pointer dereference when queue has only one node
+            vars->currentGoal = get_first_queue_node(player_positions);
+        }
     }
 
     PositionComponent* posComp = ECS_GetComponent(id, POSITION);

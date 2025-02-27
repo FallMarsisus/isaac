@@ -48,6 +48,8 @@ void on_chase_exit(State* state, uint32_t id);
 void on_chase_free(State* state, uint32_t id);
 
 void init_player_positions(uint32_t id);
+void free_player_positions();
+
 void update_player_positions(uint32_t id);
 
 FollowStateVars* create_follow_vars(uint32_t target);

@@ -4,15 +4,13 @@
 #include "../../../utils/ouputColors.h"
 
 void free_throw_properties(ThrowProperties* tp) {
-	if (tp) {
-		if (tp->script) {
-			if (tp->script->data) {
-				free(tp->script->data);
-				tp->script->data = NULL;
-			}
-			free(tp->script);
-			tp->script = NULL;
-		}
+	if (tp && tp->script) {
+
+		free(tp->script->data);
+		tp->script->data = NULL;
+		
+		free(tp->script);
+		tp->script = NULL;
 	}
 }
 

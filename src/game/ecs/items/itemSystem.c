@@ -238,6 +238,11 @@ void free_item_component(uint32_t entity) {
 	free_throw_properties(item->item.throwProp);
 	free(item->item.throwProp);
 	item->item.throwProp = NULL;
+
+	ScriptComponent* script = ECS_GetComponent(entity, SCRIPT);
+	if (script) {
+		script->data = NULL;
+	}
 }
 
 void free_itemData(ItemData* itemD) {

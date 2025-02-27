@@ -20,12 +20,13 @@ void free_one_entity(uint32_t entity) {
     if(invent) {
         free_inventory(invent);
     }
+	
+	free_item_component(entity);
 
     free_pathfinding_component(ECS_GetComponent(entity, PATHFINDING));
     free_all_other_components(entity);
     free_all_render_components(entity);
 
-	free_item_component(entity);
 
     free_rigidbody_component(entity);
 

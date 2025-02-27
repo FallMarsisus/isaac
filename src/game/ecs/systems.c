@@ -4,7 +4,7 @@ void init_room(int rX, int rY, uint32_t player_id) {
     generate_room(rX, rY, player_id);
 }
 
-void free_components() {
+void free_entities() {
     for(Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
         free_one_entity(e);
     }
@@ -32,20 +32,20 @@ void free_one_entity(uint32_t entity) {
     add_removal_flag(entity);
 }
 
-void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect cam, float delta) {
-    StateMachineComponent* sm = ECS_GetComponent(elt, STATE_MACHINE);
-    ParentComponent* parent = ECS_GetComponent(elt, PARENT);
+void update_entity(uint32_t entity, uint32_t* entities, int amount, SDL_Rect cam, float delta) {
+    StateMachineComponent* sm = ECS_GetComponent(entity, STATE_MACHINE);
+    ParentComponent* parent = ECS_GetComponent(entity, PARENT);
 
     if(sm) {
         update_state_machine(sm);
     }
     
-    update_others(elt, cam, entities, amount);
+    update_others(entity, cam, entities, amount);
     //update_pathfinding_system(elt, roomPos);
-    update_item(elt);
-    update_physics(elt, entities, amount, delta);
+    update_item(entity);
+    update_physics(entity, entities, amount, delta);
     
-    update_anim(elt);
+    update_anim(entity);
 }
 
 void render_entity(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {

@@ -30,4 +30,4 @@
  * @param y Y coordinate for player spawn
  * @return Entity ID of the created player
  */
-uint32_t add_player(float x, float y, int win_width, int true_width);
+uint32_t add_player(float x, float y, int render_width, int win_width);

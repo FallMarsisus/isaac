@@ -1,6 +1,6 @@
 #include "player.h"
 
-uint32_t add_player(float x, float y, int win_width, int true_width) {
+uint32_t add_player(float x, float y, int render_width, int win_width) {
     // Create a player entity
     uint32_t player = ECS_CreateEntity();
     InventoryComponent* inv = ECS_AddComponent(player, INVENT, sizeof(InventoryComponent));
@@ -13,7 +13,7 @@ uint32_t add_player(float x, float y, int win_width, int true_width) {
     ScriptComponent* script = ECS_AddComponent(player, SCRIPT, sizeof(ScriptComponent));
     HealthComponent* health = ECS_AddComponent(player, HEALTH, sizeof(HealthComponent));
 
-    init_player(script, win_width, true_width);
+    init_player(script, win_width, render_width);
     
     create_sword(swordC, SWORD, 10, 64, 1);
     init_position_component(position, x, y);

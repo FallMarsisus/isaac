@@ -12,6 +12,7 @@
 typedef uint32_t Entity;
 
 void ECS_CreateManager();
+void ECS_ClearManager();
 void ECS_DestroyManager();
 
 Entity ECS_CreateEntity();

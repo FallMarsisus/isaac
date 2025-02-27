@@ -47,7 +47,30 @@ void ECS_CreateManager() {
     manager->freeList_size = 0;
 }
 
+void ECS_ClearManager() {
+    // Free all components for active entities
+    for (size_t e = 0; e < manager->entity_capacity; e++) {
+        if (manager->active[e]) {
+            for (size_t c = 0; c < manager->component_capacity; c++) {
+                free(manager->components[e][c]);
+                manager->components[e][c] = NULL;
+            }
+            manager->active[e] = false;
+            manager->removal_flags[e] = false;
+        }
+    }
+
+    // Reset freelist
+    manager->freeList_size = 0;
+    manager->nextEntity = 0;
+}
+
+
 void ECS_DestroyManager() {
+    // First process any pending removals to avoid double-free issues
+    ECS_ProcessRemovals();
+    
+    // Now free all remaining components and structures
     for (size_t e = 0; e < manager->entity_capacity; e++) {
         for (size_t c = 0; c < manager->component_capacity; c++) {
             free(manager->components[e][c]);
@@ -167,6 +190,12 @@ void add_removal_flag(Entity entity) {
 void ECS_ProcessRemovals() {
     for (Entity e = 0; e < manager->nextEntity; e++) {
         if (manager->removal_flags[e]) {
+            // Free all components for this entity
+            for (size_t c = 0; c < manager->component_capacity; c++) {
+                free(manager->components[e][c]);
+                manager->components[e][c] = NULL;
+            }
+
             if (manager->freeList_size >= manager->freeList_capacity) {
                 size_t new_cap = manager->freeList_capacity * 2;
                 Entity* new_free = realloc(manager->freeList, new_cap * sizeof(Entity));

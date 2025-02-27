@@ -3,7 +3,7 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "game/game.h"
+#include "menu/menuManager.h"
 
 #include <time.h>
 
@@ -46,23 +46,28 @@ int main() {
     load_sprites(ren);
 	load_fonts(ren);
     
-    SDL_Event event;
-    
-    int running = 1;
-
     double t = 0.;
     double dt = 1/60.;
 
     double current_time = SDL_GetTicks() / 1000.;
     double accumulator = 0.;
 
-    create_game(win_width, win_height, true_width, true_height);
+    ECS_CreateManager();
 
+    init_event_system();
+	initDefaultItems();
+    init_timer_system();
+
+    init_menu_manager(win, ren);
+
+    SDL_Event event;
+    int running = 1;
     while (running) {
         while(SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = 0;
             }
+            handle_menu_manager_input(event);
         }
 
         double new_time = SDL_GetTicks() / 1000.;
@@ -73,15 +78,22 @@ int main() {
         accumulator += frame_time;
 
         while(accumulator >= dt) {
-            update_game(win_width, win_height, dt);
+            update_menu_manager(win_width, win_height, dt);
             t += dt;
             accumulator -= dt;
         }
         
-        draw_game(ren, win_width, win_height, true_width, true_height);
+        draw_menu_manager(ren, win_width, win_height, true_width, true_height);
+        SDL_RenderPresent(ren);
     }
 
-    free_game();
+    free_menu_manager();
+
+    ECS_DestroyManager();
+
+    shutdown_timer_system();
+    free_event_system();
+	freeDefaultItems();
 	free_fonts();
 
     SDL_DestroyRenderer(ren);

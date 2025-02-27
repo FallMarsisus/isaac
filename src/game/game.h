@@ -12,7 +12,7 @@
 
 typedef struct game_s Game;
 
-void create_game(int win_width, int win_height, int true_width, int true_height);
+void create_game(SDL_Window* win, SDL_Renderer* renderer);
 void free_game();
 
 void on_entity_created(Event event);

@@ -14,21 +14,21 @@ SDL_Rect cam = {
     0, 0, 0, 0 // Initialize to 0, will be set in create_game
 };
 
-void create_game(int win_width, int win_height, int true_width, int true_height) {
+void create_game(SDL_Window* win, SDL_Renderer* renderer) {
     game = malloc(sizeof(Game));
+
+    int win_width, win_height;
+    SDL_GetWindowSize(win, &win_width, &win_height);
+    int render_width, render_height;
+    SDL_RenderGetLogicalSize(renderer, &render_width, &render_height);
 
     // Set camera dimensions based on window size
     cam.x = 32;
     cam.y = 32;
-    cam.w = win_width;
-    cam.h = win_height;
-	
-    init_event_system();
-	initDefaultItems();
+    cam.w = render_width;
+    cam.h = render_height;
 
-    ECS_CreateManager();
-
-    game->player = add_player(1920 / 2 - 32, 1280 - 64, win_width, true_width);
+    game->player = add_player(1920 / 2 - 32, 1280 - 64, render_width, win_width);
     init_player_positions(game->player);
 
     game->map = create_map();
@@ -40,37 +40,27 @@ void create_game(int win_width, int win_height, int true_width, int true_height)
         add_teleporter(x1, y1, x2, y2);
         add_teleporter(x2, y2, x1, y1);
     }
-
+    
     register_listener(EVENT_PLAYER_MOVED, on_player_move);
     register_listener(EVENT_CHEST_OPENED, on_chest_open);
     register_listener(EVENT_STATE_CHANGE, on_state_change);
     register_listener(EVENT_COLLISION, on_collision);
     register_listener(EVENT_ENTITY_CREATED, on_entity_created);
     register_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
-
-    init_timer_system();
 }
-
-void free_game()
-{
-    shutdown_timer_system();
-
+void free_game() {
     unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
     unregister_listener(EVENT_CHEST_OPENED, on_chest_open);
     unregister_listener(EVENT_STATE_CHANGE, on_state_change);
     unregister_listener(EVENT_COLLISION, on_collision);
     unregister_listener(EVENT_ENTITY_CREATED, on_entity_created);
     unregister_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
+
     free_map(game->map);
-
-    free_components();
-    ECS_DestroyManager();
-
-    free_event_system();
-	freeDefaultItems();
-
-
     free(game);
+
+    free_entities();
+    ECS_ClearManager();
 }
 
 void on_entity_created(Event event) {
@@ -134,9 +124,6 @@ void change_room(int x, int y) {
     game->current_room = r;
 }
 
-void test_damage(Game* game) {
-}
-
 int compare_positions(const void* a, const void* b) {
     uint32_t id1 = *(uint32_t*)a;
     uint32_t id2 = *(uint32_t*)b;
@@ -161,7 +148,6 @@ int compare_positions(const void* a, const void* b) {
 
     return pos1->y - pos2->y;
 }
-
 void update_game(int win_width, int win_height, float delta) {
     SDL_Rect room_pos = {
         get_x(game->current_room) * 1920,
@@ -178,7 +164,7 @@ void update_game(int win_width, int win_height, float delta) {
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
         if (!position || !sprite) continue;
 
-        update_elt(
+        update_entity(
             id,
             get_entities(game->current_room),
             get_entity_amount(game->current_room),
@@ -189,7 +175,6 @@ void update_game(int win_width, int win_height, float delta) {
 
     update_player_positions(game->player);
 
-    test_damage(game);
     // is_colliding_with_item(game->player);
     is_colliding_with_chest(game->player, get_entities(game->current_room), get_entity_amount(game->current_room));
 
@@ -252,7 +237,4 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &rec);
     }
-	
-
-    SDL_RenderPresent(renderer);
 }

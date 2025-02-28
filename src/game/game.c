@@ -3,6 +3,7 @@
 typedef struct game_s {
     Map* map;
     Room* current_room;
+
     uint32_t player;
 } Game;
 
@@ -29,13 +30,8 @@ void create_game(SDL_Window* win, SDL_Renderer* renderer) {
     // Set camera dimensions based on window size
     cam.x = 32;
     cam.y = 32;
-
-    cam.w = win_width;
-    cam.h = win_height;
-
-    init_event_system();
-    ECS_CreateManager();
-
+    cam.w = render_width;
+    cam.h = render_height;
 
     game->player = add_player(1920 / 2 - 32, 1280 - 64, render_width, win_width);
     init_player_positions(game->player);
@@ -56,39 +52,30 @@ void free_game() {
     
     free_player_positions();
 
-
-void free_game() {
-    shutdown_timer_system();
-
     free_entities();
 
-
     free_map(game->map);
-
-
-    free_components();
-    ECS_DestroyManager();
-
-    free_event_system();
     free(game);
 }
 
 void on_entity_created(Event event) {
     EntityCreatedEvent* e = (EntityCreatedEvent*)event.data;
-    if (!e) return;
+    if (!e)
+        return;
 
     PositionComponent* pos = ECS_GetComponent(e->entity, POSITION);
-    if (!pos) return;
+    if (!pos)
+        return;
 
     int room_x = floor(pos->x / 1920);
     int room_y = floor(pos->y / 1280);
 
     Room* room = get_room(game->map, room_x, room_y);
-    if (!room) return;
+    if (!room)
+        return;
 
     add_entity(room, e->entity);
 }
-
 void on_entity_removed(Event event) {
     EntityRemovedEvent* rEvent = event.data;
 
@@ -100,8 +87,6 @@ void on_entity_removed(Event event) {
             remove_child(parentComp, rEvent->entity);
         }
     }
-
-    remove_entity(game->current_room, rEvent->entity);
 
     free_one_entity(rEvent->entity);
 
@@ -128,10 +113,11 @@ void change_room(int x, int y) {
                 continue;
             }
 
-            if (!position) continue;
+            if (!position)
+                continue;
 
-            if (position->camFixed || 
-                ((int) floor(position->x / 1920) == x && (int) floor(position->y / 1280) == y)) {
+            if(position->camFixed || 
+            ((int) floor(position->x / 1920) == x && (int) floor(position->y / 1280) == y)) {
                 add_entity(r, e);
             }
         }
@@ -140,54 +126,6 @@ void change_room(int x, int y) {
     }
     game->current_room = r;
 }
-
-
-void test_damage(Game* game) {
-    if (!game || !game->player || !game->current_room) return;
-    
-    uint32_t player = game->player;
-    HealthComponent* playerHealth = ECS_GetComponent(player, HEALTH);
-    PositionComponent* playerPos = ECS_GetComponent(player, POSITION);
-    
-    if (!playerHealth || !playerPos) return;
-
-    // Parcourir toutes les entités de la salle courante
-    for (int i = 0; i < get_entity_amount(game->current_room); i++) {
-        uint32_t entity = get_entities(game->current_room)[i];
-        if (entity == player) continue;
-
-        DamagerComponent* damager = ECS_GetComponent(entity, DAMAGER);
-        PositionComponent* entityPos = ECS_GetComponent(entity, POSITION);
-        RigidbodyComponent* entityBody = ECS_GetComponent(entity, BODY);
-        RigidbodyComponent* playerBody = ECS_GetComponent(player, BODY);
-
-        if (damager && entityPos && entityBody && playerBody) {
-            // Vérifier la collision
-            if (isColliding(playerPos, playerBody, entityPos, entityBody)) {
-                // Appliquer les dégâts
-                damage(player, damager->damage);
-
-                // Appliquer un knockback au joueur
-                float dx = playerPos->x - entityPos->x;
-                float dy = playerPos->y - entityPos->y;
-                float len = sqrt(dx*dx + dy*dy);
-                if (len > 0) {
-                    dx /= len;
-                    dy /= len;
-                }
-
-                float* knockbackArgs = malloc(sizeof(float) * 3);
-                knockbackArgs[0] = dx * 2.0f;
-                knockbackArgs[1] = dy * 2.0f;
-                knockbackArgs[2] = 300.0f;  // Force plus faible pour le joueur
-
-                Force* knockback = create_force(knockback_force, knockbackArgs);
-                add_force(player, knockback);
-            }
-        }
-    }
-}
-
 
 int compare_positions(const void* a, const void* b) {
     uint32_t id1 = *(uint32_t*)a;
@@ -215,9 +153,6 @@ int compare_positions(const void* a, const void* b) {
 }
 void update_game(int win_width, int win_height, float delta) {
     if(!game_active) return;
-
-
-void update_game(int win_width, int win_height, float delta) {
 
     SDL_Rect room_pos = {
         get_x(game->current_room) * 1920,
@@ -253,7 +188,7 @@ void update_game(int win_width, int win_height, float delta) {
     if (pos) {
         int changeX = floor(pos->x / 1920);
         int changeY = floor(pos->y / 1280);
-        if (!static_cam) {
+        if(!static_cam) {
             cam.x = pos->x + (sprite->width - cam.w) / 2;
             cam.y = pos->y + (sprite->height - cam.h) / 2;
 
@@ -283,10 +218,7 @@ void update_game(int win_width, int win_height, float delta) {
 }
 
 void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_width, int true_height) {
-
-
     if(!game_active) return;
-
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
 
@@ -307,7 +239,4 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &rec);
     }
-
-
-    SDL_RenderPresent(renderer);
 }

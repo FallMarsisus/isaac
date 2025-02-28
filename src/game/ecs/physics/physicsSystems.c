@@ -11,7 +11,6 @@ void init_position_component(PositionComponent* position, float x, float y) {
     position->ay = 0;
     position->camFixed = false;
 }
-
 void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY, int width, int height) {
     body->is_dynamic = false;
     body->hitbox = (SDL_Rect){offsetX, offsetY, width, height};
@@ -20,8 +19,7 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
     body->mass = 50;
     body->forceX = 0;
     body->forceY = 0;
-    body->forces = create_array();
-    body->active = true;
+	body->forces = create_array();
 
     body->colliding = false;
 }
@@ -83,9 +81,9 @@ void resolveAxis(PositionComponent* position, RigidbodyComponent* body,
 }
 
 void apply_one_force(RigidbodyComponent* body, float fx, float fy) {
-    // printf("Applying force: Fx = %f, Fy = %f\n", fx, fy);
-    body->forceX += fx;
-    body->forceY += fy;
+	// printf("Applying force: Fx = %f, Fy = %f\n", fx, fy);
+	body->forceX += fx;
+	body->forceY += fy;
 }
 
 void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
@@ -131,16 +129,16 @@ void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
 }
 
 void add_force(uint32_t entity, Force* f) {
-    RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
-    if (!body) return;
+	RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
+	if (!body) return;
 
-    append(body->forces, f);
+	append(body->forces, f);
 }
 
 void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(id, BODY);
-    if (!position || !body) return;
+    if(!position || !body) return;
 
     if(!body->is_dynamic) return;
 
@@ -215,7 +213,6 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
 
     // Process Y-axis collisions
     position->y += position->vy * 60 * delta;
-
 
     if (collisions_enabled) {
         for (int i = 0; i < amount; i++) {

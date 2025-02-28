@@ -96,6 +96,12 @@ bool display_health(uint32_t entity, SDL_Renderer *renderer)
 	HealthComponent* health = ECS_GetComponent(entity, HEALTH);
 	if(!health) return false;
 
+	// Check for death
+	if (health->health <= 0) {
+		health->health = health->max_health;  // Reset health
+		return false;
+	}
+
 	int screenWidth;
 	SDL_RenderGetLogicalSize(renderer, &screenWidth, NULL);
 

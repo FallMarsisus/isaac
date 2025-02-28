@@ -7,7 +7,7 @@
 
 #include "../components.h"
 #include "../ecs.h"
-#include "a_star.h" // Assuming you have the A* implementation in a separate header
+#include "a_star.h"
 
 void init_pathfinding_component(PathfindingComponent* targetComp, u_int32_t target);
 void free_pathfinding_component(PathfindingComponent* targetComp);

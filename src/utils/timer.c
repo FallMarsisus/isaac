@@ -32,6 +32,7 @@ void update_timer_system(float delta_time) {
                     current->callback(current, current->user_data);
                 }
                 cancel_timer(current);
+				
             }
         }
         

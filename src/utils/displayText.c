@@ -9,11 +9,11 @@ fonts* allFonts;
 SDL_Texture* load_char(const int chara, const char* fontName, SDL_Renderer* renderer) {
 	char* path = malloc(sizeof(char)*256);
 	sprintf(path, "assets/fonts/%s/%d.bmp", fontName, chara);
-	printf("Loading character from path: %s\n", path);
+	// printf("Loading character from path: %s\n", path);
     SDL_Surface* surface = SDL_LoadBMP(path);
     if (!surface) {
-		fprintf(stderr, "\033[0;31mFailed to load character : %c\033[0m\n", (char)chara);
-		fprintf(stderr, "\033[0;31mError : %s\033[0m\n", SDL_GetError());
+		// fprintf(stderr, "\033[0;31mFailed to load character : %c\033[0m\n", (char)chara);
+		// fprintf(stderr, "\033[0;31mError : %s\033[0m\n", SDL_GetError());
 		free(path);
         return NULL;
     }
@@ -56,8 +56,39 @@ void free_fonts() {
 	free(allFonts);
 }
 
-void display_text(const char* text, SDL_Renderer* ren, SDL_Texture** font, SDL_Color* color, int x, int y, int fontSize) {
+int get_text_width(char* text, SDL_Texture** font, int fontSize) {
+	int width = 0;
+	while (*text != '\0') {
+		SDL_Texture* texture = font[(unsigned char)*text];
+		if (texture) {
+			int texW, texH;
+			SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+			float scale = 2 * (float)fontSize / texH;  // Calculate scale based on desired height
+			
+			width += (int)(texW * scale);
+		}
+		text++;
+	}
+	return width;
+}
 
+int get_text_height(char* text, SDL_Texture** font, int fontSize) {
+	int height = 0;
+	while (*text != '\0') {
+		SDL_Texture* texture = font[(unsigned char)*text];
+		if (texture) {
+			int texW, texH;
+			SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+			float scale = 2 * (float)fontSize / texH;  // Calculate scale based on desired height
+			
+			height += (int)(texH * scale);
+		}
+		text++;
+	}
+	return height;
+}
+
+void display_text(const char* text, SDL_Renderer* ren, SDL_Texture** font, SDL_Color* color, int x, int y, int fontSize) {
 	while (*text != '\0') {
 		SDL_Texture* texture = font[(unsigned char)*text];
 		if (texture) {

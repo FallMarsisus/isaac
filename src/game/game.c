@@ -8,24 +8,36 @@ typedef struct game_s {
 
 Game* game;
 
+bool game_active = false;
+
 bool static_cam = false;
 SDL_Rect cam = {
     0, 0, 0, 0 // Initialize to 0, will be set in create_game
 };
 
-void create_game(int win_width, int win_height) {
+void create_game(SDL_Window* win, SDL_Renderer* renderer) {
+    if(game_active) return;
+
+    game_active = true;
     game = malloc(sizeof(Game));
+
+    int win_width, win_height;
+    SDL_GetWindowSize(win, &win_width, &win_height);
+    int render_width, render_height;
+    SDL_RenderGetLogicalSize(renderer, &render_width, &render_height);
 
     // Set camera dimensions based on window size
     cam.x = 32;
     cam.y = 32;
+
     cam.w = win_width;
     cam.h = win_height;
 
     init_event_system();
     ECS_CreateManager();
 
-    game->player = add_player(1920 / 2 - 32, 1280 - 64);
+
+    game->player = add_player(1920 / 2 - 32, 1280 - 64, render_width, win_width);
     init_player_positions(game->player);
 
     game->map = create_map();
@@ -37,27 +49,22 @@ void create_game(int win_width, int win_height) {
         add_teleporter(x1, y1, x2, y2);
         add_teleporter(x2, y2, x1, y1);
     }
-
-    register_listener(EVENT_PLAYER_MOVED, on_player_move);
-    register_listener(EVENT_CHEST_OPENED, on_chest_open);
-    register_listener(EVENT_STATE_CHANGE, on_state_change);
-    register_listener(EVENT_COLLISION, on_collision);
-    register_listener(EVENT_ENTITY_CREATED, on_entity_created);
-    register_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
-
-    init_timer_system();
 }
+void free_game() {
+    if(!game_active) return;
+    game_active = false;
+    
+    free_player_positions();
+
 
 void free_game() {
     shutdown_timer_system();
 
-    unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
-    unregister_listener(EVENT_CHEST_OPENED, on_chest_open);
-    unregister_listener(EVENT_STATE_CHANGE, on_state_change);
-    unregister_listener(EVENT_COLLISION, on_collision);
-    unregister_listener(EVENT_ENTITY_CREATED, on_entity_created);
-    unregister_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
+    free_entities();
+
+
     free_map(game->map);
+
 
     free_components();
     ECS_DestroyManager();
@@ -93,8 +100,19 @@ void on_entity_removed(Event event) {
             remove_child(parentComp, rEvent->entity);
         }
     }
+
     remove_entity(game->current_room, rEvent->entity);
+
     free_one_entity(rEvent->entity);
+
+    if(!game_active) return;
+    remove_entity(game->current_room, rEvent->entity);
+
+    if (rEvent->entity == game->player) {
+        GameOverEvent* gameOverEvent = malloc(sizeof(GameOverEvent));
+        gameOverEvent->player_id = rEvent->entity;
+        trigger_event(EVENT_GAME_OVER, gameOverEvent, true);
+    }
 }
 
 void change_room(int x, int y) {
@@ -122,6 +140,7 @@ void change_room(int x, int y) {
     }
     game->current_room = r;
 }
+
 
 void test_damage(Game* game) {
     if (!game || !game->player || !game->current_room) return;
@@ -169,6 +188,7 @@ void test_damage(Game* game) {
     }
 }
 
+
 int compare_positions(const void* a, const void* b) {
     uint32_t id1 = *(uint32_t*)a;
     uint32_t id2 = *(uint32_t*)b;
@@ -193,8 +213,12 @@ int compare_positions(const void* a, const void* b) {
 
     return pos1->y - pos2->y;
 }
+void update_game(int win_width, int win_height, float delta) {
+    if(!game_active) return;
+
 
 void update_game(int win_width, int win_height, float delta) {
+
     SDL_Rect room_pos = {
         get_x(game->current_room) * 1920,
         get_y(game->current_room) * 1280,
@@ -202,7 +226,6 @@ void update_game(int win_width, int win_height, float delta) {
         1280
     };
     update_timer_system(delta);
-    call_events();
 
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
         u_int32_t id = get_entities(game->current_room)[i];
@@ -210,18 +233,17 @@ void update_game(int win_width, int win_height, float delta) {
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
         if (!position || !sprite) continue;
 
-        update_elt(
+        update_entity(
             id,
             get_entities(game->current_room),
             get_entity_amount(game->current_room),
-            room_pos,
+            cam,
             delta
         );
     }
 
     update_player_positions(game->player);
 
-    test_damage(game);
     // is_colliding_with_item(game->player);
     is_colliding_with_chest(game->player, get_entities(game->current_room), get_entity_amount(game->current_room));
 
@@ -235,11 +257,9 @@ void update_game(int win_width, int win_height, float delta) {
             cam.x = pos->x + (sprite->width - cam.w) / 2;
             cam.y = pos->y + (sprite->height - cam.h) / 2;
 
-            // Cache room boundaries
             int room_x = get_x(game->current_room);
             int room_y = get_y(game->current_room);
-
-            // Clamp camera position
+            
             cam.x = fmax(room_x * 1920 + 32, fmin(cam.x, (room_x + 1) * 1920 - cam.w - 32));
             cam.y = fmax(room_y * 1280 + 32, fmin(cam.y, (room_y + 1) * 1280 - cam.h - 32));
         }
@@ -254,8 +274,6 @@ void update_game(int win_width, int win_height, float delta) {
         }
     }
 
-    ECS_ProcessRemovals();
-
     qsort(
         get_entities(game->current_room), 
         get_entity_amount(game->current_room), 
@@ -265,6 +283,10 @@ void update_game(int win_width, int win_height, float delta) {
 }
 
 void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_width, int true_height) {
+
+
+    if(!game_active) return;
+
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
 
@@ -285,6 +307,7 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &rec);
     }
+
 
     SDL_RenderPresent(renderer);
 }

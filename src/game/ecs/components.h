@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMPONENTS_H
+#define COMPONENTS_H
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -37,9 +38,9 @@ typedef enum {
 
 // Position and velocity component
 typedef struct {
-    float x, y;      // Position
-    float vx, vy;    // Velocity
-    float ax, ay;   // Acceleration
+    float x, y;
+    float vx, vy;
+    float ax, ay;
     bool camFixed;
 } PositionComponent;
 
@@ -53,19 +54,18 @@ typedef struct {
     float forceY;
 	dyn_array* forces;
 
-    bool active;
+    bool colliding;
 } RigidbodyComponent;
 
-// Sprite component (for rendering a texture)
 typedef struct {
-    int width, height; // Dimensions of the entity
+    int width, height; // Dimensions of the entity on screen
     int layer;
 
-    float angle; // set the angle.
-    SDL_Point* center; // the center where the texture will be rotated.
-    SDL_RendererFlip flip; // the flip of the texture.
+    float angle;
+    SDL_Point* center; // center of rotation
+    SDL_RendererFlip flip;
 
-    SDL_Texture* texture;  // Texture for the sprite
+    SDL_Texture* texture;
 } SpriteComponent;
 
 typedef struct {
@@ -88,9 +88,9 @@ typedef struct {
 } TileComponent;
 
 typedef struct {
-    int* path;          // Dynamic array to store the path (x, y pairs)
-    int path_length;    // Number of steps in the path
-    int current_step;   // Current step in the path
+    int* path;
+    int path_length;
+    int current_step;
     uint32_t target;
 
     float speed;
@@ -120,10 +120,13 @@ typedef struct {
     int time;
     int end_time;
 
-    bool has_physics; // If the effect is removed when it collides with a object
+    bool has_physics;
 } EffectComponent;
 
 typedef struct {
     int duration;  // Durée du stun en millisecondes
     int start_time;  // Temps de début du stun
 } StunComponent;
+
+
+#endif

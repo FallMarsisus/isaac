@@ -47,8 +47,11 @@ void free_sprite_component(SpriteComponent* sprite) {
 }
 void free_anim_component(AnimationComponent* animation) {
     free(animation->current_img);
+	animation->current_img = NULL;
     free_array(animation->animations, true);
+	animation->animations = NULL;
 }
+
 void free_all_render_components(uint32_t id) {
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
     if(sprite) {
@@ -119,7 +122,7 @@ void update_anim(uint32_t id) {
 }
 
 void render_background(SDL_Rect cam, SDL_Renderer* renderer, SDL_Texture* background) {
-    int offsetX = cam.x % 64; int offsetY = cam.y % 64;
+	int offsetX = cam.x % 64; int offsetY = cam.y % 64;
     for (int y = -64; y < 1280 + 64; y += 64) {
         for (int x = -64; x < 1920 + 64; x += 64) {
             SDL_Rect dest = {x - offsetX, y - offsetY, 64, 64};

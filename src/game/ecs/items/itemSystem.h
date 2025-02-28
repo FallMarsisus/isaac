@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "../ecs.h"
 #include "itemData.h"
-#include "itemComponent.h"
+#include "./itemComponent.h"
 #include "../inventory/inventoryComponent.h"
 #include "./itemsFunctions.h"
 
@@ -29,3 +29,5 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
 bool update_item(uint32_t entity);
 bool handle_collision_item(uint32_t entity1, uint32_t entity2);
 void free_action(Action* act);
+void free_item_component(uint32_t entity);
+void free_itemData(ItemData* itemD);

@@ -9,10 +9,9 @@
 typedef struct {
     EventType type;
     void* data;
-    bool free_data; // Whether to free data after processing
+    bool free_data;
 } Event;
 
-// Function run when an event is fired
 typedef void (*EventListener)(Event event);
 
 typedef struct {
@@ -29,16 +28,10 @@ typedef struct {
     int capacity;
 } EventQueue;
 
-// Initialize the event system
 void init_event_system();
-
-// Free the event system
 void free_event_system();
 
-// Register a listener for a specific event type
 void register_listener(EventType type, EventListener listener);
-
-// Unregister a listener for a specific event type
 void unregister_listener(EventType type, EventListener listener);
 
 /*
@@ -49,10 +42,8 @@ Add an event to the event queue
 */
 void trigger_event(EventType type, void* data, bool free_data);
 
-// Process all pending events
 void call_events();
 
-// Helper functions
 EventQueue* create_event_queue(int initial_capacity);
 void free_event_queue(EventQueue* queue);
 void enqueue_event(EventQueue* queue, EventType type, void* data, bool free_data);

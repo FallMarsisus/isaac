@@ -33,7 +33,7 @@
 
 #include <SDL2/SDL.h>
 
-#include "rooms/roomGeneration.h"
+#include "../structure/roomGeneration.h"
 
 /**
  * @brief Initializes the game systems and components
@@ -44,7 +44,7 @@ void init_room(int x, int y, uint32_t player);
 /**
  * @brief Frees all components from the ECS_GetManager() manager
  */
-void free_components();
+void free_entities();
 
 /**
 * @brief Frees one entity 
@@ -61,7 +61,7 @@ void free_one_entity(uint32_t entity);
  * @param roomPos The room Position
  * @param delta Time since last frame
  */
-void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, float delta);
+void update_entity(uint32_t entity, uint32_t* entities, int amount, SDL_Rect roomPos, float delta);
 /**
  * @brief Renders all visible entities using the game systems
  * @param entities Array of entity IDs to render

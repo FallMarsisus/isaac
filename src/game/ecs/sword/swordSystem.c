@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "../../../display.h"
 #include "../../objects/blocks/blocks.h"
+#include "../../../utils/ouputColors.h"
 
 bool create_sword(SwordComponent* sword, enum ItemID id, int damage, int range, int cooldown)
 {
@@ -59,7 +60,8 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
     int dy = pos2->y - pos1->y;
     int distance = sqrt(dx * dx + dy * dy);
 
-    printf("Enemy %u is at distance %d from entity %u\n", enemy, distance, entity);
+    // printf("Enemy %u is at distance %d from entity %u\n", enemy, distance, entity);
+
 
     // Calculer l'angle entre la direction d'attaque et la direction vers l'ennemi
     float dotProduct = (dx * attackDirX + dy * attackDirY) / sqrt(dx * dx + dy * dy);
@@ -68,6 +70,7 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
     // Ne frapper que si l'ennemi est dans un cône de 45 degrés dans la direction d'attaque
     if (distance <= sword->range * 1.5f && angle <= 45.0f) {  // Portée augmentée de 50%
         printf("Enemy %u is within range of entity %u\n", enemy, entity);
+
         // Collision detected, apply damage or other logic
         HealthComponent* health = ECS_GetComponent(enemy, HEALTH);
         if (health) {
@@ -107,7 +110,7 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
                 stun->start_time = SDL_GetTicks();
             }
         } else {
-            printf("Health component not found for enemy %u\n", enemy);
+            printf(RED "Health component not found for enemy %u\n" RESET, enemy);
         }
     }
     

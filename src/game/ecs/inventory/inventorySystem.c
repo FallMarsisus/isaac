@@ -3,6 +3,7 @@
 #include "../../../utils/ouputColors.h"
 #include "../ecs.h"
 #include "../items/itemSystem.h"
+#include "../items/throwScripts.h"
 #include "./inventoryComponent.h"
 #include "./inventorySystem.h"
 #include <stdbool.h>
@@ -20,6 +21,7 @@ void reset_item(InventoryComponent* invent, int i) {
     invent->items[i].name = "";
     invent->items[i].description = "";
     invent->items[i].value = -1;
+	invent->items[i].throwProp = NULL;
 }
 
 
@@ -63,6 +65,7 @@ bool add_item_to_inventory(uint32_t entity, ItemData item) {
     for (int i = 0; i < inventory->max_nb_items; i++) {
         if (inventory->items[i].id == -1) {
             inventory->items[i] = item;
+			inventory->items[i].throwProp = get_default_throw_prop(inventory->items[i].id);
             inventory->nb_items++;
             return true;
         }

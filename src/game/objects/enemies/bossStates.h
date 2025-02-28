@@ -29,6 +29,15 @@ typedef struct {
     int nb_attacks;
     int last_attack;
     int time_between_attacks;
+
+    float target_x;
+    float target_y;
+    float wander_radius;
+    int next_target_time;
+    
+    float center_x;
+    float center_y;
+    float movement_speed;
 } AttackBossStateVars;
 
 AttackBossStateVars* create_attack_boss_vars(uint32_t player);

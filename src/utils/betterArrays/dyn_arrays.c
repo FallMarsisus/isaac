@@ -31,13 +31,18 @@ dyn_array* convert(int len, void** list) {
 }
 
 void free_array(dyn_array* da, bool free_elements) {
-    assert(da != NULL); 
+	if (da == NULL) {
+		return;
+	}
+
     if(free_elements) {
         for(int i = 0; i < da->len; i++) {
             free(da->list[i]);
+			da->list[i] = NULL;
         }
     }
     free(da->list);
+	da->list = NULL;
     free(da);
 }
 

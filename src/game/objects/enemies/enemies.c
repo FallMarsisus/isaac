@@ -2,6 +2,12 @@
 
 uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl, SDL_Texture* texture) {
     uint32_t enemy = ECS_CreateEntity();
+
+
+	if (enemy == 137) {
+		printf("enemy ID is 137\n");
+	}
+
     PositionComponent* position = ECS_AddComponent(enemy, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(enemy, SPRITE, sizeof(SpriteComponent));
     RigidbodyComponent* body = ECS_AddComponent(enemy, BODY, sizeof(RigidbodyComponent));
@@ -13,9 +19,8 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     
     init_health_component(health, 100, 10, 0);
     init_state_machine(sm, enemy);
+    init_position_component(position, x, y);
     
-
-     
     State* idle_state = create_state("idle", on_idle_enter, on_idle_update, on_idle_exit, on_idle_free);
     idle_state->vars = create_idle_vars(pl);
     add_state(sm , idle_state);
@@ -31,9 +36,6 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     switch_state(sm, "idle");
     
     create_damager(enemy, (DamagerComponent) {1, 0, false, 0});
-    // Initialize components
-
-    init_position_component(position, x, y);
 
     init_rigidbody_component(body, 2, 2, width - 4, height - 4);
     body->is_dynamic = true;
@@ -45,6 +47,12 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
 }
 uint32_t add_goblin(float x, float y, uint32_t pl) {
     uint32_t goblin = add_standard_enemy(x, y, 64, 64, pl, get_sprites()->goblin_texture);
+
+
+	if (goblin == 137) {
+		printf("goblin ID is 137\n");
+	}
+
     AnimationComponent* animation = ECS_AddComponent(goblin, ANIMATION, sizeof(AnimationComponent));
     init_anim_component(animation, 16, 16);
 
@@ -58,6 +66,11 @@ uint32_t add_goblin(float x, float y, uint32_t pl) {
 }
 uint32_t add_slime(float x, float y, uint32_t pl) {
     uint32_t slime = add_standard_enemy(x, y, 64, 64, pl, get_sprites()->slime_texture);
+
+	if (slime == 137) {
+		printf("slime ID is 137\n");
+	}
+
     AnimationComponent* animation = ECS_AddComponent(slime, ANIMATION, sizeof(AnimationComponent));
     init_anim_component(animation, 16, 16);
 
@@ -68,6 +81,12 @@ uint32_t add_slime(float x, float y, uint32_t pl) {
 }
 uint32_t add_alien(float x, float y, uint32_t pl) {
     uint32_t alien = add_standard_enemy(x, y, 64, 64, pl, get_sprites()->alien_texture);
+
+
+	if (alien == 137) {
+		printf("alin ID is 137\n");
+	}
+
     AnimationComponent* animation = ECS_AddComponent(alien, ANIMATION, sizeof(AnimationComponent));
     init_anim_component(animation, 16, 16);
 
@@ -82,14 +101,23 @@ uint32_t add_alien(float x, float y, uint32_t pl) {
 
 uint32_t add_boss(float x, float y, uint32_t pl) {
     uint32_t boss = ECS_CreateEntity();
+
+    int width = 150;
+    int height = 150;
+
     PositionComponent* position = ECS_AddComponent(boss, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(boss, SPRITE, sizeof(SpriteComponent));
     RigidbodyComponent* body = ECS_AddComponent(boss, BODY, sizeof(RigidbodyComponent));
     StateMachineComponent* sm = ECS_AddComponent(boss, STATE_MACHINE, sizeof(StateMachineComponent));
     HealthComponent* health = ECS_AddComponent(boss, HEALTH, sizeof(HealthComponent));
     AnimationComponent* animation = ECS_AddComponent(boss, ANIMATION, sizeof(AnimationComponent));
+    StunComponent* stun = ECS_AddComponent(boss, STUN, sizeof(StunComponent));
+    stun->duration = 0;
+    stun->start_time = 0;
     
-    init_health_component(health, 1, 10, 0);
+    init_position_component(position, x, y);
+    
+    init_health_component(health, 1000, 10, 0);
     init_state_machine(sm, boss);
 
     State* attack_state = create_state("attack", on_attack_boss_enter, on_attack_boss_update, on_attack_boss_exit, on_attack_boss_free);
@@ -99,13 +127,11 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     switch_state(sm, "attack");
     
     create_damager(boss, (DamagerComponent) {1, 0, false, 0});
-    // Initialize components
-    init_position_component(position, x, y);
 
-    init_rigidbody_component(body, 2, 2, 150 - 4, 150 - 4);
+    init_rigidbody_component(body, 2, 2, width - 4, height - 4);
     body->is_dynamic = true;
 
-    init_sprite_component(sprite, 150, 150, get_sprites()->boss_texture);
+    init_sprite_component(sprite, width, height, get_sprites()->boss_texture);
     init_anim_component(animation, 50, 50);
 
     add_anim(animation, 0.1, 5);

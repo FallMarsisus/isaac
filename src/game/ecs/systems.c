@@ -1,11 +1,10 @@
 #include "systems.h"
 
-// Initialize the game with entities and components
 void init_room(int rX, int rY, uint32_t player_id) {
     generate_room(rX, rY, player_id);
 }
 
-void free_components() {
+void free_entities() {
     for(Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
         free_one_entity(e);
     }
@@ -21,33 +20,34 @@ void free_one_entity(uint32_t entity) {
     if(invent) {
         free_inventory(invent);
     }
+	
+	free_item_component(entity);
 
     free_pathfinding_component(ECS_GetComponent(entity, PATHFINDING));
     free_all_other_components(entity);
     free_all_render_components(entity);
-
+    
     free_rigidbody_component(entity);
 
     add_removal_flag(entity);
 }
 
-void update_elt(uint32_t elt, uint32_t* entities, int amount, SDL_Rect roomPos, float delta) {
-    StateMachineComponent* sm = ECS_GetComponent(elt, STATE_MACHINE);
-    ParentComponent* parent = ECS_GetComponent(elt, PARENT);
+void update_entity(uint32_t entity, uint32_t* entities, int amount, SDL_Rect cam, float delta) {
+    StateMachineComponent* sm = ECS_GetComponent(entity, STATE_MACHINE);
+    ParentComponent* parent = ECS_GetComponent(entity, PARENT);
 
     if(sm) {
         update_state_machine(sm);
     }
     
-    update_others(elt, roomPos, entities, amount);
+    update_others(entity, cam, entities, amount);
     //update_pathfinding_system(elt, roomPos);
-    update_item(elt);
-    update_physics(elt, entities, amount, delta);
+    update_item(entity);
+    update_physics(entity, entities, amount, delta);
     
-    update_anim(elt);
+    update_anim(entity);
 }
 
-// Render all entities
 void render_entity(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);

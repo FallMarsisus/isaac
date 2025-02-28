@@ -1,9 +1,13 @@
 #include "scripts.h"
 
-void init_player(ScriptComponent* script) {
+void init_player(ScriptComponent* script, int win_width, int true_width) {
     PlayerData* data = malloc(sizeof(PlayerData));
-    data->speed =6;
+
+    data->speed = 3.5;
+
     data->direction = (Vector) {0, 0};
+	data->win_width = win_width;
+	data->true_width = true_width;
 
     script->data = data;
     script->update = update_player;
@@ -18,13 +22,13 @@ static void handle_movement_input(int* dx, int* dy) {
     if(state[SDL_SCANCODE_A]) *dx -= 1;
     if(state[SDL_SCANCODE_D]) *dx += 1;
     if(state[SDL_SCANCODE_ESCAPE]) {
-        SDL_Event quit;
-        quit.type = SDL_QUIT;
-        SDL_PushEvent(&quit);
+        switch_to_menu(MENU_PAUSE);
     }
 }
 
-static void handle_inventory_display(InventoryComponent* inv) {
+static void handle_inventory_display(InventoryComponent* inv, uint32_t player, SDL_Rect cam, int win_width, int true_width) {
+    if (!inv) return;
+    
     static bool is_it_wanting_to_display = false;
 	static bool is_displaying_in_console = false;
     const Uint8* state = SDL_GetKeyboardState(NULL);
@@ -43,15 +47,29 @@ static void handle_inventory_display(InventoryComponent* inv) {
 	} else if (!state[SDL_SCANCODE_B]) {
 		is_displaying_in_console = false;
 	}
+
+	static bool is_j_pressed = false;
+	if (state[SDL_SCANCODE_J] && !is_j_pressed) {
+		is_j_pressed = true;
+
+		if (inv->items[inv->max_nb_items].id != -1) {
+			throwItemAtMouse(player, inv->max_nb_items, cam, win_width, true_width);
+		}
+		
+	} else if (!state[SDL_SCANCODE_J]) {
+		is_j_pressed = false;
+	}
 }
 
 static void handle_mouse_input(uint32_t player) {
+    InventoryComponent* inv = ECS_GetComponent(player, INVENT);
+    if (!inv) return;
+    
     static bool mouseClicked = false;
     int x, y;
     Uint32 mouseState = SDL_GetMouseState(&x, &y);
-    InventoryComponent* inv = ECS_GetComponent(player, INVENT);
     
-    if ((mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouseClicked && inv != NULL) {
+    if ((mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouseClicked) {
         printf("mouse is in slot n° %d\n", on_clic(player, x, y));
         mouseClicked = true;
     } else if (!(mouseState & SDL_BUTTON(SDL_BUTTON_LEFT))) {
@@ -118,26 +136,38 @@ static void handle_combat(uint32_t player, PositionComponent* position, SwordCom
 }
 
 void update_player(u_int32_t player, SDL_Rect cam, uint32_t* entities, int amount) {
+    // Check for script component and its data
     ScriptComponent* script = ECS_GetComponent(player, SCRIPT);
-    if(!script) return;
-
-    int dx = 0, dy = 0;
-    handle_movement_input(&dx, &dy);
-    float distance = sqrt(pow(dx, 2) + pow(dy, 2));
+    if (!script) return;
 
     PlayerData* movement = (PlayerData*)script->data;
+    if (!movement) return;
+
+    // Check for required position component
     PositionComponent* position = ECS_GetComponent(player, POSITION);
+    if (!position) return;
+
+    // Get optional components
     AnimationComponent* anim = ECS_GetComponent(player, ANIMATION);
     InventoryComponent* inv = ECS_GetComponent(player, INVENT);
     SwordComponent* sword = ECS_GetComponent(player, SWORD_C);
 
-    if (movement && position) {
-        handle_inventory_display(inv);
+    // Handle movement
+    int dx = 0, dy = 0;
+    handle_movement_input(&dx, &dy);
+    float distance = sqrt(pow(dx, 2) + pow(dy, 2));
+    
+    // Update movement and animation (anim can be NULL)
+    update_movement_and_animation(movement, position, anim, dx, dy, distance);
+
+    // Handle inventory if it exists
+    if (inv) {
+        handle_inventory_display(inv, player, cam, movement->win_width, movement->true_width);
         handle_mouse_input(player);
-        update_movement_and_animation(movement, position, anim, dx, dy, distance);
     }
 
-    if (position && sword) {
+    // Handle combat if sword component exists
+    if (sword) {
         handle_combat(player, position, sword, entities, amount);
     }
 }

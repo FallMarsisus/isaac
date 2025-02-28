@@ -1,5 +1,7 @@
 #include "physicsSystems.h"
 
+bool collisions_enabled = true;
+
 void init_position_component(PositionComponent* position, float x, float y) {
     position->x = x;
     position->y = y;
@@ -20,6 +22,8 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
     body->forceY = 0;
     body->forces = create_array();
     body->active = true;
+
+    body->colliding = false;
 }
 
 void free_rigidbody_component(uint32_t entity) {
@@ -85,14 +89,30 @@ void apply_one_force(RigidbodyComponent* body, float fx, float fy) {
 }
 
 void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
-    if (!body->forces || get_len(body->forces) == 0) return;
-    
-    for (int i = 0; i < get_len(body->forces); i++) {
-        Force* currentForce = (Force*)get_elt(body->forces, i);
-        if (!currentForce) continue;
+	bool shouldBeRemoved;
+	Force* currentForce;
+	int solidDIndex = -1;
+	SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
+	sprite_list* l =  get_sprites();
 
-        bool shouldBeRemoved = update_entity_force(entity, currentForce);
-        apply_one_force(body, currentForce->Fx, currentForce->Fy);
+	ForceFunction sdf = solid_drag_force;
+
+
+	if (!body->forces || get_len(body->forces) == 0) return;
+	
+	for (int i = 0; i < get_len(body->forces); i++) {
+
+		currentForce = get_elt(body->forces, i);
+        if (!currentForce) continue;
+		
+		if (currentForce->func == sdf) {
+			solidDIndex = i;
+			continue;
+		}
+		// printf("Applying force: Fx = %d\n", currentForce->func);
+
+		shouldBeRemoved = update_entity_force(entity, currentForce);
+		apply_one_force(body, currentForce->Fx, currentForce->Fy);
 
         if (shouldBeRemoved) {
             free_force(currentForce);  // Libérer la force
@@ -100,6 +120,14 @@ void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
             i--;
         }
     }
+
+	if (solidDIndex >= 0) {
+
+		currentForce = get_elt(body->forces, solidDIndex);
+
+		update_entity_force(entity, currentForce);
+		apply_one_force(body, currentForce->Fx, currentForce->Fy);
+	}
 }
 
 void add_force(uint32_t entity, Force* f) {
@@ -113,6 +141,8 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(id, BODY);
     if (!position || !body) return;
+
+    if(!body->is_dynamic) return;
 
     apply_all_forces(id, body);
 
@@ -140,34 +170,44 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
     }
 
     // Array to track collisions already triggered with other entities this update.
-    // Assuming a maximum of 128 collisions per update.
     int collidedEntities[128];
     int collidedCount = 0;
 
     // Process X-axis collisions
     position->x += position->vx * 60 * delta;
-    
-    for (int i = 0; i < amount; i++) {
-        uint32_t e = entities[i];
-        if (e == id) continue;
-        
-        PositionComponent* otherPos = ECS_GetComponent(e, POSITION);
-        RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
-        if (!otherPos || !otherBody) continue;
 
-        if (isColliding(position, body, otherPos, otherBody)) {
-            // Toujours déclencher l'événement de collision
-            CollisionEvent* event = malloc(sizeof(CollisionEvent));
-            event->entity1 = id;
-            event->entity2 = e;
-            trigger_event(EVENT_COLLISION, event, true);
+    if (collisions_enabled) {
+        for (int i = 0; i < amount; i++) {
+            uint32_t e = entities[i];
+            if (e == id) continue;
             
-            // Gérer la résolution de collision physique séparément
-            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active) {
-                HealthComponent* health = ECS_GetComponent(e, HEALTH);
-                if (!health) {  // Ne bloquer que si ce n'est pas une entité avec de la santé
+            PositionComponent* otherPos = ECS_GetComponent(e, POSITION);
+            RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
+            if (!otherPos || !otherBody) continue;
+
+            // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
+            HealthComponent* health = ECS_GetComponent(e, HEALTH);
+            if (isColliding(position, body, otherPos, otherBody)) {
+                if (body->is_dynamic && !otherBody->is_dynamic && otherBody->colliding && !health) {
                     position->x = originalX;
                     resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
+                }
+                // Only trigger collision event from one side and only once per collision pair.
+                if (id < e || !otherBody->is_dynamic) {
+                    bool alreadyTriggered = false;
+                    for (int i = 0; i < collidedCount; i++) {
+                        if (collidedEntities[i] == e) {
+                            alreadyTriggered = true;
+                            break;
+                        }
+                    }
+                    if (!alreadyTriggered) {
+                        CollisionEvent* event = malloc(sizeof(CollisionEvent));
+                        event->entity1 = id;
+                        event->entity2 = e;
+                        trigger_event(EVENT_COLLISION, event, true);
+                        collidedEntities[collidedCount++] = e;
+                    }
                 }
             }
         }
@@ -175,42 +215,40 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
 
     // Process Y-axis collisions
     position->y += position->vy * 60 * delta;
-    
-    for (int i = 0; i < amount; i++) {
-        uint32_t e = entities[i];
-        if (e == id) continue;
-        
-        PositionComponent* otherPos = ECS_GetComponent(e, POSITION);
-        RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
-        if (!otherPos || !otherBody) continue;
 
-        if (isColliding(position, body, otherPos, otherBody)) {
-            // Toujours déclencher l'événement de collision
-            CollisionEvent* event = malloc(sizeof(CollisionEvent));
-            event->entity1 = id;
-            event->entity2 = e;
-            trigger_event(EVENT_COLLISION, event, true);
+
+    if (collisions_enabled) {
+        for (int i = 0; i < amount; i++) {
+            uint32_t e = entities[i];
+            if (e == id) continue;
+            
+            PositionComponent* otherPos = ECS_GetComponent(e, POSITION);
+            RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
+            if (!otherPos || !otherBody) continue;
 
             // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
             HealthComponent* health = ECS_GetComponent(e, HEALTH);
-            if (body->is_dynamic && !otherBody->is_dynamic && otherBody->active && !health) {
-                position->y = originalY;
-                resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
-            }
-            if (id < e || !body->is_dynamic || !otherBody->is_dynamic) {
-                bool alreadyTriggered = false;
-                for (int j = 0; j < collidedCount; j++) {
-                    if (collidedEntities[j] == e) {
-                        alreadyTriggered = true;
-                        break;
-                    }
+            if (isColliding(position, body, otherPos, otherBody)) {
+                if (body->is_dynamic && !otherBody->is_dynamic && otherBody->colliding && !health) {
+                    position->y = originalY;
+                    resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
                 }
-                if (!alreadyTriggered) {
-                    CollisionEvent* event = malloc(sizeof(CollisionEvent));
-                    event->entity1 = id;
-                    event->entity2 = e;
-                    trigger_event(EVENT_COLLISION, event, true);
-                    collidedEntities[collidedCount++] = e;
+
+                if (id < e || !otherBody->is_dynamic) {
+                    bool alreadyTriggered = false;
+                    for (int i = 0; i < collidedCount; i++) {
+                        if (collidedEntities[i] == e) {
+                            alreadyTriggered = true;
+                            break;
+                        }
+                    }
+                    if (!alreadyTriggered) {
+                        CollisionEvent* event = malloc(sizeof(CollisionEvent));
+                        event->entity1 = id;
+                        event->entity2 = e;
+                        trigger_event(EVENT_COLLISION, event, true);
+                        collidedEntities[collidedCount++] = e;
+                    }
                 }
             }
         }

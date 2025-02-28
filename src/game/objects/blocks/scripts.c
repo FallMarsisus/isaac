@@ -5,6 +5,13 @@ typedef struct {
     int posY;
 } TeleporterData;
 
+typedef struct {
+    int last_change;
+    int change_time;
+
+    bool active;
+} TrapData;
+
 void init_teleporter(ScriptComponent* script, int posX, int posY) {
     TeleporterData* teleport = malloc(sizeof(TeleporterData));
     teleport->posX = posX;
@@ -15,7 +22,12 @@ void init_teleporter(ScriptComponent* script, int posX, int posY) {
 }
 
 void init_trap(ScriptComponent* script) {
-    script->data = NULL;
+    TrapData* trap = malloc(sizeof(TrapData));
+    trap->active = false;
+    trap->last_change = SDL_GetTicks();
+    trap->change_time = 1000;
+
+    script->data = trap;
     script->update = update_trap;
 }
 
@@ -51,15 +63,21 @@ void update_teleporter(u_int32_t id, SDL_Rect cam, uint32_t* entities, int amoun
 void update_trap(u_int32_t id, SDL_Rect cam, uint32_t* entities, int amount) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
-    AnimationComponent* animation = ECS_GetComponent(id, ANIMATION);
     RigidbodyComponent* body = ECS_GetComponent(id, BODY);
+    ScriptComponent* script = ECS_GetComponent(id, SCRIPT);
+    if(!script) return;
 
-    if(position && sprite && animation) {
-        if(animation->counter == 0 && !body->active) {
-            body->active = true;
-        }
-        if(animation->counter == 1 && body->active) {
-            body->active = false;
+    TileComponent* tile = ECS_GetComponent(id, TILE);
+    if(!tile) return;
+
+    TrapData* trap = (TrapData*)script->data;
+
+    if(position && sprite && tile) {
+        if(SDL_GetTicks() - trap->last_change > trap->change_time) {
+            trap->active = !trap->active;
+            trap->last_change = SDL_GetTicks();
+
+            tile->tile_x = trap->active ? 4 : 5;
         }
     }
 }

@@ -5,8 +5,8 @@
 
 #define ATTACK_RANGE 300
 #define ABANDON_RANGE 600
-#define CHASE_OFFSET_RANGE 0.1f // Maximum offset from player position
-#define FRAME_TIME (1.0f/60.0f) // Consistent time delta for 60 FPS
+#define CHASE_OFFSET_RANGE 0.1f
+#define FRAME_TIME (1.0f/60.0f)
 
 //Returns False if touch something
 bool raycast(Vector start, Vector dir, float distance) {
@@ -39,7 +39,7 @@ void randomize_idle_vars(IdleStateVars* vars) {
         random_float(-1, 1)
     };
     normalize(&vars->direction);
-    vars->speed = random_float(0.4, 1.2); // Slightly faster base speed
+    vars->speed = random_float(0.4, 1.2);
     vars->wander_time = random_float(0.5, 3);
 }
 IdleStateVars* create_idle_vars(uint32_t pl) {
@@ -189,16 +189,19 @@ void init_player_positions(uint32_t id) {
         }
     }
 }
+void free_player_positions() {
+    queue_destroy(player_positions);
+}
+
 void update_player_positions(uint32_t id) {
     if(SDL_GetTicks() - prev_player_pos_update > 200) {
         prev_player_pos_update = SDL_GetTicks();
 
-        Vector last_player_pos = {0, 0};  // Initialize with default values
+        Vector last_player_pos = {0, 0};
 
         PositionComponent* pos = ECS_GetComponent(id, POSITION);
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
         if(pos && sprite) {
-            // Store the dequeued node's data before removing it
             if (queue_size(player_positions) > nb_player_positions) {
                 queue_dequeue(player_positions, &last_player_pos, sizeof(Vector));
             }
@@ -251,7 +254,14 @@ void on_follow_update(State* state, uint32_t id) {
     if(!vars) return;
     
     if(vars->currentGoal == get_first_queue_node(player_positions)) {
-        vars->currentGoal = get_next_queue_node(vars->currentGoal);
+        QueueNode* next = get_next_queue_node(vars->currentGoal);
+        if (next && get_data_queue_node(next)) {
+            vars->currentGoal = next;
+        } else {
+            // If there's no valid next node, stay on current goal
+            // This prevents null pointer dereference when queue has only one node
+            vars->currentGoal = get_first_queue_node(player_positions);
+        }
     }
 
     PositionComponent* posComp = ECS_GetComponent(id, POSITION);

@@ -25,9 +25,10 @@ void remove_child(ParentComponent* parent, uint32_t id) {
 }
 
 void free_script_component(ScriptComponent* script) {
-    if(script && script->data) {
+    if(script) {
         free(script->data);
         script->data = NULL;
+		script->update = NULL;
     }
 }
 void free_parent_component(ParentComponent* parent) {
@@ -56,7 +57,7 @@ void update_others(uint32_t id, SDL_Rect cam, uint32_t* entities, int amount) {
     }
 
     ScriptComponent* script = ECS_GetComponent(id, SCRIPT);
-    if(script) {
+    if(script && script->update) {
         script->update(id, cam, entities, amount);
     }
 

@@ -12,10 +12,21 @@ struct Force_s {
 	float Fy;
 	ForceFunction func;
 	void* additionalArgs;
+	bool argsAreMalloc;
 };
+
+typedef struct sdfArgs_s {
+	float staticCoef;
+	float movingCoef;
+	float lastSignX;
+	int timesOsciliatingX;
+	float lastSignY;
+	int timesOsciliatingY;
+} sdfArgs;
 
 // current forces created
 bool wind_force(uint32_t entity, Force* f, void* args);
+bool fluid_drag_force(uint32_t entity, Force* f, void* args);
 bool knockback_force(uint32_t entity, Force* f, void* args);
 bool solid_drag_force(uint32_t entity, Force* f, void* args);
 

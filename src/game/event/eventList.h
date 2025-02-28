@@ -15,7 +15,6 @@ typedef enum {
     EVENT_ENTITY_REMOVED,
     EVENT_GAME_OVER,
     EVENT_MENU_CHANGE,
-    EVENT_QUIT,
     EVENT_MAX // Safeguard to know the number of event types
 } EventType;
 

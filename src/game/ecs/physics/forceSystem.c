@@ -52,7 +52,7 @@ bool knockback_force(uint32_t entity, Force* f, void* args) {
     pos->vx = f->Fx * velocityFactor;
     pos->vy = f->Fy * velocityFactor;
     
-    // printf("Force remaining: %f\n", forceArgs[2]);
+    printf("Force remaining: %f\n", forceArgs[2]);
     
     // Ne pas libérer la mémoire ici, laisser free_force s'en charger
     return (forceArgs[2] < 10.0f);  // Arrêter quand la force devient très faible

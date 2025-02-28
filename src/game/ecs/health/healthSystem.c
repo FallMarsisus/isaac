@@ -7,6 +7,8 @@ bool init_health_component(HealthComponent* health, int max_health, int max_mana
 	health->max_mana = max_mana;
 	health->isDisplayed = false;
 	health->shield = 0;
+	health->last_damage_time = 0;
+	health->damage_cooldown = 1000; // 1 seconde de cooldown
 
 	return true;
 }
@@ -24,28 +26,49 @@ bool damage_bypass_shield(uint32_t entity, int damage)
 	return true;
 }
 
+void apply_damage_effect(uint32_t entity) {
+    SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
+    HealthComponent* health = ECS_GetComponent(entity, HEALTH);
+    
+    if (!sprite || !sprite->texture || !health) return;
+    
+    SDL_SetTextureColorMod(sprite->texture, 255, 50, 50);
+    health->effect_end_time = SDL_GetTicks() + 200; // Effet dure 200ms
+}
+
+void restore_sprite_color(uint32_t entity) {
+    SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
+    if (sprite && sprite->texture) {
+        SDL_SetTextureColorMod(sprite->texture, 255, 255, 255);
+    }
+}
+
 bool damage(uint32_t entity, int damage) {
-	HealthComponent* health = ECS_GetComponent(entity, HEALTH);
+    HealthComponent* health = ECS_GetComponent(entity, HEALTH);
+    if (!health || damage < 0) return false;
 
-	if (health == NULL || damage < 0) {
-		return false;
-	}
+    Uint32 current_time = SDL_GetTicks();
+    if (current_time - health->last_damage_time < health->damage_cooldown) {
+        return false;
+    }
 
-	if (health->shield - damage < 0) {
-		health->shield = 0;
-		health->health -= damage - health->shield;
-	} else {
-		health->shield -= damage;
-	}
+    // Appliquer les dégâts
+    if (health->shield - damage < 0) {
+        health->shield = 0;
+        health->health -= damage - health->shield;
+    } else {
+        health->shield -= damage;
+    }
 
+    apply_damage_effect(entity);
+    health->last_damage_time = current_time;
 
-	if(isDead(entity)) {
-		health->health = 0;
-		
-		ECS_RemoveEntity(entity);
-	}
+    if(isDead(entity)) {
+        health->health = 0;
+        ECS_RemoveEntity(entity);
+    }
 
-	return true;
+    return true;
 }
 
 bool heal(uint32_t entity, int healAmount) {
@@ -120,4 +143,19 @@ bool display_health(uint32_t entity, SDL_Renderer *renderer)
 		SDL_RenderCopy(renderer, heartTexture, NULL, &heartRect);
 	}
 	return true;
+}
+
+void update_health_effects() {
+    // À appeler dans la boucle de mise à jour du jeu
+    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
+        HealthComponent* health = ECS_GetComponent(e, HEALTH);
+        SpriteComponent* sprite = ECS_GetComponent(e, SPRITE);
+        
+        if (health && sprite && sprite->texture) {
+            Uint32 current_time = SDL_GetTicks();
+            if (current_time >= health->effect_end_time) {
+                SDL_SetTextureColorMod(sprite->texture, 255, 255, 255);
+            }
+        }
+    }
 }

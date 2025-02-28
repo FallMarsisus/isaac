@@ -14,3 +14,7 @@ bool removeEffect(uint32_t entity, void* effect); //idem
 bool addShield(uint32_t entity, int shieldAmount);
 bool isDead(uint32_t entity);
 bool display_health(uint32_t entity, SDL_Renderer* renderer);
+
+void apply_damage_effect(uint32_t entity);
+void restore_sprite_color(uint32_t entity);
+void update_health_effects();

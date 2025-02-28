@@ -15,7 +15,7 @@ uint32_t add_player(float x, float y, int render_width, int win_width) {
 
     init_player(script, win_width, render_width);
     
-    create_sword(swordC, SWORD, 10, 64, 1);
+    create_sword(swordC, SWORD, 10, 128, 1);
     init_position_component(position, x, y);
 
 	ItemData** itemListe = itemList;

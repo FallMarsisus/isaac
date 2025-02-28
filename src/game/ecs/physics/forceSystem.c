@@ -29,27 +29,17 @@ bool wind_force(uint32_t entity, Force* f, void* args) {
 bool knockback_force(uint32_t entity, Force* f, void* args) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
-    SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
     
     if (!pos || !body) return true;
     
     static float decay = 0.90f;
     static float velocityFactor = 0.02f;
     
+    // Stocker la force initiale dans additionalArgs[3] si pas encore fait
     float* forceArgs = (float*)f->additionalArgs;
     float dirX = forceArgs[0];
     float dirY = forceArgs[1];
-    if (forceArgs[2] <= 0) {
-        if (sprite) {
-            SDL_SetTextureColorMod(sprite->texture, 255, 255, 255); // Restaurer la couleur normale
-        }
-        return true;
-    }
-    
-    // Appliquer l'effet rouge
-    if (sprite) {
-        SDL_SetTextureColorMod(sprite->texture, 255, 150, 150);
-    }
+    if (forceArgs[2] <= 0) return true;  // Force épuisée
     
     // Appliquer la décroissance
     forceArgs[2] *= decay;
@@ -62,12 +52,10 @@ bool knockback_force(uint32_t entity, Force* f, void* args) {
     pos->vx = f->Fx * velocityFactor;
     pos->vy = f->Fy * velocityFactor;
     
-    bool shouldEnd = (forceArgs[2] < 10.0f);
-    if (shouldEnd && sprite) {
-        SDL_SetTextureColorMod(sprite->texture, 255, 255, 255); // Restaurer la couleur normale
-    }
+    // printf("Force remaining: %f\n", forceArgs[2]);
     
-    return shouldEnd;
+    // Ne pas libérer la mémoire ici, laisser free_force s'en charger
+    return (forceArgs[2] < 10.0f);  // Arrêter quand la force devient très faible
 }
 
 bool fluid_drag_force(uint32_t entity, Force* f, void* args) {

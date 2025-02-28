@@ -159,6 +159,8 @@ void update_game(int win_width, int win_height, float delta) {
 
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
         u_int32_t id = get_entities(game->current_room)[i];
+        if(!ECS_IsEntityActive(id)) continue;
+
         PositionComponent* position = ECS_GetComponent(id, POSITION);
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
         if (!position || !sprite) continue;

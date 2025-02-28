@@ -17,7 +17,7 @@ bool create_sword(SwordComponent* sword, enum ItemID id, int damage, int range, 
 }
 
 
-uint32_t use_sword(uint32_t entity, uint32_t enemy)
+uint32_t use_sword(uint32_t entity, uint32_t enemy, float offsetX, float offsetY)
 {
     SwordComponent* sword = ECS_GetComponent(entity, SWORD_C);
     if (!sword) {
@@ -31,7 +31,7 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
         return SDL_MAX_UINT32;
     }
 
-    uint32_t sword_temp = add_sword(entity, sword);
+    uint32_t sword_temp = add_sword(entity, sword, offsetX, offsetY);
 
     if(enemy == -1) return sword_temp;
     PositionComponent* pos2 = ECS_GetComponent(enemy, POSITION);
@@ -39,10 +39,10 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy)
         printf("Position component not found for enemy %u\n", enemy);
         return sword_temp;
     }
+
     int dx = pos2->x - pos1->x;
     int dy = pos2->y - pos1->y;
     int distance = sqrt(dx * dx + dy * dy);
-
     // printf("Enemy %u is at distance %d from entity %u\n", enemy, distance, entity);
 
     if (distance <= sword->range) {

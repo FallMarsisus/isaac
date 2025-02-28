@@ -103,6 +103,7 @@ void stop_anim(AnimationComponent* anim) {
 
 void update_anim(uint32_t id) {
     AnimationComponent* anim = ECS_GetComponent(id, ANIMATION);
+    
     if(anim && get_len(anim->animations) > 0) {
         double interval = (SDL_GetTicks() - anim->last_change) / 1000.;
         if(anim->anim_index >= get_len(anim->animations)) return;

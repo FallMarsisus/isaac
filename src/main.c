@@ -46,20 +46,10 @@ int main() {
         return 1;
     }
 
-    // Create a renderer
-    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (ren == NULL) {
-        SDL_DestroyWindow(win);
-        printf("SDL_CreateRenderer Error: %s\n", SDL_GetError());
-        SDL_Quit();
-        return 1;
-    }
+    init_renderer(win);
 
-    int win_width = 960, win_height = 540;
-    SDL_RenderSetLogicalSize(ren, win_width, win_height);
-
-    load_sprites(ren);
-	load_fonts(ren);
+    load_sprites();
+	load_fonts(get_renderer());
     
     double t = 0.;
 
@@ -81,7 +71,7 @@ int main() {
     register_listener(EVENT_ENTITY_CREATED, on_entity_created);
     register_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
 
-    init_menu_manager(win, ren);
+    init_menu_manager(win, get_renderer());
 
     Mix_Music* music = Mix_LoadMUS("assets/AssetPack/Musics/21 - Dungeon.ogg");
     if (music == NULL)
@@ -108,13 +98,13 @@ int main() {
         accumulator += frame_time;
 
         while(accumulator >= dt) {
-            update_menu_manager(win_width, win_height, dt);
+            update_menu_manager(dt);
             t += dt;
             accumulator -= dt;
         }
         
-        draw_menu_manager(ren, win_width, win_height, true_width, true_height);
-        SDL_RenderPresent(ren);
+        draw_menu_manager(get_renderer(), true_width, true_height);
+        SDL_RenderPresent(get_renderer());
     }
 
     unregister_listener(EVENT_QUIT, on_quit);
@@ -138,7 +128,7 @@ int main() {
 
     Mix_CloseAudio();
 
-    SDL_DestroyRenderer(ren);
+    SDL_DestroyRenderer(get_renderer());
     SDL_DestroyWindow(win);
     SDL_Quit();
 

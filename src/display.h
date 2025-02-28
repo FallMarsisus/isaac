@@ -34,5 +34,9 @@ typedef struct {
     SDL_Texture* heart_empty_texture;
 } sprite_list;
 
-void load_sprites(SDL_Renderer* ren);
+void init_renderer(SDL_Window* win);
+
+void load_sprites();
+
 sprite_list* get_sprites();
+SDL_Renderer* get_renderer();

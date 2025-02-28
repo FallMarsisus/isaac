@@ -58,8 +58,11 @@ void free_menu_manager() {
     free_menu_component(&gameOverMenu);
 }
 
-void update_menu_manager(int win_width, int win_height, float delta) {
+void update_menu_manager(float delta) {
     call_events();
+
+    int win_width, win_height;
+    SDL_RenderGetLogicalSize(get_renderer(), &win_width, &win_height);
 
     if (!currentMenu) {
         update_game(win_width, win_height, delta);
@@ -68,7 +71,10 @@ void update_menu_manager(int win_width, int win_height, float delta) {
     ECS_ProcessRemovals();
 }
 
-void draw_menu_manager(SDL_Renderer* renderer, int win_width, int win_height, int true_width, int true_height) {
+void draw_menu_manager(SDL_Renderer* renderer, int true_width, int true_height) {
+    int win_width, win_height;
+    SDL_RenderGetLogicalSize(renderer, &win_width, &win_height);
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 

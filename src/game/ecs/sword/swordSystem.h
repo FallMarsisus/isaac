@@ -10,6 +10,6 @@
 #include "../physics/forceSystem.h"
 
 bool create_sword(SwordComponent* sword, enum ItemID id, int damage, int range, int cooldown);
-uint32_t use_sword(uint32_t entity, uint32_t enemy);
+uint32_t use_sword(uint32_t entity, uint32_t enemy, float offsetX, float offsetY);
 
 void free_sword_component(SwordComponent* sword);

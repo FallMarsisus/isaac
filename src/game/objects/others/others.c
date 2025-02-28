@@ -35,11 +35,10 @@ uint32_t add_flame(float x, float y, float vx, float vy) {
 
 
 	AnimationComponent* animation = ECS_AddComponent(flame, ANIMATION, sizeof(AnimationComponent));
+    init_anim_component(animation, 16, 16);
 
     create_damager(flame, (DamagerComponent) {1, 0, false, 0});
     
-    init_anim_component(animation, 16, 16);
-
     add_anim(animation, 0.1, 3);
     set_active_anim(animation, 0);
     play_anim(animation);
@@ -47,24 +46,19 @@ uint32_t add_flame(float x, float y, float vx, float vy) {
     return flame;
 }
 
-uint32_t add_sword(uint32_t player, SwordComponent* sword_component) {
+uint32_t add_sword(uint32_t player, SwordComponent* sword_component, float offsetX, float offsetY) {
     //Player relative components
     PositionComponent* player_position = ECS_GetComponent(player, POSITION);
-    ScriptComponent* script = ECS_GetComponent(player, SCRIPT);
-    if (!player_position || !script) {
-        printf("Position or script component not found for entity %u\n", player);
+    if (!player_position) {
+        printf("Position component not found for entity %u\n", player);
         return SDL_MAX_UINT32;
     }
 
-    SpriteComponent* player_sprite = ECS_GetComponent(player, SPRITE);
     ParentComponent* parent = ECS_GetComponent(player, PARENT);
-
-    PlayerData* player_data = (PlayerData*)script->data;
+    SpriteComponent* player_sprite = ECS_GetComponent(player, SPRITE);
 
     int width = 128;
     int height = 128;
-    float offsetX = player_data->direction.x * 24;
-    float offsetY = player_data->direction.y * 24;
 
     //Sword relative components
     uint32_t sword = add_effect(
@@ -76,9 +70,10 @@ uint32_t add_sword(uint32_t player, SwordComponent* sword_component) {
     SpriteComponent* sprite = ECS_GetComponent(sword, SPRITE);
     AnimationComponent* animation = ECS_AddComponent(sword, ANIMATION, sizeof(AnimationComponent));
 
-    sprite->angle = atan2(player_data->direction.y, player_data->direction.x) * 180 / PI;
-
     init_anim_component(animation, 32, 32);
+
+    sprite->angle = atan2(offsetY, offsetX) * 180 / PI;
+    
     add_anim(animation, 0.05, 3);
     set_active_anim(animation, 0);
     play_anim(animation);

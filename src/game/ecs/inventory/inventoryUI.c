@@ -152,8 +152,7 @@ slots indexToSlot(InventoryComponent* invent, int index) {
 int on_clic(uint32_t entity, int mouseX, int mouseY) {
 
     InventoryComponent* invent = ECS_GetComponent(entity, INVENT);
-    if (!invent)
-        return -1;
+    if (!invent) return -1;
 
     if (invent->selected_slot == -1) {
 

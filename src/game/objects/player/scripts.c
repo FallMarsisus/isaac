@@ -98,69 +98,121 @@ static void update_movement_and_animation(PlayerData* movement, PositionComponen
     }
 }
 
-static void handle_combat(uint32_t player, PositionComponent* position, SwordComponent* sword, uint32_t* entities, int amount) {
-    static bool attacked = false;
+static Vector get_4dir_attack_vector(float dx, float dy) {
+    Vector direction = {0, 0};
+    const float abs_dx = fabsf(dx);
+    const float abs_dy = fabsf(dy);
+
+    // Determine primary axis based on greater distance
+    if(abs_dx > abs_dy) {
+        direction.x = (dx > 0) ? 1 : -1;
+    } else {
+        direction.y = (dy > 0) ? 1 : -1;
+    }
+    return direction;
+}
+
+static void handle_combat(uint32_t player, PositionComponent* position, 
+                          SwordComponent* sword, uint32_t* entities, 
+                          int amount, SDL_Rect cam) {
     static bool sword_used = false;
     static int sword_counter = 0;
-    const Uint8* state = SDL_GetKeyboardState(NULL);
-    uint32_t nearest_enemy = get_nearest_enemy(player, entities, amount);
+    static bool mouse_pressed = false;
 
-    if (nearest_enemy != -1 && is_colliding_with_enemy(player, entities, amount)) {
-        if (apply_damage(nearest_enemy, player) == false) {
-            printf("ERROR : Player not found\n");
-        } else {
-            printf("Player is taking damage from entity %d\n", nearest_enemy);
+    int mouse_x, mouse_y;
+    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+
+    // Convert window coordinates to logical coordinates
+    float logical_x, logical_y;
+    SDL_RenderWindowToLogical(get_renderer(), mouse_x, mouse_y, &logical_x, &logical_y);
+    
+    SpriteComponent* sprite = ECS_GetComponent(player, SPRITE);
+    if(!sprite) return;
+
+    // Handle mouse click attack
+    if((mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouse_pressed) {
+        mouse_pressed = true;
+        
+        if(!sword_used) {
+            // Convert to world coordinates using camera offset
+            float mouse_world_x = logical_x + cam.x;
+            float mouse_world_y = logical_y + cam.y;
+
+            // Calculate player center
+            float player_center_x = position->x + (sprite->width / 2.0f);
+            float player_center_y = position->y + (sprite->height / 2.0f);
+
+            printf("mouse_world_x: %f, mouse_world_y: %f\n", mouse_world_x, mouse_world_y);
+            printf("player_center_x: %f, player_center_y: %f\n", player_center_x, player_center_y);
+
+            // Get direction vector to mouse
+            float dx = mouse_world_x - player_center_x;
+            float dy = mouse_world_y - player_center_y;
+
+            // Get closest 4-direction vector
+            Vector attack_dir = get_4dir_attack_vector(dx, dy);
+
+            // Apply sword offset
+            float attack_x = attack_dir.x * 24.0f;
+            float attack_y = attack_dir.y * 24.0f;
+
+            uint32_t nearest_enemy = get_nearest_enemy(player, entities, amount);
+            use_sword(player, nearest_enemy, attack_x, attack_y);
+
+            sword_used = true;
+            sword_counter = 0;
         }
     }
+    else if(!(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT))) {
+        mouse_pressed = false;
+    }
 
-    if (sword_used) {
+    // Sword cooldown
+    if(sword_used) {
         sword_counter++;
-        if (sword_counter >= 20) {
+        if(sword_counter >= 15) {  // ~0.25 seconds at 60 FPS
             sword_used = false;
             sword_counter = 0;
         }
     }
 
-    if (state[SDL_SCANCODE_LSHIFT] && !sword_used) {
-        use_sword(player, nearest_enemy);
-        sword_used = true;
-        sword_counter = 0;
+    // Existing collision damage logic
+    uint32_t nearest_enemy = get_nearest_enemy(player, entities, amount);
+    if(nearest_enemy != -1 && is_colliding_with_enemy(player, entities, amount)) {
+        if(!apply_damage(nearest_enemy, player)) {
+            printf("ERROR: Player not found\n");
+        } else {
+            printf("Player is taking damage from entity %d\n", nearest_enemy);
+        }
     }
 }
 
 void update_player(u_int32_t player, SDL_Rect cam, uint32_t* entities, int amount) {
-    // Check for script component and its data
     ScriptComponent* script = ECS_GetComponent(player, SCRIPT);
-    if (!script) return;
+    if(!script) return;
 
     PlayerData* movement = (PlayerData*)script->data;
-    if (!movement) return;
+    if(!movement) return;
 
-    // Check for required position component
     PositionComponent* position = ECS_GetComponent(player, POSITION);
-    if (!position) return;
+    if(!position) return;
 
-    // Get optional components
     AnimationComponent* anim = ECS_GetComponent(player, ANIMATION);
     InventoryComponent* inv = ECS_GetComponent(player, INVENT);
     SwordComponent* sword = ECS_GetComponent(player, SWORD_C);
 
-    // Handle movement
     int dx = 0, dy = 0;
     handle_movement_input(&dx, &dy);
     float distance = sqrt(pow(dx, 2) + pow(dy, 2));
     
-    // Update movement and animation (anim can be NULL)
     update_movement_and_animation(movement, position, anim, dx, dy, distance);
 
-    // Handle inventory if it exists
-    if (inv) {
+    if(inv) {
         handle_inventory_display(inv, player, cam, movement->win_width, movement->true_width);
         handle_mouse_input(player);
     }
 
-    // Handle combat if sword component exists
-    if (sword) {
-        handle_combat(player, position, sword, entities, amount);
+    if(sword) {
+        handle_combat(player, position, sword, entities, amount, cam);
     }
 }

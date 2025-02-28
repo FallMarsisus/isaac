@@ -28,4 +28,4 @@
 uint32_t add_effect(float x, float y, float time, int width, int height, SDL_Texture* texture);
 uint32_t add_projectile(float x, float y, float vx, float vy, float time, SDL_Texture* texture);
 uint32_t add_flame(float x, float y, float vx, float vy);
-uint32_t add_sword(uint32_t player, SwordComponent* sword);
+uint32_t add_sword(uint32_t player, SwordComponent* sword, float offsetX, float offsetY);

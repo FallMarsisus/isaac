@@ -54,14 +54,13 @@ ThrowProperties* get_default_throw_prop(enum ItemID itemType) {
 
 
 	switch (itemType) {
-	case SWORD: {
+	case SWORD:
 		int* dmg = malloc(sizeof(int));
 		*dmg = 1;
 		tp->script->data = dmg;
 		tp->script->update = &thrownSwordHit;
 		tp->timeBeforeScriptActivation = 1;
 		break;
-	}
 	
 	case APPLE:
 		tp->script->data = NULL;

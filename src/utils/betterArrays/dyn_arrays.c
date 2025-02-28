@@ -47,7 +47,10 @@ void free_array(dyn_array* da, bool free_elements) {
 }
 
 int get_len(dyn_array* da) {
-    assert(da != NULL);
+	if (da == NULL) {
+		fprintf(stderr, "\033[1;31mError: dyn_array is NULL\033[0m\n");
+		exit(EXIT_FAILURE);
+	}
     return da->len;
 }
 void* get_elt(dyn_array* da, int index) {

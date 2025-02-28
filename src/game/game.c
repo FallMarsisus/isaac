@@ -175,7 +175,7 @@ void update_game(int win_width, int win_height, float delta) {
             cam,
             delta
         );
-    }
+    }//test
 
     update_player_positions(game->player);
 
@@ -238,5 +238,31 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
         SDL_Rect rec = { player_pos.x - cam.x, player_pos.y - cam.y, 10, 10 };
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &rec);
+    }
+}
+
+void on_collision(Event event) {
+    CollisionEvent* cEvent = event.data;
+    if (!cEvent) return;
+
+    uint32_t entity1 = cEvent->entity1;
+    uint32_t entity2 = cEvent->entity2;
+
+    // Vérifier les composants de dégâts et de santé dans les deux sens
+    DamagerComponent* damager1 = ECS_GetComponent(entity1, DAMAGER);
+    DamagerComponent* damager2 = ECS_GetComponent(entity2, DAMAGER);
+    HealthComponent* health1 = ECS_GetComponent(entity1, HEALTH);
+    HealthComponent* health2 = ECS_GetComponent(entity2, HEALTH);
+
+    // Si entity2 peut faire des dégâts à entity1
+    if (damager2 && health1) {
+        damage(entity1, damager2->damage);
+        printf("Damage dealt to entity1: %d\n", damager2->damage);
+    }
+
+    // Si entity1 peut faire des dégâts à entity2
+    if (damager1 && health2) {
+        damage(entity2, damager1->damage);
+        printf("Damage dealt to entity2: %d\n", damager1->damage);
     }
 }

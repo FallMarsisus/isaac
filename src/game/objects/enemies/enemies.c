@@ -102,6 +102,9 @@ uint32_t add_alien(float x, float y, uint32_t pl) {
 uint32_t add_boss(float x, float y, uint32_t pl) {
     uint32_t boss = ECS_CreateEntity();
 
+    int width = 150;
+    int height = 150;
+
     PositionComponent* position = ECS_AddComponent(boss, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(boss, SPRITE, sizeof(SpriteComponent));
     RigidbodyComponent* body = ECS_AddComponent(boss, BODY, sizeof(RigidbodyComponent));
@@ -125,10 +128,10 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     
     create_damager(boss, (DamagerComponent) {1, 0, false, 0});
 
-    init_rigidbody_component(body, 2, 2, 150 - 4, 150 - 4);
+    init_rigidbody_component(body, 2, 2, width - 4, height - 4);
     body->is_dynamic = true;
 
-    init_sprite_component(sprite, 150, 150, get_sprites()->boss_texture);
+    init_sprite_component(sprite, width, height, get_sprites()->boss_texture);
     init_anim_component(animation, 50, 50);
 
     add_anim(animation, 0.1, 5);

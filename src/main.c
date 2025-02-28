@@ -10,6 +10,13 @@
 
 #include "display.h"
 
+int running = 1;
+double dt = 1/60.;
+
+void on_quit(Event event) {
+    running = 0;
+}
+
 int main() {
     srand(time(NULL));
 
@@ -55,7 +62,6 @@ int main() {
 	load_fonts(ren);
     
     double t = 0.;
-    double dt = 1/60.;
 
     double current_time = SDL_GetTicks() / 1000.;
     double accumulator = 0.;
@@ -65,6 +71,15 @@ int main() {
     init_event_system();
 	initDefaultItems();
     init_timer_system();
+
+    register_listener(EVENT_QUIT, on_quit);
+    
+    register_listener(EVENT_PLAYER_MOVED, on_player_move);
+    register_listener(EVENT_CHEST_OPENED, on_chest_open);
+    register_listener(EVENT_STATE_CHANGE, on_state_change);
+    register_listener(EVENT_COLLISION, on_collision);
+    register_listener(EVENT_ENTITY_CREATED, on_entity_created);
+    register_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
 
     init_menu_manager(win, ren);
 
@@ -80,12 +95,8 @@ int main() {
     Mix_VolumeMusic(16); // Mets le volume a 0
 
     SDL_Event event;
-    int running = 1;
     while (running) {
         while(SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = 0;
-            }
             handle_menu_manager_input(event);
         }
 
@@ -105,6 +116,14 @@ int main() {
         draw_menu_manager(ren, win_width, win_height, true_width, true_height);
         SDL_RenderPresent(ren);
     }
+
+    unregister_listener(EVENT_QUIT, on_quit);
+    unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
+    unregister_listener(EVENT_CHEST_OPENED, on_chest_open);
+    unregister_listener(EVENT_STATE_CHANGE, on_state_change);
+    unregister_listener(EVENT_COLLISION, on_collision);
+    unregister_listener(EVENT_ENTITY_CREATED, on_entity_created);
+    unregister_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
 
     Mix_FreeMusic(music); // Libére en mémoire notre musique
 

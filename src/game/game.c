@@ -45,13 +45,6 @@ void create_game(SDL_Window* win, SDL_Renderer* renderer) {
         add_teleporter(x1, y1, x2, y2);
         add_teleporter(x2, y2, x1, y1);
     }
-    
-    register_listener(EVENT_PLAYER_MOVED, on_player_move);
-    register_listener(EVENT_CHEST_OPENED, on_chest_open);
-    register_listener(EVENT_STATE_CHANGE, on_state_change);
-    register_listener(EVENT_COLLISION, on_collision);
-    register_listener(EVENT_ENTITY_CREATED, on_entity_created);
-    register_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
 }
 void free_game() {
     if(!game_active) return;
@@ -59,19 +52,7 @@ void free_game() {
     
     free_player_positions();
 
-    for(Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
-        ECS_RemoveEntity(e);
-    }
-    call_events();
-
-    ECS_ProcessRemovals();
-
-    unregister_listener(EVENT_PLAYER_MOVED, on_player_move);
-    unregister_listener(EVENT_CHEST_OPENED, on_chest_open);
-    unregister_listener(EVENT_STATE_CHANGE, on_state_change);
-    unregister_listener(EVENT_COLLISION, on_collision);
-    unregister_listener(EVENT_ENTITY_CREATED, on_entity_created);
-    unregister_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
+    free_entities();
 
     free_map(game->map);
     free(game);
@@ -108,9 +89,11 @@ void on_entity_removed(Event event) {
             remove_child(parentComp, rEvent->entity);
         }
     }
-    remove_entity(game->current_room, rEvent->entity);
 
     free_one_entity(rEvent->entity);
+
+    if(!game_active) return;
+    remove_entity(game->current_room, rEvent->entity);
 
     if (rEvent->entity == game->player) {
         GameOverEvent* gameOverEvent = malloc(sizeof(GameOverEvent));
@@ -173,7 +156,6 @@ int compare_positions(const void* a, const void* b) {
 void update_game(int win_width, int win_height, float delta) {
     if(!game_active) return;
     update_timer_system(delta);
-    call_events();
 
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
         u_int32_t id = get_entities(game->current_room)[i];
@@ -221,8 +203,6 @@ void update_game(int win_width, int win_height, float delta) {
             printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, 1920, pos->y, 1280, changeX, changeY);
         }
     }
-
-    ECS_ProcessRemovals();
 
     qsort(
         get_entities(game->current_room), 

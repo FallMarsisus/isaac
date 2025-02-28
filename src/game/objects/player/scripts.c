@@ -20,9 +20,7 @@ static void handle_movement_input(int* dx, int* dy) {
     if(state[SDL_SCANCODE_A]) *dx -= 1;
     if(state[SDL_SCANCODE_D]) *dx += 1;
     if(state[SDL_SCANCODE_ESCAPE]) {
-        SDL_Event quit;
-        quit.type = SDL_QUIT;
-        SDL_PushEvent(&quit);
+        switch_to_menu(MENU_PAUSE);
     }
 }
 

@@ -47,13 +47,17 @@ void handle_menu_input(MenuComponent* menu, SDL_Event event) {
 void draw_menu(MenuComponent* menu, SDL_Renderer* renderer, int win_width, int win_height) {
     if (!menu->isActive) return;
 
+    // Add semi-transparent background for pause menu
+    if (menu->type == MENU_PAUSE) {
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 60);
+        SDL_RenderFillRect(renderer, NULL);
+    }
+
     int itemHeight = 50;
     int spacing = 20;
     int totalHeight = menu->itemCount * (itemHeight + spacing);
     int startY = (win_height - totalHeight) / 2;
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
 
     for (int i = 0; i < menu->itemCount; i++) {
         SDL_Rect itemRect = {
@@ -71,12 +75,14 @@ void draw_menu(MenuComponent* menu, SDL_Renderer* renderer, int win_width, int w
             255);
         SDL_RenderFillRect(renderer, &itemRect);
 
+        int textWidth = get_text_width(menu->items[i].text, get_fonts()->calibri, 20);
+
         display_text(
             menu->items[i].text,
             renderer, 
             get_fonts()->calibri,
             &(SDL_Color) {255, 255, 255, 255},
-            (win_width - 200) / 2,
+            (win_width - textWidth) / 2,
             startY + i * (itemHeight + spacing),
             20
         );

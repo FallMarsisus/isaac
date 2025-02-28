@@ -2,21 +2,23 @@
 
 static MenuComponent mainMenu;
 static MenuComponent gameOverMenu;
+static MenuComponent pauseMenu;
 static MenuComponent* currentMenu = NULL;
+
 static SDL_Window* window;
 static SDL_Renderer* rendererRef;
 
 void start_game() {
     currentMenu = NULL;
-    
-    free_game();
     create_game(window, rendererRef);
 }
 
-void quit_game() {
-    SDL_Event quit;
-    quit.type = SDL_QUIT;
-    SDL_PushEvent(&quit);
+void resume_game() {
+    switch_to_menu(MENU_NONE);
+}
+
+void quit_game() {    
+    trigger_event(EVENT_QUIT, NULL, false);
 }
 
 void return_to_main_menu() {
@@ -30,6 +32,11 @@ void init_menu_manager(SDL_Window* win, SDL_Renderer* renderer) {
     init_menu_component(&mainMenu, MENU_MAIN);
     add_menu_item(&mainMenu, "Start Game", start_game);
     add_menu_item(&mainMenu, "Quit", quit_game);
+
+    init_menu_component(&pauseMenu, MENU_PAUSE);
+    add_menu_item(&pauseMenu, "Resume", resume_game);
+    add_menu_item(&pauseMenu, "Main Menu", return_to_main_menu);
+    add_menu_item(&pauseMenu, "Quit", quit_game);
 
     init_menu_component(&gameOverMenu, MENU_GAME_OVER);
     add_menu_item(&gameOverMenu, "Try Again", start_game);
@@ -47,20 +54,29 @@ void free_menu_manager() {
     free_game();
 
     free_menu_component(&mainMenu);
+    free_menu_component(&pauseMenu);
     free_menu_component(&gameOverMenu);
 }
 
 void update_menu_manager(int win_width, int win_height, float delta) {
+    call_events();
+
     if (!currentMenu) {
         update_game(win_width, win_height, delta);
     }
+
+    ECS_ProcessRemovals();
 }
 
 void draw_menu_manager(SDL_Renderer* renderer, int win_width, int win_height, int true_width, int true_height) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    if (!currentMenu || currentMenu->type == MENU_PAUSE) {
+        draw_game(renderer, win_width, win_height, true_width, true_height);
+    }
     if (currentMenu) {
         draw_menu(currentMenu, renderer, win_width, win_height);
-    } else {
-        draw_game(renderer, win_width, win_height, true_width, true_height);
     }
 }
 
@@ -71,9 +87,18 @@ void handle_menu_manager_input(SDL_Event event) {
 }
 
 void switch_to_menu(MenuType menuType) {
+    if(!currentMenu && menuType != MENU_PAUSE) {
+        free_game();
+    }
     switch (menuType) {
         case MENU_MAIN:
+            if(currentMenu == &pauseMenu) {
+                free_game();
+            }
             currentMenu = &mainMenu;
+            break;
+        case MENU_PAUSE:
+            currentMenu = &pauseMenu;
             break;
         case MENU_GAME_OVER:
             currentMenu = &gameOverMenu;

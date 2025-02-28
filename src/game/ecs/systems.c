@@ -11,6 +11,8 @@ void free_entities() {
 }
 
 void free_one_entity(uint32_t entity) {
+    if(!ECS_IsEntityActive(entity)) return;
+
     StateMachineComponent* sm = ECS_GetComponent(entity, STATE_MACHINE);
     if(sm) {
         free_state_machine(sm);

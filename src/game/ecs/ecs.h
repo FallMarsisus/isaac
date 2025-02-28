@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "../event/eventList.h"
 #include "../event/eventSystem.h"
@@ -17,9 +18,10 @@ void ECS_DestroyManager();
 
 Entity ECS_CreateEntity();
 void ECS_RemoveEntity(Entity entity);
-void add_removal_flag(Entity entity);
-
 void ECS_ProcessRemovals();
+
+void add_removal_flag(Entity entity);
+bool ECS_IsEntityActive(Entity entity);
 
 void* ECS_AddComponent(Entity entity, ComponentType component_type, size_t component_size);
 void* ECS_GetComponent(Entity entity, ComponentType component_type);

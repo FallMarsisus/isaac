@@ -1,7 +1,4 @@
 #include "ecs.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 #define INITIAL_ENTITY_CAPACITY   1024
 #define INITIAL_COMPONENT_CAPACITY 32
@@ -22,68 +19,6 @@ typedef struct ECSManager {
 } ECSManager;
 
 static ECSManager* manager = NULL;
-
-void ECS_CreateManager() {
-    manager = malloc(sizeof(ECSManager));
-    if (!manager) {
-        fprintf(stderr, "Failed to allocate ECS Manager\n");
-        exit(1);
-    }
-
-    manager->entity_capacity = INITIAL_ENTITY_CAPACITY;
-    manager->component_capacity = INITIAL_COMPONENT_CAPACITY;
-    manager->nextEntity = 0;
-    
-    manager->active = calloc(manager->entity_capacity, sizeof(bool));
-    manager->removal_flags = calloc(manager->entity_capacity, sizeof(bool));
-    
-    manager->components = malloc(manager->entity_capacity * sizeof(void**));
-    for (size_t i = 0; i < manager->entity_capacity; i++) {
-        manager->components[i] = calloc(manager->component_capacity, sizeof(void*));
-    }
-    
-    manager->freeList_capacity = INITIAL_FREELIST_CAPACITY;
-    manager->freeList = malloc(manager->freeList_capacity * sizeof(Entity));
-    manager->freeList_size = 0;
-}
-
-void ECS_ClearManager() {
-    // Free all components for active entities
-    for (size_t e = 0; e < manager->entity_capacity; e++) {
-        if (manager->active[e]) {
-            for (size_t c = 0; c < manager->component_capacity; c++) {
-                free(manager->components[e][c]);
-                manager->components[e][c] = NULL;
-            }
-            manager->active[e] = false;
-            manager->removal_flags[e] = false;
-        }
-    }
-
-    // Reset freelist
-    manager->freeList_size = 0;
-    manager->nextEntity = 0;
-}
-
-
-void ECS_DestroyManager() {
-    // First process any pending removals to avoid double-free issues
-    ECS_ProcessRemovals();
-    
-    // Now free all remaining components and structures
-    for (size_t e = 0; e < manager->entity_capacity; e++) {
-        for (size_t c = 0; c < manager->component_capacity; c++) {
-            free(manager->components[e][c]);
-        }
-        free(manager->components[e]);
-    }
-    free(manager->components);
-    free(manager->active);
-    free(manager->removal_flags);
-    free(manager->freeList);
-    free(manager);
-    manager = NULL;
-}
 
 void expand_entities() {
     size_t new_cap = manager->entity_capacity * 2;
@@ -117,7 +52,6 @@ void expand_entities() {
     
     manager->entity_capacity = new_cap;
 }
-
 void expand_components(size_t new_capacity) {
     for (size_t e = 0; e < manager->entity_capacity; e++) {
         void** new_comps = realloc(manager->components[e], new_capacity * sizeof(void*));
@@ -133,6 +67,66 @@ void expand_components(size_t new_capacity) {
     }
     manager->component_capacity = new_capacity;
 }
+
+void ECS_CreateManager() {
+    manager = malloc(sizeof(ECSManager));
+    if (!manager) {
+        fprintf(stderr, "Failed to allocate ECS Manager\n");
+        exit(1);
+    }
+
+    manager->entity_capacity = INITIAL_ENTITY_CAPACITY;
+    manager->component_capacity = INITIAL_COMPONENT_CAPACITY;
+    manager->nextEntity = 0;
+    
+    manager->active = calloc(manager->entity_capacity, sizeof(bool));
+    manager->removal_flags = calloc(manager->entity_capacity, sizeof(bool));
+    
+    manager->components = malloc(manager->entity_capacity * sizeof(void**));
+    for (size_t i = 0; i < manager->entity_capacity; i++) {
+        manager->components[i] = calloc(manager->component_capacity, sizeof(void*));
+    }
+    
+    manager->freeList_capacity = INITIAL_FREELIST_CAPACITY;
+    manager->freeList = malloc(manager->freeList_capacity * sizeof(Entity));
+    manager->freeList_size = 0;
+}
+void ECS_ClearManager() {
+    // Free all components for active entities
+    for (size_t e = 0; e < manager->entity_capacity; e++) {
+        if (manager->active[e]) {
+            for (size_t c = 0; c < manager->component_capacity; c++) {
+                free(manager->components[e][c]);
+                manager->components[e][c] = NULL;
+            }
+            manager->active[e] = false;
+            manager->removal_flags[e] = false;
+        }
+    }
+
+    // Reset freelist
+    manager->freeList_size = 0;
+    manager->nextEntity = 0;
+}
+void ECS_DestroyManager() {
+    // First process any pending removals to avoid double-free issues
+    ECS_ProcessRemovals();
+    
+    // Now free all remaining components and structures
+    for (size_t e = 0; e < manager->entity_capacity; e++) {
+        for (size_t c = 0; c < manager->component_capacity; c++) {
+            free(manager->components[e][c]);
+        }
+        free(manager->components[e]);
+    }
+    free(manager->components);
+    free(manager->active);
+    free(manager->removal_flags);
+    free(manager->freeList);
+    free(manager);
+    manager = NULL;
+}
+
 
 Entity ECS_CreateEntity() {
     if (manager->freeList_size > 0) {
@@ -162,7 +156,6 @@ Entity ECS_CreateEntity() {
     trigger_event(EVENT_ENTITY_CREATED, event, true);
     return e;
 }
-
 void ECS_RemoveEntity(Entity entity) {
     if (entity >= manager->entity_capacity || !manager->active[entity]) {
         fprintf(stderr, "Attempted to remove invalid entity %zu\n", entity);
@@ -178,15 +171,6 @@ void ECS_RemoveEntity(Entity entity) {
     event->entity = entity;
     trigger_event(EVENT_ENTITY_REMOVED, event, true);
 }
-
-void add_removal_flag(Entity entity) {
-    if (entity >= manager->entity_capacity || !manager->active[entity]) {
-        fprintf(stderr, "Invalid entity %zu\n", entity);
-        return;
-    }
-    manager->removal_flags[entity] = true;
-}
-
 void ECS_ProcessRemovals() {
     for (Entity e = 0; e < manager->nextEntity; e++) {
         if (manager->removal_flags[e]) {
@@ -214,6 +198,17 @@ void ECS_ProcessRemovals() {
     }
 }
 
+void add_removal_flag(Entity entity) {
+    if (entity >= manager->entity_capacity || !manager->active[entity]) {
+        fprintf(stderr, "Invalid entity %zu\n", entity);
+        return;
+    }
+    manager->removal_flags[entity] = true;
+}
+bool ECS_IsEntityActive(Entity entity) {
+    return manager->active[entity] && !manager->removal_flags[entity];
+}
+
 void* ECS_AddComponent(Entity entity, ComponentType component_type, size_t component_size) {
     if (entity >= manager->entity_capacity || !manager->active[entity]) {
         fprintf(stderr, "Invalid entity %zu\n", entity);
@@ -238,7 +233,6 @@ void* ECS_AddComponent(Entity entity, ComponentType component_type, size_t compo
     manager->components[entity][component_type] = component;
     return component;
 }
-
 void* ECS_GetComponent(Entity entity, ComponentType component_type) {
     if (entity >= manager->entity_capacity || 
         component_type >= manager->component_capacity ||
@@ -247,7 +241,6 @@ void* ECS_GetComponent(Entity entity, ComponentType component_type) {
     }
     return manager->components[entity][component_type];
 }
-
 bool ECS_HasComponent(Entity entity, ComponentType component_type) {
     return ECS_GetComponent(entity, component_type) != NULL;
 }
@@ -258,7 +251,6 @@ void ECS_IterateEntities(void (*action)(Entity entity, void* user_data), void* u
             action(e, user_data);
     }
 }
-
 Entity ECS_GetFirstEntity() {
     for (Entity e = 0; e < manager->nextEntity; e++) {
         if (manager->active[e])
@@ -266,7 +258,6 @@ Entity ECS_GetFirstEntity() {
     }
     return (Entity)-1;
 }
-
 Entity ECS_GetNextEntity(Entity current) {
     for (Entity e = current + 1; e < manager->nextEntity; e++) {
         if (manager->active[e])

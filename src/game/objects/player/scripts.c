@@ -107,6 +107,14 @@ static void handle_combat(uint32_t player, PositionComponent* position, SwordCom
     const Uint8* state = SDL_GetKeyboardState(NULL);
     uint32_t nearest_enemy = get_nearest_enemy(player, entities, amount);
 
+    if (nearest_enemy != -1 && is_colliding_with_enemy(player, entities, amount)) {
+        if (apply_damage(nearest_enemy, player) == false) {
+            printf("ERROR : Player not found\n");
+        } else {
+            printf("Player is taking damage from entity %d\n", nearest_enemy);
+        }
+    }
+
     if (sword_used) {
         sword_counter++;
         if (sword_counter >= 20) {
@@ -119,19 +127,6 @@ static void handle_combat(uint32_t player, PositionComponent* position, SwordCom
         use_sword(player, nearest_enemy);
         sword_used = true;
         sword_counter = 0;
-
-        if (nearest_enemy != -1 && is_colliding_with_enemy(player, entities, amount) && !attacked) {
-            attacked = true;
-            if (apply_damage(nearest_enemy, player) == false) {
-                printf("ERROR : Player not found\n");
-            } else {
-                printf("Player is taking damage from entity %d\n", nearest_enemy);
-            }
-        }
-    }
-    
-    if (!is_colliding_with_enemy(player, entities, amount)) {
-        attacked = false;
     }
 }
 

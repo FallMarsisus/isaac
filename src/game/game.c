@@ -79,6 +79,8 @@ void on_entity_created(Event event) {
 void on_entity_removed(Event event) {
     EntityRemovedEvent* rEvent = event.data;
 
+    if(!ECS_IsEntityActive(rEvent->entity)) return;
+
     ChildComponent* child = ECS_GetComponent(rEvent->entity, CHILD);
     if (child) {
         uint32_t parent = child->parent;
@@ -153,13 +155,6 @@ int compare_positions(const void* a, const void* b) {
 }
 void update_game(int win_width, int win_height, float delta) {
     if(!game_active) return;
-
-    SDL_Rect room_pos = {
-        get_x(game->current_room) * 1920,
-        get_y(game->current_room) * 1280,
-        1920,
-        1280
-    };
     update_timer_system(delta);
 
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {

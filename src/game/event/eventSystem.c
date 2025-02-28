@@ -187,8 +187,8 @@ void trigger_event(EventType type, void* data, bool free_data) {
         fprintf(stderr, "Event queue not initialized\n");
         return;
     }
-
-    if (!data) {
+    
+    if (!data && free_data) {
         fprintf(stderr, "Warning: Attempted to trigger event with NULL data\n");
         return;
     }

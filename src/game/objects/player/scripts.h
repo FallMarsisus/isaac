@@ -8,6 +8,8 @@
 #include "../../ecs/sword/swordSystem.h"
 #include "../enemies/enemies.h"
 
+#include "../../../menu/menuManager.h"
+
 typedef struct {
     float speed;
     Vector direction;

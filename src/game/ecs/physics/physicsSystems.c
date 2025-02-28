@@ -107,7 +107,7 @@ void apply_all_forces(uint32_t entity, RigidbodyComponent* body) {
 			solidDIndex = i;
 			continue;
 		}
-		printf("Applying force: Fx = %d\n", currentForce->func);
+		// printf("Applying force: Fx = %d\n", currentForce->func);
 
 		shouldBeRemoved = update_entity_force(entity, currentForce);
 		apply_one_force(body, currentForce->Fx, currentForce->Fy);
@@ -139,6 +139,8 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     RigidbodyComponent* body = ECS_GetComponent(id, BODY);
     if(!position || !body) return;
+
+    if(!body->is_dynamic) return;
 
     apply_all_forces(id, body);
 
@@ -189,7 +191,7 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
                     resolveAxis(position, body, otherPos, otherBody, &position->vx, 'x');
                 }
                 // Only trigger collision event from one side and only once per collision pair.
-                if (id < e || !body->is_dynamic || !otherBody->is_dynamic) {
+                if (id < e || !otherBody->is_dynamic) {
                     bool alreadyTriggered = false;
                     for (int i = 0; i < collidedCount; i++) {
                         if (collidedEntities[i] == e) {
@@ -229,7 +231,7 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
                     resolveAxis(position, body, otherPos, otherBody, &position->vy, 'y');
                 }
 
-                if (id < e || !body->is_dynamic || !otherBody->is_dynamic) {
+                if (id < e || !otherBody->is_dynamic) {
                     bool alreadyTriggered = false;
                     for (int i = 0; i < collidedCount; i++) {
                         if (collidedEntities[i] == e) {

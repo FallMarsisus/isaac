@@ -166,7 +166,11 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
     init_position_component(position, x, y);
 
     init_sprite_component(sprite, 64, 64, get_texture_from_Id(itemType.id));
-    init_rigidbody_component(body, 0, 0, 64, 64);
+
+    ID_array* col_layers_mask = create_id_array();
+    add_id(col_layers_mask, 2);
+
+    init_rigidbody_component(body, 0, 0, 64, 64, 3, col_layers_mask);
     body->is_dynamic = true;
 	body->mass = 20;
 

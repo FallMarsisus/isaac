@@ -26,7 +26,12 @@ uint32_t add_player(float x, float y, int render_width, int win_width) {
 	add_item_to_inventory(player, sword);
 	swap_items_inventory(player, itemCount-1, inv->max_nb_items);
 
-    init_rigidbody_component(body, 2, 2, 60, 60);
+    ID_array* col_layers_mask = create_id_array();
+    add_id(col_layers_mask, 0);
+    add_id(col_layers_mask, 1);
+    add_id(col_layers_mask, 3);
+
+    init_rigidbody_component(body, 2, 2, 60, 60, 2, col_layers_mask);
     body->is_dynamic = true;
 
     init_health_component(health, 12, 100, 0);

@@ -7,7 +7,8 @@ uint32_t add_effect(float x, float y, float time, int width, int height, SDL_Tex
     EffectComponent* effectComp = ECS_AddComponent(effect, EFFECT, sizeof(EffectComponent));
     RigidbodyComponent* body = ECS_AddComponent(effect, BODY, sizeof(RigidbodyComponent));
     
-    init_rigidbody_component(body, 0, 0, width, height);
+    init_rigidbody_component(body, 2, 2, width - 4, height - 4, 3, NULL);
+    
     body->is_dynamic = true;
     body->mass = 1;
 
@@ -33,7 +34,6 @@ uint32_t add_projectile(float x, float y, float vx, float vy, float time, SDL_Te
 uint32_t add_flame(float x, float y, float vx, float vy) {
     uint32_t flame = add_projectile(x, y, vx, vy, 5, get_sprites()->flame_texture);
 
-
 	AnimationComponent* animation = ECS_AddComponent(flame, ANIMATION, sizeof(AnimationComponent));
     init_anim_component(animation, 16, 16);
 
@@ -42,6 +42,11 @@ uint32_t add_flame(float x, float y, float vx, float vy) {
     add_anim(animation, 0.1, 3);
     set_active_anim(animation, 0);
     play_anim(animation);
+
+    RigidbodyComponent* body = ECS_GetComponent(flame, BODY);
+    ID_array* col_layers_mask = create_id_array();
+    add_id(col_layers_mask, 2); // Layer 2 is the player
+    body->layer_that_collides_with = col_layers_mask;
     
     return flame;
 }
@@ -88,6 +93,12 @@ uint32_t add_sword(uint32_t player, SwordComponent* sword_component, float offse
         );
         add_child(parent, sword);
     }
+
+    RigidbodyComponent* body = ECS_GetComponent(sword, BODY);
+    ID_array* col_layers_mask = create_id_array();
+    add_id(col_layers_mask, 1); // Layer 1 is the enemy
+    body->layer_that_collides_with = col_layers_mask;
+    
 
     return sword;
 }

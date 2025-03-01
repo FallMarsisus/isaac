@@ -47,6 +47,9 @@ typedef struct {
 
 typedef struct {
 	SDL_Rect hitbox;
+    int layer; // 0 = tiles, 1 = ennemy, 2 = player; 3 = others
+    ID_array* layer_that_collides_with;
+
     bool is_dynamic;
     float friction;
     float restitution;

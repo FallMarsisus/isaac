@@ -11,7 +11,9 @@ void init_position_component(PositionComponent* position, float x, float y) {
     position->ay = 0;
     position->camFixed = false;
 }
-void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY, int width, int height) {
+void init_rigidbody_component(RigidbodyComponent* body,
+    int offsetX, int offsetY, int width, int height, 
+    int layer, ID_array* layer_that_collides_with) {
     body->is_dynamic = false;
     body->hitbox = (SDL_Rect){offsetX, offsetY, width, height};
     body->friction = 0;
@@ -22,6 +24,9 @@ void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY
 	body->forces = create_array();
 
     body->colliding = false;
+
+    body->layer = layer;
+    body->layer_that_collides_with = layer_that_collides_with;
 }
 
 void free_rigidbody_component(uint32_t entity) {
@@ -39,6 +44,8 @@ void free_rigidbody_component(uint32_t entity) {
     
     free_array(body->forces, false);
     body->forces = NULL;
+    
+    if(body->layer_that_collides_with) free_id_array(body->layer_that_collides_with);
 }
 
 bool isColliding(PositionComponent* p1, RigidbodyComponent* r1, 
@@ -183,6 +190,16 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
             RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
             if (!otherPos || !otherBody) continue;
 
+            if(!body->layer_that_collides_with) continue;
+            bool layerCollides = false;
+            for (int i = 0; i < get_ids_len(body->layer_that_collides_with); i++) {
+                if(get_id(body->layer_that_collides_with, i) == otherBody->layer) {
+                    layerCollides = true;
+                    break;
+                }
+            }
+            if (!layerCollides) continue;
+
             // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
             HealthComponent* health = ECS_GetComponent(e, HEALTH);
             if (isColliding(position, body, otherPos, otherBody)) {
@@ -222,6 +239,16 @@ void update_physics(uint32_t id, uint32_t* entities, int amount, float delta) {
             PositionComponent* otherPos = ECS_GetComponent(e, POSITION);
             RigidbodyComponent* otherBody = ECS_GetComponent(e, BODY);
             if (!otherPos || !otherBody) continue;
+
+            if(!body->layer_that_collides_with) continue;
+            bool layerCollides = false;
+            for (int i = 0; i < get_ids_len(body->layer_that_collides_with); i++) {
+                if(get_id(body->layer_that_collides_with, i) == otherBody->layer) {
+                    layerCollides = true;
+                    break;
+                }
+            }
+            if (!layerCollides) continue;
 
             // Ne pas bloquer les forces si c'est un ennemi qui subit un knockback
             HealthComponent* health = ECS_GetComponent(e, HEALTH);

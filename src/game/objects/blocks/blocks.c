@@ -17,7 +17,12 @@ uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset
     init_tile_component(tile_comp, tile_x, tile_y, 16, 16);
 
     RigidbodyComponent* body = ECS_AddComponent(tile, BODY, sizeof(RigidbodyComponent));
-    init_rigidbody_component(body, 2, 2, 60, 60);
+
+    ID_array* col_layers_mask = create_id_array();
+    add_id(col_layers_mask, 1);
+    add_id(col_layers_mask, 2);
+    
+    init_rigidbody_component(body, 2, 2, 60, 60, 0, col_layers_mask);
     body->colliding = has_collision;
 
     return tile;

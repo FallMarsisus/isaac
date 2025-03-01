@@ -9,8 +9,12 @@
 #include "../../event/eventList.h"
 #include "../../event/eventSystem.h"
 
+#include "../../../utils/betterArrays/id_array.h"
+
 void init_position_component(PositionComponent* position, float x, float y);
-void init_rigidbody_component(RigidbodyComponent* body, int offsetX, int offsetY, int width, int height);
+void init_rigidbody_component(RigidbodyComponent* body, 
+    int offsetX, int offsetY, int width, int height,
+    int layer, ID_array* layer_that_collides_with);
 
 void free_rigidbody_component(uint32_t entity);
 

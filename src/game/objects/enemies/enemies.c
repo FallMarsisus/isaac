@@ -37,7 +37,11 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     
     create_damager(enemy, (DamagerComponent) {1, 0, false, 0});
 
-    init_rigidbody_component(body, 2, 2, width - 4, height - 4);
+    ID_array* col_layers_mask = create_id_array();
+    add_id(col_layers_mask, 0);
+    add_id(col_layers_mask, 2);
+    add_id(col_layers_mask, 3);
+    init_rigidbody_component(body, 2, 2, width - 4, height - 4, 1, col_layers_mask);
     body->is_dynamic = true;
 
     init_sprite_component(sprite, width, height, texture);
@@ -128,7 +132,11 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     
     create_damager(boss, (DamagerComponent) {1, 0, false, 0});
 
-    init_rigidbody_component(body, 2, 2, width - 4, height - 4);
+    ID_array* col_layers_mask = create_id_array();
+    add_id(col_layers_mask, 0);
+    add_id(col_layers_mask, 2);
+    add_id(col_layers_mask, 3);
+    init_rigidbody_component(body, 2, 2, width - 4, height - 4, 1, col_layers_mask);
     body->is_dynamic = true;
 
     init_sprite_component(sprite, width, height, get_sprites()->boss_texture);

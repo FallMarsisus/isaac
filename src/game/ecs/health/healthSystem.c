@@ -145,17 +145,14 @@ bool display_health(uint32_t entity, SDL_Renderer *renderer)
 	return true;
 }
 
-void update_health_effects() {
-    // À appeler dans la boucle de mise à jour du jeu
-    for (Entity e = ECS_GetFirstEntity(); e != -1; e = ECS_GetNextEntity(e)) {
-        HealthComponent* health = ECS_GetComponent(e, HEALTH);
-        SpriteComponent* sprite = ECS_GetComponent(e, SPRITE);
-        
-        if (health && sprite && sprite->texture) {
-            Uint32 current_time = SDL_GetTicks();
-            if (current_time >= health->effect_end_time) {
-                SDL_SetTextureColorMod(sprite->texture, 255, 255, 255);
-            }
-        }
-    }
+void update_health_effect(uint32_t e) {
+	HealthComponent* health = ECS_GetComponent(e, HEALTH);
+	SpriteComponent* sprite = ECS_GetComponent(e, SPRITE);
+	
+	if (health && sprite && sprite->texture) {
+		Uint32 current_time = SDL_GetTicks();
+		if (current_time >= health->effect_end_time) {
+			SDL_SetTextureColorMod(sprite->texture, 255, 255, 255);
+		}
+	}
 }

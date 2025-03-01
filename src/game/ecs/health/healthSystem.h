@@ -17,4 +17,4 @@ bool display_health(uint32_t entity, SDL_Renderer* renderer);
 
 void apply_damage_effect(uint32_t entity);
 void restore_sprite_color(uint32_t entity);
-void update_health_effects();
+void update_health_effect(uint32_t entity);

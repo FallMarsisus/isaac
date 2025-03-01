@@ -9,6 +9,8 @@
 #include "../../ecs/physics/forceSystem.h"
 #include "../../ecs/physics/physicsSystems.h"
 
+#include "../../objects/player/scripts.h"
+
 #include <stdint.h>
 
 void on_player_move(Event event);

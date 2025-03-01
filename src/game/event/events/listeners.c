@@ -36,9 +36,12 @@ void on_collision(Event event) {
     PositionComponent* pos1 = ECS_GetComponent(collision->entity1, POSITION);
     PositionComponent* pos2 = ECS_GetComponent(collision->entity2, POSITION);
 
+    ScriptComponent* script1 = ECS_GetComponent(collision->entity1, SCRIPT);
+
     // Gérer les dégâts et le knockback dans les deux sens
-    if (damager2 && health1 && body1 && pos1 && pos2) {
-        if (damage(collision->entity1, damager2->damage)) {
+    if (damager2 && health1 && body1 && pos1 && pos2 && script1) {
+        PlayerData* playerData = (PlayerData*)script1->data;
+        if (playerData && damage(collision->entity1, damager2->damage)) {
             // Direction du knockback
             float dx = pos1->x - pos2->x;
             float dy = pos1->y - pos2->y;

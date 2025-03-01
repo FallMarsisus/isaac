@@ -3,7 +3,6 @@
 uint32_t add_tile(float x, float y, int tile_x, int tile_y, SDL_Texture* tileset_texture, bool has_collision, int layer) {
     uint32_t tile = ECS_CreateEntity();
 
-	
 	if (tile == 137) {
 		printf("tile ID is 137\n");
 	}
@@ -36,15 +35,7 @@ uint32_t add_background_tile(float x, float y) {
     return block;
 }
 uint32_t add_chest(float x, float y) {
-    uint32_t chest = ECS_CreateEntity();
-
-    PositionComponent* position = ECS_AddComponent(chest, POSITION, sizeof(PositionComponent));
-    SpriteComponent* sprite = ECS_AddComponent(chest, SPRITE, sizeof(SpriteComponent));
-
-    init_position_component(position, x, y);
-
-    init_sprite_component(sprite, 64, 64, get_sprites()->chest_closed_texture);
-
+    uint32_t chest = add_tile(x, y, 8, 1, get_sprites()->tileset_texture, true, 0);
     return chest;
 }
 uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
@@ -61,9 +52,8 @@ uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
     return obj;
 }
 uint32_t add_door(float x, float y) {
-    uint32_t door = add_tile(x, y, 0, 0, get_sprites()->tileset_texture, true, 0);
+    uint32_t door = add_tile(x, y, 6, 1, get_sprites()->tileset_texture, true, 0);
 
-	
     return door;
 }
 uint32_t add_trap(float x, float y) {
@@ -80,10 +70,10 @@ bool is_colliding_with_chest(uint32_t entity, uint32_t* entities, int amount) {
     for (int i = 0; i < amount; i++) {
         if(entities[i] == entity) continue;
         PositionComponent* chest_pos = ECS_GetComponent(entities[i], POSITION);
-        SpriteComponent* chest_sprite = ECS_GetComponent(entities[i], SPRITE);
+        TileComponent* chest_tile = ECS_GetComponent(entities[i], TILE);
         
         // Check if entity is a chest by checking its texture
-        if (chest_sprite && chest_sprite->texture == get_sprites()->chest_closed_texture) {
+        if (chest_tile && chest_tile->tile_x == 8) {
             if (pos && chest_pos) {
                 // Simple distance check for collision
                 float dx = pos->x - chest_pos->x;
@@ -91,8 +81,7 @@ bool is_colliding_with_chest(uint32_t entity, uint32_t* entities, int amount) {
                 float distance = sqrt(dx*dx + dy*dy);
                 
                 if (distance < 64) { // Assuming 64 is collision radius
-                    // Change chest texture to opened
-                    chest_sprite->texture = get_sprites()->chest_opened_texture;
+                    chest_tile->tile_x = 9;
                     ChestOpenedEvent* event = malloc(sizeof(ChestOpenedEvent));
                     event->chest_id = entities[i];
                     event->player_id = entity;

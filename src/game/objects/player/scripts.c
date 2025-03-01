@@ -134,31 +134,17 @@ static void handle_combat(uint32_t player, PositionComponent* position,
         mouse_pressed = true;
         
         if(!sword_used) {
-            // Convert to world coordinates using camera offset
-            float mouse_world_x = logical_x + cam.x;
-            float mouse_world_y = logical_y + cam.y;
+            float dx = (logical_x + cam.x) - (position->x + (sprite->width / 2.0f));
+            float dy = (logical_y + cam.y) - (position->y + (sprite->height / 2.0f));
 
-            // Calculate player center
-            float player_center_x = position->x + (sprite->width / 2.0f);
-            float player_center_y = position->y + (sprite->height / 2.0f);
-
-            printf("mouse_world_x: %f, mouse_world_y: %f\n", mouse_world_x, mouse_world_y);
-            printf("player_center_x: %f, player_center_y: %f\n", player_center_x, player_center_y);
-
-            // Get direction vector to mouse
-            float dx = mouse_world_x - player_center_x;
-            float dy = mouse_world_y - player_center_y;
-
-            // Get closest 4-direction vector
             Vector attack_dir = get_4dir_attack_vector(dx, dy);
 
-            // Apply sword offset
             float attack_x = attack_dir.x * 24.0f;
             float attack_y = attack_dir.y * 24.0f;
 
             uint32_t nearest_enemy = get_nearest_enemy(player, entities, amount);
             use_sword(player, nearest_enemy, attack_x, attack_y);
-
+            
             sword_used = true;
             sword_counter = 0;
         }

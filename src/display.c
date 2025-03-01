@@ -47,15 +47,9 @@ void load_sprites() {
 	
     sl->sword_texture = load_texture("assets/sword/spritesheet.bmp");
 	
-    sl->cobble_texture = load_texture("assets/tilemap/cobble.bmp");
-    sl->iconE_texture = load_texture("assets/tilemap/iconE.bmp");
     sl->teleporter_texture = load_texture("assets/tilemap/teleporter.bmp");
-    sl->chest_opened_texture = load_texture("assets/tilemap/chest_opened.bmp");
-    sl->chest_closed_texture = load_texture("assets/tilemap/chest_closed.bmp");
     sl->background_texture = load_texture("assets/tilemap/background.bmp");
-
-    sl->tileset_texture = load_texture("assets/AssetPack/Backgrounds/Tilesets/TilesetDungeon.png");
-    sl->tileset_texture_tiled = load_texture("assets/maps/tiled/Dungeon_Tileset_nobg.png");
+    sl->tileset_texture = load_texture("assets/tilemap/TilesetDungeon.png");
 
     sl->red_heart_full_texture = load_texture("assets/health/red_heart_full.bmp");
     sl->red_heart_half_texture = load_texture("assets/health/red_heart_half.bmp");

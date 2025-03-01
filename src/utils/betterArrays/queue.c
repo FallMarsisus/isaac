@@ -10,7 +10,7 @@ typedef struct queue_node_s {
 typedef struct queue_s {
     QueueNode *front;
     QueueNode *rear;
-    size_t size;
+    int size;
 } Queue;
 
 // Function to create a new queue
@@ -30,7 +30,7 @@ bool queue_is_empty(Queue *q) {
 }
 
 // Function to enqueue an element
-bool queue_enqueue(Queue *q, void *data, size_t data_size) {
+bool queue_enqueue(Queue *q, void *data, int data_size) {
     if (!q || !data || data_size == 0) return false;
 
     QueueNode *new_node = (QueueNode *)malloc(sizeof(QueueNode));
@@ -56,7 +56,7 @@ bool queue_enqueue(Queue *q, void *data, size_t data_size) {
 }
 
 // Function to dequeue an element
-bool queue_dequeue(Queue *q, void *out_data, size_t data_size) {
+bool queue_dequeue(Queue *q, void *out_data, int data_size) {
     if (!q || !out_data || data_size == 0 || queue_is_empty(q)) return false;
 
     QueueNode* temp = q->front;
@@ -74,7 +74,7 @@ bool queue_dequeue(Queue *q, void *out_data, size_t data_size) {
 }
 
 // Function to peek at the front element
-bool queue_peek(Queue *q, void *out_data, size_t data_size) {
+bool queue_peek(Queue *q, void *out_data, int data_size) {
     if (!q || !out_data || data_size == 0 || queue_is_empty(q)) return false;
 
     memcpy(out_data, q->front->data, data_size);
@@ -82,7 +82,7 @@ bool queue_peek(Queue *q, void *out_data, size_t data_size) {
 }
 
 // Function to get the queue size
-size_t queue_size(Queue *q) {
+int queue_size(Queue *q) {
     if (!q) return 0; // Treat NULL queue as having size 0
     return q->size;
 }

@@ -23,7 +23,7 @@ void ECS_ProcessRemovals();
 void add_removal_flag(Entity entity);
 bool ECS_IsEntityActive(Entity entity);
 
-void* ECS_AddComponent(Entity entity, ComponentType component_type, size_t component_size);
+void* ECS_AddComponent(Entity entity, ComponentType component_type, int component_size);
 void* ECS_GetComponent(Entity entity, ComponentType component_type);
 bool ECS_HasComponent(Entity entity, ComponentType component_type);
 

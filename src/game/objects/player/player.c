@@ -18,12 +18,9 @@ uint32_t add_player(float x, float y, int render_width, int win_width) {
     create_sword(swordC, SWORD, 10, 128, 1);
     init_position_component(position, x, y);
 
-	ItemData** itemListe = itemList;
-
     // Initialize components
     initialize_inventory(inv, 20, false);
     for (int j  = 0; j < itemCount - 1; j++) {
-
         add_item_to_inventory(player, *itemList[j]);
     }
 	add_item_to_inventory(player, sword);

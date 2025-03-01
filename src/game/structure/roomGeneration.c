@@ -9,45 +9,30 @@ void parse_tiled_map(int rX, int rY, uint32_t player_id, int layout_type) {
 
     // Open the tile map file
     char map_name[50];
-    sprintf(map_name, "assets/maps/tiled/test_Tile Layer 2.csv");
+    sprintf(map_name, "assets/maps/tiled/map%d.csv", layout_type);
     FILE* map_file = fopen(map_name, "r");
     if (!map_file) {
         printf("Failed to open map file\n");
         return;
     }
 
-    // Open the collision map file
-    char collision_name[50];
-    sprintf(collision_name, "assets/maps/tiled/test_collisions.csv");
-    FILE* collision_file = fopen(collision_name, "r");
-    if (!collision_file) {
-        printf("Failed to open collision file\n");
-        fclose(map_file);
-        return;
-    }
-
     char line_map[200];
-    char line_collision[200];
     int y = 0;
 
-    while (fgets(line_map, sizeof(line_map), map_file) &&
-           fgets(line_collision, sizeof(line_collision), collision_file) &&
-           y < 20) {
+    while (fgets(line_map, sizeof(line_map), map_file) && y < 20) {
         char* saveptr_map, *saveptr_collision;
         char* map_token = strtok_r(line_map, ",", &saveptr_map);
-        char* collision_token = strtok_r(line_collision, ",", &saveptr_collision);
         int x = 0;
 
-        while (map_token && collision_token && x < 30) {
+        while (map_token && x < 30) {
             int tile_id = atoi(map_token);
-            int collision_id = atoi(collision_token);
 
             if (tile_id != -1) { // Skip empty tiles
                 int world_x = start_x + (x * 64);
                 int world_y = start_y + (y * 64);
                 int tile_x = tile_id % 12; // Assuming 12 columns in the tileset
                 int tile_y = tile_id / 12;
-                bool has_collision = (collision_id != -1); // Collision data determines flag
+                bool has_collision = (tile_id != 2); // Collision data determines flag
                 bool is_layer2 = false;
                 for(int i = 0; i < layer2_len; i++) {
                     if(layer2[i] == tile_id) {
@@ -56,24 +41,20 @@ void parse_tiled_map(int rX, int rY, uint32_t player_id, int layout_type) {
                     }
                 }
 
-                add_tile(world_x, world_y, tile_x, tile_y, get_sprites()->tileset_texture_tiled, has_collision, (is_layer2 ? 2 : 0));
+                add_tile(world_x, world_y, tile_x, tile_y, get_sprites()->tileset_texture, has_collision, (is_layer2 ? 2 : 0));
             }
             
             map_token = strtok_r(NULL, ",", &saveptr_map);
-            collision_token = strtok_r(NULL, ",", &saveptr_collision);
             x++;
         }
         y++;
     }
 
     fclose(map_file);
-    fclose(collision_file);
 }
 
 void parse_map(int rX, int rY, uint32_t player_id, int layout_type) {
     int start_x = rX * 1920; int start_y = rY * 1280;
-    int max_x = start_x + 1920;
-    int max_y = start_y + 1280;
     
     char map_name[20];
     sprintf(map_name, "assets/maps/map%d", layout_type);
@@ -105,8 +86,6 @@ void parse_map(int rX, int rY, uint32_t player_id, int layout_type) {
 
 void generate_enemies(int rX, int rY, uint32_t player_id, int layout_type) {
     int start_x = rX * 1920; int start_y = rY * 1280;
-    int max_x = start_x + 1920;
-    int max_y = start_y + 1280;
 
     switch(layout_type) {
         case 0: // Cross pattern - enemies in the corners
@@ -153,8 +132,6 @@ void generate_enemies(int rX, int rY, uint32_t player_id, int layout_type) {
 
 void generate_items(int rX, int rY, uint32_t player_id, int layout_type) {
     int start_x = rX * 1920; int start_y = rY * 1280;
-    int max_x = start_x + 1920;
-    int max_y = start_y + 1280;
     
     switch(layout_type) {
         case 0:
@@ -176,7 +153,7 @@ void generate_room(int rX, int rY, uint32_t player_id) {
     // Choose a random room layout type
     int layout_type = rand() % 5;
 
-    parse_map(rX, rY, player_id, layout_type);
+    parse_tiled_map(rX, rY, player_id, layout_type);
     generate_enemies(rX, rY, player_id, layout_type);
     generate_items(rX, rY, player_id, layout_type);
 }

@@ -27,10 +27,8 @@ void on_collision(Event event) {
     }
 
     // Vérifier les composants
-    DamagerComponent* damager1 = ECS_GetComponent(collision->entity1, DAMAGER);
     DamagerComponent* damager2 = ECS_GetComponent(collision->entity2, DAMAGER);
     HealthComponent* health1 = ECS_GetComponent(collision->entity1, HEALTH);
-    HealthComponent* health2 = ECS_GetComponent(collision->entity2, HEALTH);
     RigidbodyComponent* body1 = ECS_GetComponent(collision->entity1, BODY);
     RigidbodyComponent* body2 = ECS_GetComponent(collision->entity2, BODY);
     PositionComponent* pos1 = ECS_GetComponent(collision->entity1, POSITION);

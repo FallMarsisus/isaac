@@ -17,7 +17,9 @@ int hash_function(char* key, int capacity) {
     unsigned long hash = 5381;
     int c;
 
-    while (c = *key++) hash = ((hash << 5) + hash) + c;
+    while(c = *key++) {
+        hash = ((hash << 5) + hash) + c;
+    }
     return (hash % capacity) % capacity;
 }
 
@@ -122,7 +124,7 @@ bool remove_from_dictionary(Dictionary* dict, char* key) {
 }
 
 void iterate_dictionary(Dictionary* dict, void (*callback)(char* key, void* value)) {
-    for (size_t i = 0; i < dict->capacity; i++) {
+    for (int i = 0; i < dict->capacity; i++) {
         Node* current = dict->array[i];
         while (current) {
             callback(current->key, current->value);

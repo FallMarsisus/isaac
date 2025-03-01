@@ -1,8 +1,4 @@
 #include "displayText.h"
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 
 fonts* allFonts;
 
@@ -56,7 +52,7 @@ void free_fonts() {
 	free(allFonts);
 }
 
-int get_text_width(char* text, SDL_Texture** font, int fontSize) {
+int get_text_width(const char* text, SDL_Texture** font, int fontSize) {
 	int width = 0;
 	while (*text != '\0') {
 		SDL_Texture* texture = font[(unsigned char)*text];
@@ -72,7 +68,7 @@ int get_text_width(char* text, SDL_Texture** font, int fontSize) {
 	return width;
 }
 
-int get_text_height(char* text, SDL_Texture** font, int fontSize) {
+int get_text_height(const char* text, SDL_Texture** font, int fontSize) {
 	int height = 0;
 	while (*text != '\0') {
 		SDL_Texture* texture = font[(unsigned char)*text];

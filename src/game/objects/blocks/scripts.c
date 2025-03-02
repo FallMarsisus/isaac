@@ -20,7 +20,6 @@ void init_teleporter(ScriptComponent* script, int posX, int posY) {
     script->data = teleport;
     script->update = update_teleporter;
 }
-
 void init_trap(ScriptComponent* script) {
     TrapData* trap = malloc(sizeof(TrapData));
     trap->active = false;
@@ -40,6 +39,11 @@ void update_teleporter(u_int32_t id, SDL_Rect cam, uint32_t* entities, int amoun
 
     if(position && sprite && teleport) {
         for (int i = 0; i < amount; i++) {
+            if(entities[i] == id) continue;
+
+            RigidbodyComponent* body = ECS_GetComponent(entities[i], BODY);
+            if(!body || !body->layer) continue;
+
             PositionComponent* otherPos = ECS_GetComponent(entities[i], POSITION);
             SpriteComponent* otherSprite = ECS_GetComponent(entities[i], SPRITE);
 
@@ -48,6 +52,7 @@ void update_teleporter(u_int32_t id, SDL_Rect cam, uint32_t* entities, int amoun
                     position->x + sprite->width > otherPos->x &&
                     position->y < otherPos->y + otherSprite->height &&
                     position->y + sprite->height > otherPos->y) {
+                    printf("Teleporter at %d %d\n", teleport->posX, teleport->posY);
                     
                     int dx = (otherPos->vx > 0) - (otherPos->vx < 0);
                     int dy = (otherPos->vy > 0) - (otherPos->vy < 0);
@@ -59,7 +64,6 @@ void update_teleporter(u_int32_t id, SDL_Rect cam, uint32_t* entities, int amoun
         }
     }
 }
-
 void update_trap(u_int32_t id, SDL_Rect cam, uint32_t* entities, int amount) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);

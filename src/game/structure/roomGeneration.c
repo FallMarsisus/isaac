@@ -153,7 +153,7 @@ void generate_room(int rX, int rY, uint32_t player_id) {
     // Choose a random room layout type
     int layout_type = rand() % 5;
 
-    parse_tiled_map(rX, rY, player_id, layout_type);
+    //parse_tiled_map(rX, rY, player_id, layout_type);
     generate_enemies(rX, rY, player_id, layout_type);
     generate_items(rX, rY, player_id, layout_type);
 }

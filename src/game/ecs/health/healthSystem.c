@@ -156,3 +156,32 @@ void update_health_effect(uint32_t e) {
 		}
 	}
 }
+
+void draw_health_bar(SDL_Renderer* renderer, uint32_t entity, SDL_Rect cam) {
+    HealthComponent* health = ECS_GetComponent(entity, HEALTH);
+    PositionComponent* pos = ECS_GetComponent(entity, POSITION);
+    SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
+    
+    
+    // Ne pas afficher la barre de vie du joueur
+    if (!health || !pos || !sprite ) return;
+    
+    // Dimensions de la barre de vie
+    int barWidth = sprite->width;
+    int barHeight = 6;
+    
+    // Position de la barre (au-dessus de l'entité)
+    int barX = pos->x - cam.x;
+    int barY = pos->y - cam.y - 10;
+    
+    // Dessiner le fond de la barre (rouge)
+    SDL_Rect bgRect = {barX, barY, barWidth, barHeight};
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &bgRect);
+    
+    // Dessiner la barre de vie (vert)
+    float healthRatio = (float)health->health / health->max_health;
+    SDL_Rect healthRect = {barX, barY, barWidth * healthRatio, barHeight};
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_RenderFillRect(renderer, &healthRect);
+}

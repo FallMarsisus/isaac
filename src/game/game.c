@@ -164,6 +164,10 @@ void update_game(int win_width, int win_height, float delta) {
         PositionComponent* position = ECS_GetComponent(id, POSITION);
         SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
         if (!position || !sprite) continue;
+        
+            
+      // Ajouter cette ligne
+       
 
         update_entity(
             id,
@@ -172,6 +176,7 @@ void update_game(int win_width, int win_height, float delta) {
             cam,
             delta
         );
+        
     }
 
     update_player_positions(game->player);
@@ -218,12 +223,14 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
     if(!game_active) return;
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
+    
 
     render_background(cam, renderer, get_sprites()->background_texture);
 
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
         u_int32_t id = get_entities(game->current_room)[i];
         render_entity(id, cam, renderer);
+        draw_health_bar(renderer, id, cam);
     }
 
     draw_inventory(game->player, renderer, win_width, win_height, true_width, true_height);

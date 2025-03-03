@@ -202,3 +202,4 @@ void update_player(u_int32_t player, SDL_Rect cam, uint32_t* entities, int amoun
         handle_combat(player, position, sword, entities, amount, cam);
     }
 }
+

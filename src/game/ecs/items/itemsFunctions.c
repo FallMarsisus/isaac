@@ -104,6 +104,8 @@ void throwItem(uint32_t player, int itemIndex, Vector* throwDirection) {
 
     if (!item || !itemBody || !itemBody) return;
 
+	add_id(itemBody->layer_that_collides_with, 0);
+
     if (item->item.throwProp != NULL) {
 		uint32_t* argument = malloc(sizeof(uint32_t));
 		*argument = itemEntity;

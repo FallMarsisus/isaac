@@ -140,10 +140,6 @@ void timer_make_item_grabbable_by_dropper(Timer* self, void* arguments) {
 uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, bool playerLocked) {
     uint32_t itemEntity = ECS_CreateEntity();
 
-	if (itemEntity == 137) {
-		printf("tagrossmère");
-	}
-
     PositionComponent* position = ECS_AddComponent(itemEntity, POSITION, sizeof(PositionComponent));
     SpriteComponent* sprite = ECS_AddComponent(itemEntity, SPRITE, sizeof(SpriteComponent));
     ItemComponent* itemC = ECS_AddComponent(itemEntity, ITEM, sizeof(ItemComponent));
@@ -153,7 +149,6 @@ uint32_t add_item_entity(float x, float y, ItemData itemType, uint32_t dropper, 
     itemC->isDropperLocked = playerLocked;
     itemC->dropper = dropper;
     if (dropper != -1 && playerLocked) {
-
         uint32_t* arguments = malloc(sizeof(uint32_t));
 		*arguments = itemEntity;
 
@@ -219,7 +214,7 @@ bool handle_collision_item(uint32_t entity1, uint32_t entity2) {
 
     if (!transfer_item_into_inventory(item, receiver)) return false;
 
-    free_one_entity(item);
+    ECS_RemoveEntity(item);
 
     return true;
 

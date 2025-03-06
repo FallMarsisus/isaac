@@ -15,6 +15,7 @@
 #include "../../event/eventSystem.h"
 #include "../../ecs/physics/forceSystem.h"
 
+#include "../player/player.h"
 #include "enemyStates.h"
 #include "bossStates.h"
 
@@ -43,3 +44,10 @@ bool is_colliding_with_enemy(uint32_t entity, uint32_t* entities, int amount);
  * @return Entity ID of the nearest enemy
  */
 uint32_t get_nearest_enemy(uint32_t entity, uint32_t* entities, int amount);
+
+/**
+ * @brief Updates the state of all enemies
+ * @param entities Array of enemy entity IDs
+ * @param amount Number of enemies in the array
+ */
+void enemy_attack_player(uint32_t enemy, uint32_t player);

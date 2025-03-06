@@ -52,3 +52,41 @@ uint32_t add_player(float x, float y, int render_width, int win_width) {
 
     return player;
 }
+
+void apply_knockback(uint32_t player, uint32_t enemy) {
+    PositionComponent* player_pos = ECS_GetComponent(player, POSITION);
+    PositionComponent* enemy_pos = ECS_GetComponent(enemy, POSITION);
+    RigidbodyComponent* player_body = ECS_GetComponent(player, BODY);
+
+    if (!player_pos || !enemy_pos || !player_body) return;
+
+    float knockback_strength = 10.0f;
+    float dir_x, dir_y;
+
+    if (fabs(player_pos->vx) > 0.1f || fabs(player_pos->vy) > 0.1f) {
+        dir_x = player_pos->vx;
+        dir_y = player_pos->vy;
+    } else {
+        dir_x = player_pos->x - enemy_pos->x;
+        dir_y = player_pos->y - enemy_pos->y;
+
+        if (dir_x == 0 && dir_y == 0) {
+            dir_x = 1.0f; // Default direction if coordinates are the same
+        }
+    }
+
+    float length = sqrt(dir_x * dir_x + dir_y * dir_y);
+
+    if (length != 0) {
+        dir_x /= length;
+        dir_y /= length;
+    }
+
+    Force* knockback = create_force(knockback_force, NULL);
+    knockback->additionalArgs = malloc(3 * sizeof(float));
+    ((float*)knockback->additionalArgs)[0] = dir_x;
+    ((float*)knockback->additionalArgs)[1] = dir_y;
+    ((float*)knockback->additionalArgs)[2] = ceil(knockback_strength);
+
+    add_force(player_body, knockback);
+}

@@ -189,3 +189,9 @@ bool is_colliding_with_enemy(uint32_t entity, uint32_t* entities, int amount) {
     }
     return false ;
 }
+
+void enemy_attack_player(uint32_t enemy, uint32_t player) {
+    // ...existing code...
+    apply_knockback(player, enemy);
+    // ...existing code...
+}

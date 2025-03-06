@@ -35,27 +35,20 @@ bool knockback_force(uint32_t entity, Force* f, void* args) {
     static float decay = 0.90f;
     static float velocityFactor = 0.02f;
     
-    // Stocker la force initiale dans additionalArgs[3] si pas encore fait
     float* forceArgs = (float*)f->additionalArgs;
     float dirX = forceArgs[0];
     float dirY = forceArgs[1];
-    if (forceArgs[2] <= 0) return true;  // Force épuisée
+    if (forceArgs[2] <= 0) return true;  // Force exhausted
     
-    // Appliquer la décroissance
-    forceArgs[2] *= decay;
+    forceArgs[2] = ceil(forceArgs[2] * decay);
     
-    // Appliquer la force
     f->Fx = forceArgs[2] * dirX;
     f->Fy = forceArgs[2] * dirY;
     
-    // Mise à jour de la vélocité
     pos->vx = f->Fx * velocityFactor;
     pos->vy = f->Fy * velocityFactor;
     
-    // printf("Force remaining: %f\n", forceArgs[2]);
-    
-    // Ne pas libérer la mémoire ici, laisser free_force s'en charger
-    return (forceArgs[2] < 10.0f);  // Arrêter quand la force devient très faible
+    return (forceArgs[2] < 10.0f);  // Stop when the force becomes very weak
 }
 
 bool fluid_drag_force(uint32_t entity, Force* f, void* args) {

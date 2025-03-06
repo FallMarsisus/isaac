@@ -33,7 +33,6 @@ void dropItem(uint32_t entity, ItemData currentItem) {
 	if (pos == NULL || !remove_item_index_invent(entity, invent->selected_slot)) return;
 
 
-	// printf(CYAN "Dropping item: %d\n" RESET, currentItem.id);
 	add_item_entity(pos->x+5, pos->y+5, currentItem, entity, true); //+5 to avoid clipping
 }
 
@@ -57,14 +56,17 @@ void throwItemAtMouse(uint32_t player, int itemIndex, SDL_Rect cam, int win_widt
 	SpriteComponent* sprite = ECS_GetComponent(player, SPRITE);
     PositionComponent* pos = ECS_GetComponent(player, POSITION);
 
+	printf("Player ID: %d\n", player);
+
 	if (!pos || !sprite) return;
 
 	int mouseX, mouseY;
 	float scaleFactor = (float) true_width / win_width;
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	int adjustedPlayerPosX = (int)((pos->x - cam.x + sprite->width/2)*scaleFactor);
-	int adjustedPlayerPosY = (int)((pos->y - cam.y + sprite->height/2)*scaleFactor);
+	int adjustedPlayerPosX = (int)((pos->x - cam.x + sprite->width/2)/scaleFactor);
+	int adjustedPlayerPosY = (int)((pos->y - cam.y + sprite->height/2)/scaleFactor);
+
 
     Vector* throwDirection = malloc(sizeof(Vector));
 

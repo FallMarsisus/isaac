@@ -9,6 +9,7 @@
 #include "../enemies/enemies.h"
 
 #include "../../../menu/menuManager.h"
+#include "../../../utils/ouputColors.h"
 
 typedef struct {
     float speed;

@@ -25,7 +25,7 @@ static void handle_movement_input(int* dx, int* dy) {
 }
 
 static void handle_inventory_display(InventoryComponent* inv, uint32_t player, SDL_Rect cam, int win_width, int true_width) {
-    if (!inv) return;
+	if (!inv) return;
     
     static bool is_it_wanting_to_display = false;
 	static bool is_displaying_in_console = false;
@@ -189,7 +189,7 @@ void update_player(u_int32_t player, SDL_Rect cam, uint32_t* entities, int amoun
 
     int dx = 0, dy = 0;
     handle_movement_input(&dx, &dy);
-    float distance = sqrt(pow(dx, 2) + pow(dy, 2));
+    float distance = sqrt(dx*dx + dy*dy);
     
     update_movement_and_animation(movement, position, anim, dx, dy, distance);
 

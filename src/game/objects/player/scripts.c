@@ -141,9 +141,8 @@ static void handle_combat(uint32_t player, PositionComponent* position,
 
             float attack_x = attack_dir.x * 24.0f;
             float attack_y = attack_dir.y * 24.0f;
-
-            uint32_t nearest_enemy = get_nearest_enemy(player, entities, amount);
-            use_sword(player, nearest_enemy, attack_x, attack_y);
+            
+            use_sword(player, attack_x, attack_y);
             
             sword_used = true;
             sword_counter = 0;
@@ -159,16 +158,6 @@ static void handle_combat(uint32_t player, PositionComponent* position,
         if(sword_counter >= 15) {  // ~0.25 seconds at 60 FPS
             sword_used = false;
             sword_counter = 0;
-        }
-    }
-
-    // Existing collision damage logic
-    uint32_t nearest_enemy = get_nearest_enemy(player, entities, amount);
-    if(nearest_enemy != -1 && is_colliding_with_enemy(player, entities, amount)) {
-        if(!apply_damage(nearest_enemy, player)) {
-            printf("ERROR: Player not found\n");
-        } else {
-            printf("Player is taking damage from entity %d\n", nearest_enemy);
         }
     }
 }

@@ -61,6 +61,17 @@ void render_entity(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {
     position->y + sprite->height >= cam.y &&
     position->y <= cam.y + cam.h)) return;
 
+    RigidbodyComponent* rb = ECS_GetComponent(id, BODY);
+    if(rb) {
+        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+        SDL_RenderDrawRect(renderer, &(SDL_Rect) {
+            position->x + rb->hitbox.x - cam.x,
+            position->y + rb->hitbox.y - cam.y,
+            rb->hitbox.w,
+            rb->hitbox.h
+        });
+    }
+
     PathfindingComponent* targetComp = ECS_GetComponent(id, PATHFINDING);
     if(targetComp) {
         PositionComponent* targetPos = ECS_GetComponent(targetComp->target, POSITION);

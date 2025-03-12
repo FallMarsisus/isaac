@@ -29,5 +29,6 @@ typedef struct { //faudra changer ça pour plutot avoir un type et un identifian
     char* name;
     char* description;
     int value;
+	void* specialProperties;
 	ThrowProperties* throwProp;
 } ItemData;

@@ -31,3 +31,5 @@
  * @return Entity ID of the created player
  */
 uint32_t add_player(float x, float y, int render_width, int win_width);
+
+void apply_knockback(uint32_t player, uint32_t enemy);

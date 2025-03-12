@@ -29,7 +29,14 @@ uint32_t* get_ids(ID_array* arr) {
     return arr->ids;
 }
 
+int get_i(ID_array* arr, uint32_t id) {
+    for(int i = 0; i < arr->len; i++) {
+        if(arr->ids[i] == id) return i;
+    }
+    return -1;
+}
 void add_id(ID_array* arr, uint32_t id) {
+    if(get_i(arr, id) != -1) return;
     if(arr->len >= arr->capacity) {
         arr->capacity *= 2;
         arr->ids = (uint32_t*)realloc(arr->ids, arr->capacity * sizeof(uint32_t));
@@ -37,18 +44,14 @@ void add_id(ID_array* arr, uint32_t id) {
     arr->ids[arr->len++] = id;
 }
 void remove_id(ID_array* arr, uint32_t id) {
-    for(int i = 0; i < arr->len; i++) {
-        if(arr->ids[i] == id) {
-            for(int j = i; j < arr->len - 1; j++) {
-                arr->ids[j] = arr->ids[j + 1];
-            }
-            arr->len--;
+    int i = get_i(arr, id);
+    if(i == -1) return;
 
-            if(arr->len < arr->capacity /  4) {
-                arr->capacity /= 2;
-                arr->ids = (uint32_t*)realloc(arr->ids, arr->capacity * sizeof(uint32_t));
-            }
-            return;
-        }
+    arr->ids[i] = arr->ids[arr->len - 1];
+    arr->len--;
+
+    if(arr->len < arr->capacity /  4) {
+        arr->capacity /= 2;
+        arr->ids = (uint32_t*)realloc(arr->ids, arr->capacity * sizeof(uint32_t));
     }
 }

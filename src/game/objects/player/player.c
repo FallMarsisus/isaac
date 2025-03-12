@@ -88,5 +88,5 @@ void apply_knockback(uint32_t player, uint32_t enemy) {
     ((float*)knockback->additionalArgs)[1] = dir_y;
     ((float*)knockback->additionalArgs)[2] = ceil(knockback_strength);
 
-    add_force(player_body, knockback);
+    add_force(player, knockback);
 }

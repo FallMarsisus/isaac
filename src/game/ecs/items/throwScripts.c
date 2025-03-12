@@ -18,11 +18,53 @@ void thrownSwordHit(uint32_t entity, SDL_Rect cam, uint32_t* entites, int amount
 	//make the sword hit surrounding ennemies and rotate the sprite 
 	ItemComponent* item = ECS_GetComponent(entity, ITEM);
 	if (!item) return;
-	
-	
-	// item->isGettable = false;
 
-	// /!\ todo
+	SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
+	PositionComponent* pos = ECS_GetComponent(entity, POSITION);
+
+	if (!pos) return;
+
+	SDL_Point center = {pos->x + sprite->width/2, pos->y + sprite->height/2};
+	float range = sqrt(sprite->width * sprite->width / 4 + sprite->height * sprite->height / 4);
+
+	
+	float speed = sqrt(pos->vx * pos->vx + pos->vy * pos->vy);
+
+	if (speed <= 0.001f) {
+		speed = 0;
+		item->isDropperLocked = false;
+		item->isGettable = true;
+	} else {
+		item->isGettable = false;
+	}
+
+
+	sprite->angle += 8 * speed;
+
+
+	// add damage to enemies
+	for (int i = 0; i < amount; i++) {
+		uint32_t target = entites[i];
+		if (target == entity || target == item->dropper) continue;
+
+		PositionComponent* targetPos = ECS_GetComponent(target, POSITION);
+		SpriteComponent* targetSprite = ECS_GetComponent(target, SPRITE);
+		if (!targetPos || !targetSprite) continue;
+
+		SDL_Point targetCenter = {targetSprite->width / 2, targetSprite->height / 2};
+		targetCenter.x += targetPos->x;
+		targetCenter.y += targetPos->y;
+
+		int dx = targetCenter.x - center.x;
+		int dy = targetCenter.y - center.y;
+		float distance = sqrt(dx * dx + dy * dy);
+
+		if (distance <= range) {
+			// printf(BLUE "Damage: %f, Speed: %f\n" RESET, 3 * speed, speed);
+			damage(target, 3*speed);
+		}
+		
+	}
 }
 
 void printToDebug(uint32_t entity, SDL_Rect cam, uint32_t* entites, int amount) {
@@ -59,7 +101,7 @@ ThrowProperties* get_default_throw_prop(enum ItemID itemType) {
 		*dmg = 1;
 		tp->script->data = dmg;
 		tp->script->update = &thrownSwordHit;
-		tp->timeBeforeScriptActivation = 1;
+		tp->timeBeforeScriptActivation = 0;
 		break;
 	}
 	

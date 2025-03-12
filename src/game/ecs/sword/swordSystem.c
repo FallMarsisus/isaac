@@ -17,8 +17,7 @@ bool create_sword(SwordComponent* sword, enum ItemID id, int damage, int range, 
 }
 
 
-uint32_t use_sword(uint32_t entity, uint32_t enemy, float offsetX, float offsetY)
-{
+uint32_t use_sword(uint32_t entity, float offsetX, float offsetY) {
     SwordComponent* sword = ECS_GetComponent(entity, SWORD_C);
     if (!sword) {
         printf("Sword component not found for entity %u\n", entity);
@@ -32,8 +31,9 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy, float offsetX, float offsetY
     }
 
     uint32_t sword_temp = add_sword(entity, sword, offsetX, offsetY);
-
-    if(enemy == -1) return sword_temp;
+    
+    return sword_temp;
+    /*
     PositionComponent* pos2 = ECS_GetComponent(enemy, POSITION);
     if (!pos2) {
         printf("Position component not found for enemy %u\n", enemy);
@@ -91,6 +91,7 @@ uint32_t use_sword(uint32_t entity, uint32_t enemy, float offsetX, float offsetY
     }
     
     return sword_temp;
+    */
 }
 
 

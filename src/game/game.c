@@ -58,23 +58,30 @@ void free_game() {
     free(game);
 }
 
+int get_room_x(Entity entity) {
+    PositionComponent* pos = ECS_GetComponent(entity, POSITION);
+    SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
+    if (!pos || !sprite) return -1;
+
+    return floor((pos->x + sprite->width / 2) / 1920);
+}
+
+int get_room_y(Entity entity) {
+    PositionComponent* pos = ECS_GetComponent(entity, POSITION);
+    SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
+    if (!pos || !sprite) return -1;
+
+    return floor((pos->y + sprite->height / 2) / 1280);
+}
+
 void on_entity_created(Event event) {
-    EntityCreatedEvent* e = (EntityCreatedEvent*)event.data;
-    if (!e)
-        return;
+    EntityCreatedEvent* cEvent = (EntityCreatedEvent*)event.data;
+    if (!cEvent) return;
 
-    PositionComponent* pos = ECS_GetComponent(e->entity, POSITION);
-    if (!pos)
-        return;
+    if(!ECS_IsEntityActive(cEvent->entity)) return;
 
-    int room_x = floor(pos->x / 1920);
-    int room_y = floor(pos->y / 1280);
-
-    Room* room = get_room(game->map, room_x, room_y);
-    if (!room)
-        return;
-
-    add_entity(room, e->entity);
+    Room* room = get_room(game->map, get_room_x(cEvent->entity), get_room_y(cEvent->entity));
+    if (room) add_entity(room, cEvent->entity);
 }
 void on_entity_removed(Event event) {
     EntityRemovedEvent* rEvent = event.data;
@@ -93,7 +100,8 @@ void on_entity_removed(Event event) {
     free_one_entity(rEvent->entity);
 
     if(!game_active) return;
-    remove_entity(game->current_room, rEvent->entity);
+    Room* room = get_room(game->map, get_room_x(rEvent->entity), get_room_y(rEvent->entity));
+    if(room) remove_entity(room, rEvent->entity);
 
     if (rEvent->entity == game->player) {
         GameOverEvent* gameOverEvent = malloc(sizeof(GameOverEvent));
@@ -115,11 +123,9 @@ void change_room(int x, int y) {
                 continue;
             }
 
-            if (!position)
-                continue;
+            if (!position) continue;
 
-            if(position->camFixed || 
-            ((int) floor(position->x / 1920) == x && (int) floor(position->y / 1280) == y)) {
+            if(position->camFixed || (get_room_x(e) == x && get_room_y(e) == y)) {
                 add_entity(r, e);
             }
         }
@@ -161,14 +167,6 @@ void update_game(int win_width, int win_height, float delta) {
         uint32_t id = get_entities(game->current_room)[i];
         if(!ECS_IsEntityActive(id)) continue;
 
-        PositionComponent* position = ECS_GetComponent(id, POSITION);
-        SpriteComponent* sprite = ECS_GetComponent(id, SPRITE);
-        if (!position || !sprite) continue;
-        
-        if (is_colliding_with_enemy(game->player, get_entities(game->current_room), get_entity_amount(game->current_room))) {
-            enemy_attack_player(id, game->player);
-        }
-
         update_entity(
             id,
             get_entities(game->current_room),
@@ -188,8 +186,8 @@ void update_game(int win_width, int win_height, float delta) {
     SpriteComponent* sprite = ECS_GetComponent(game->player, SPRITE);
 
     if (pos) {
-        int changeX = floor(pos->x / 1920);
-        int changeY = floor(pos->y / 1280);
+        int changeX = get_room_x(game->player);
+        int changeY = get_room_y(game->player);
         if(!static_cam) {
             cam.x = pos->x + (sprite->width - cam.w) / 2;
             cam.y = pos->y + (sprite->height - cam.h) / 2;
@@ -197,8 +195,8 @@ void update_game(int win_width, int win_height, float delta) {
             int room_x = get_x(game->current_room);
             int room_y = get_y(game->current_room);
             
-            cam.x = fmax(room_x * 1920 + 32, fmin(cam.x, (room_x + 1) * 1920 - cam.w - 32));
-            cam.y = fmax(room_y * 1280 + 32, fmin(cam.y, (room_y + 1) * 1280 - cam.h - 32));
+            //cam.x = fmax(room_x * 1920 + 32, fmin(cam.x, (room_x + 1) * 1920 - cam.w - 32));
+            //cam.y = fmax(room_y * 1280 + 32, fmin(cam.y, (room_y + 1) * 1280 - cam.h - 32));
         }
 
         if (changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {
@@ -224,7 +222,6 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
     SDL_SetRenderDrawColor(renderer, 37, 37, 49, 255);
     SDL_RenderClear(renderer);
     
-
     render_background(cam, renderer, get_sprites()->background_texture);
 
     for (int i = 0; i < get_entity_amount(game->current_room); i++) {
@@ -236,6 +233,7 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
     draw_inventory(game->player, renderer, win_width, win_height, true_width, true_height);
     display_health(game->player, renderer);
 
+    /*
     extern Queue* player_positions;
     for (QueueNode* node = get_first_queue_node(player_positions); node; node = get_next_queue_node(node)) {
         Vector player_pos = *(Vector*)get_data_queue_node(node);
@@ -243,4 +241,5 @@ void draw_game(SDL_Renderer* renderer, int win_width, int win_height, int true_w
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &rec);
     }
+    */
 }

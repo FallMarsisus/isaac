@@ -8,6 +8,8 @@ void on_player_move(Event event) {
 void on_chest_open(Event event) {
     ChestOpenedEvent* chestOpenedEvent = (ChestOpenedEvent*)event.data;
     printf("Chest %d opened at (%f, %f)!\n", chestOpenedEvent->chest_id, chestOpenedEvent->x, chestOpenedEvent->y);
+    InventoryComponent* inv = ECS_GetComponent(chestOpenedEvent->player_id, INVENT);
+    add_item_to_inventory(chestOpenedEvent->player_id, apple );
     ECS_RemoveEntity(chestOpenedEvent->chest_id);
 }
 

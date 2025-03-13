@@ -1,4 +1,5 @@
 #include "healthSystem.h"
+#include <limits.h>
 
 bool init_health_component(HealthComponent* health, int max_health, int max_mana, int shield) {
 	health->health = max_health;

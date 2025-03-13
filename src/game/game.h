@@ -19,6 +19,7 @@ void on_entity_created(Event event);
 void on_entity_removed(Event event);
 
 void change_room(int x, int y);
+void explode_room(int x, int y);
 
 void update_game(int win_width, int win_height, float delta);
 

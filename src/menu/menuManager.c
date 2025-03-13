@@ -90,6 +90,9 @@ void handle_menu_manager_input(SDL_Event event) {
     if (currentMenu) {
         handle_menu_input(currentMenu, event);
     }
+    else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_k) {
+        explode_room(1, 1);
+    }
 }
 
 void switch_to_menu(MenuType menuType) {

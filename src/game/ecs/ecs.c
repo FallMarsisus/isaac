@@ -225,7 +225,7 @@ void* ECS_AddComponent(Entity entity, ComponentType component_type, int componen
         return NULL;
     }
     
-    void* component = malloc(component_size);
+    void* component = calloc(1, component_size);
     if (!component) {
         fprintf(stderr, "Failed to allocate component\n");
         return NULL;

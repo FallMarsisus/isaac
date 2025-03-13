@@ -65,7 +65,6 @@ int get_room_x(Entity entity) {
 
     return floor((pos->x + sprite->width / 2) / 1920);
 }
-
 int get_room_y(Entity entity) {
     PositionComponent* pos = ECS_GetComponent(entity, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
@@ -133,6 +132,22 @@ void change_room(int x, int y) {
         init_room(x, y, game->player);
     }
     game->current_room = r;
+}
+void explode_room(int x, int y) {
+    if(x == 0 && y == 0) return;
+    
+    Room* r = get_room(game->map, x, y);
+    if (r == NULL) return;
+
+    r = game->current_room;
+
+    for (int i = 0; i < get_entity_amount(r); i++) {
+        uint32_t id = get_entities(r)[i];
+        if(!ECS_IsEntityActive(id) || id == game->player) continue;
+        ECS_RemoveEntity(id);
+    }
+
+    destroy_room(game->map, r);
 }
 
 int compare_positions(const void* a, const void* b) {

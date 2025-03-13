@@ -9,6 +9,7 @@ bool init_health_component(HealthComponent* health, int max_health, int max_mana
 	health->shield = 0;
 	health->last_damage_time = 0;
 	health->damage_cooldown = 1000; // 1 seconde de cooldown
+	health->effect_end_time = INT_MAX;
 
 	return true;
 }

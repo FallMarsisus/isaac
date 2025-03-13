@@ -43,10 +43,9 @@ void add_room(Map* m, Room* r) {
     Room* right = get_room(m, x + 1, y);
     if(right != NULL) setRight(r, right);
 }
-void destroy_room(Map* m, int x, int y) {
-    assert(m != NULL);
-    Room* r = get_room(m, x, y);
-    if(r == NULL) return;
+void destroy_room(Map* m, Room* r) {
+    assert(m != NULL && r != NULL);
+    int x = get_x(r); int y = get_y(r);
 
     Room* up = get_room(m, x, y - 1);
     if(up != NULL) clearUp(r, up);
@@ -57,6 +56,6 @@ void destroy_room(Map* m, int x, int y) {
     Room* right = get_room(m, x + 1, y);
     if(right != NULL) clearRight(r, right);
 
+    printf("%d\n", removeValue(x, y, m->dict_rooms));
     free_room(r);
-    removeValue(x, y, m->dict_rooms);
 }

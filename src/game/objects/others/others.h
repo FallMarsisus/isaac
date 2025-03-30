@@ -10,8 +10,6 @@
 #include "../../ecs/render/renderSystems.h"
 #include "../../ecs/physics/physicsSystems.h"
 #include "../../ecs/other/otherSystems.h"
-#include "../../ecs/damager/damagerSystem.h"
-#include "../../ecs/damager/damagerComponent.h"
 #include "../../ecs/sword/swordComponent.h"
 
 #include "../../event/eventSystem.h"

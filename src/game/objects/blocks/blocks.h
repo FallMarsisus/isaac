@@ -22,15 +22,6 @@ uint32_t add_door(float x, float y);
 uint32_t add_trap(float x, float y);
 
 /**
- * @brief Checks if an entity is colliding with a chest
- *
- * @param entity Entity ID to check for collision
- * @return true if the entity is colliding with a chest
- * @return false if the entity is not colliding with a chest
- */
-bool is_colliding_with_chest(uint32_t entity, uint32_t* entities, int amount);
-
-/**
  * @brief Creates a teleporter entity linking two positions
  * @param x Source X coordinate
  * @param y Source Y coordinate

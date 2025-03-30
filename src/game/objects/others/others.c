@@ -37,7 +37,8 @@ uint32_t add_flame(float x, float y, float vx, float vy) {
 	AnimationComponent* animation = ECS_AddComponent(flame, ANIMATION, sizeof(AnimationComponent));
     init_anim_component(animation, 16, 16);
 
-    create_damager(flame, (DamagerComponent) {1, 0, false, 0});
+    DamagerComponent* damager = ECS_AddComponent(flame, DAMAGER, sizeof(DamagerComponent));
+    init_damager_component(damager, 2, true);
     
     add_anim(animation, 0.1, 3);
     set_active_anim(animation, 0);
@@ -73,16 +74,18 @@ uint32_t add_sword(uint32_t player, SwordComponent* sword_component, float offse
     );
     
     SpriteComponent* sprite = ECS_GetComponent(sword, SPRITE);
+
+    //Animation
     AnimationComponent* animation = ECS_AddComponent(sword, ANIMATION, sizeof(AnimationComponent));
-
+    
     init_anim_component(animation, 32, 32);
-
     sprite->angle = atan2(offsetY, offsetX) * 180 / PI;
     
     add_anim(animation, 0.05, 3);
     set_active_anim(animation, 0);
     play_anim(animation);
 
+    //Child
     if(parent) {
         ChildComponent* child = ECS_AddComponent(sword, CHILD, sizeof(ChildComponent));
         init_child_component(child, 
@@ -95,10 +98,13 @@ uint32_t add_sword(uint32_t player, SwordComponent* sword_component, float offse
     }
 
     RigidbodyComponent* body = ECS_GetComponent(sword, BODY);
+    
     ID_array* col_layers_mask = create_id_array();
     add_id(col_layers_mask, 1); // Layer 1 is the enemy
     body->layer_that_collides_with = col_layers_mask;
-    
+
+    DamagerComponent* damager = ECS_AddComponent(sword, DAMAGER, sizeof(DamagerComponent));
+    init_damager_component(damager, 5, false);
 
     return sword;
 }

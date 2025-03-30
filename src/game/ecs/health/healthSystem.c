@@ -1,74 +1,66 @@
 #include "healthSystem.h"
 #include <limits.h>
 
-bool init_health_component(HealthComponent* health, int max_health, int max_mana, int shield) {
+void init_damager_component(DamagerComponent* damager, int damage, bool damages_player) {
+    damager->damage = damage;
+    damager->damage_player = damages_player;
+}
+
+bool init_health_component(HealthComponent* health, int max_health) {
 	health->health = max_health;
-	health->mana = 0;
 	health->max_health = max_health;
-	health->max_mana = max_mana;
-	health->isDisplayed = false;
-	health->shield = 0;
+
+	health->is_invincible = false;
+	
 	health->last_damage_time = 0;
-	health->damage_cooldown = 1000; // 1 seconde de cooldown
-	health->effect_end_time = INT_MAX;
+	health->damage_cooldown = 500;
 
 	return true;
 }
 
-bool damage_bypass_shield(uint32_t entity, int damage)
-{
+bool damage(uint32_t entity, uint32_t damager) {
     HealthComponent* health = ECS_GetComponent(entity, HEALTH);
+    if (!health || health->is_invincible) return false;
 
-	if (health == NULL || damage < 0) {
-		return false;
-	}
+	PositionComponent* pos1 = ECS_GetComponent(entity, POSITION);
+	SpriteComponent* sprite1 = ECS_GetComponent(entity, SPRITE);
+	RigidbodyComponent* body = ECS_GetComponent(entity, BODY);
+	if(!pos1 || !sprite1 || !body) return false;
 
-	health->health -= damage;
-
-	return true;
-}
-
-void apply_damage_effect(uint32_t entity) {
-    SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
-    HealthComponent* health = ECS_GetComponent(entity, HEALTH);
-    
-    if (!sprite || !sprite->texture || !health) return;
-    
-    SDL_SetTextureColorMod(sprite->texture, 255, 50, 50);
-    health->effect_end_time = SDL_GetTicks() + 200; // Effet dure 200ms
-}
-
-void restore_sprite_color(uint32_t entity) {
-    SpriteComponent* sprite = ECS_GetComponent(entity, SPRITE);
-    if (sprite && sprite->texture) {
-        SDL_SetTextureColorMod(sprite->texture, 255, 255, 255);
-    }
-}
-
-bool damage(uint32_t entity, int damage) {
-    HealthComponent* health = ECS_GetComponent(entity, HEALTH);
-    if (!health || damage < 0) return false;
+	PositionComponent* pos2 = ECS_GetComponent(damager, POSITION);
+	SpriteComponent* sprite2 = ECS_GetComponent(entity, SPRITE);
+	DamagerComponent* damager_component = ECS_GetComponent(damager, DAMAGER);
+	if(!pos2 || !sprite2 || !damager_component) return false;
 
     Uint32 current_time = SDL_GetTicks();
-    if (current_time - health->last_damage_time < health->damage_cooldown) {
-        return false;
-    }
 
-    // Appliquer les dégâts
-    if (health->shield - damage < 0) {
-        health->shield = 0;
-        health->health -= damage - health->shield;
-    } else {
-        health->shield -= damage;
-    }
-
-    apply_damage_effect(entity);
     health->last_damage_time = current_time;
+	health->health -= damager_component->damage;
 
     if(isDead(entity)) {
         health->health = 0;
         ECS_RemoveEntity(entity);
     }
+
+	health->is_invincible = true;
+	//Add effects
+	SDL_SetTextureColorMod(sprite1->texture, 255, 50, 50);
+
+	float dx = pos1->x - sprite1->width/2 - (pos2->x - sprite2->width / 2);
+	float dy = pos1->y - sprite1->height/2 - (pos2->y - sprite2->height/2);
+	float len = sqrt(dx*dx + dy*dy);
+	if (len > 0) {
+		dx /= len;
+		dy /= len;
+		
+		float* knockbackArgs = malloc(sizeof(float) * 3);
+		knockbackArgs[0] = dx * 5.0f;  // Vitesse de knockback réduite
+		knockbackArgs[1] = dy * 5.0f;
+		knockbackArgs[2] = 200.0f;    // Force de knockback augmentée
+		
+		Force* knockback = create_force(knockback_force, knockbackArgs);
+		add_force(entity, knockback);
+	}
 
     return true;
 }
@@ -85,27 +77,6 @@ bool heal(uint32_t entity, int healAmount) {
 		health->health = health->max_health;
 	}
 
-
-	return true;
-}
-
-bool addEffect(uint32_t entity, void *effect) {
-	// Implementation for adding effect
-	return false;
-}
-
-bool removeEffect(uint32_t entity, void *effect) {
-	// Implementation for removing effect
-	return false;
-}
-
-bool addShield(uint32_t entity, int shieldAmount) {
-	HealthComponent* health = ECS_GetComponent(entity, HEALTH);
-
-	if (health == NULL || shieldAmount < 0) {
-		return false;
-	}
-	health->shield += shieldAmount;
 
 	return true;
 }
@@ -147,14 +118,15 @@ bool display_health(uint32_t entity, SDL_Renderer *renderer)
 	return true;
 }
 
-void update_health_effect(uint32_t e) {
+void update_health(uint32_t e) {
 	HealthComponent* health = ECS_GetComponent(e, HEALTH);
 	SpriteComponent* sprite = ECS_GetComponent(e, SPRITE);
 	
 	if (health && sprite && sprite->texture) {
 		Uint32 current_time = SDL_GetTicks();
-		if (current_time >= health->effect_end_time) {
+		if (current_time > health->last_damage_time + health->damage_cooldown && health->is_invincible) {
 			SDL_SetTextureColorMod(sprite->texture, 255, 255, 255);
+			health->is_invincible = false;
 		}
 	}
 }

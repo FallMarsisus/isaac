@@ -4,7 +4,6 @@
 #include "../../stateMachine/stateMachine.h"
 #include "../../ecs/ecs.h"
 #include "../../ecs/items/itemSystem.h"
-#include "../../ecs/damager/damagerComponent.h"
 #include "../../ecs/health/healthComponent.h"
 #include "../../ecs/physics/forceSystem.h"
 #include "../../ecs/physics/physicsSystems.h"

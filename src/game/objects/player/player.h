@@ -13,7 +13,6 @@
 #include "../../ecs/inventory/inventoryUI.h"
 #include "../../ecs/health/healthSystem.h"
 #include "../../ecs/items/itemSystem.h"
-#include "../../ecs/damager/damagerSystem.h"
 #include "../../ecs/sword/swordSystem.h"
 
 #include "../../ecs/items/itemList.h"

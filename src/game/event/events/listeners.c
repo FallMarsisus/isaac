@@ -29,34 +29,38 @@ void on_collision(Event event) {
     }
 
     // Vérifier les composants
-    DamagerComponent* damager2 = ECS_GetComponent(collision->entity2, DAMAGER);
-    HealthComponent* health1 = ECS_GetComponent(collision->entity1, HEALTH);
-    RigidbodyComponent* body1 = ECS_GetComponent(collision->entity1, BODY);
-    RigidbodyComponent* body2 = ECS_GetComponent(collision->entity2, BODY);
     PositionComponent* pos1 = ECS_GetComponent(collision->entity1, POSITION);
+    RigidbodyComponent* body1 = ECS_GetComponent(collision->entity1, BODY);
+    HealthComponent* health1 = ECS_GetComponent(collision->entity1, HEALTH);
+    DamagerComponent* damager1 = ECS_GetComponent(collision->entity1, DAMAGER);
+
     PositionComponent* pos2 = ECS_GetComponent(collision->entity2, POSITION);
+    RigidbodyComponent* body2 = ECS_GetComponent(collision->entity2, BODY);
+    HealthComponent* health2 = ECS_GetComponent(collision->entity2, HEALTH);
+    DamagerComponent* damager2 = ECS_GetComponent(collision->entity2, DAMAGER);
 
     // Gérer les dégâts et le knockback dans les deux sens
-    if (damager2 && health1 && body1 && pos1 && pos2) {
-        if (body1->layer == 2 && damage(collision->entity1, damager2->damage)) {
-            // Direction du knockback
-            float dx = pos1->x - pos2->x;
-            float dy = pos1->y - pos2->y;
-            float len = sqrt(dx*dx + dy*dy);
-            if (len > 0) {
-                dx /= len;
-                dy /= len;
-                
-                float* knockbackArgs = malloc(sizeof(float) * 3);
-                knockbackArgs[0] = dx * 5.0f;  // Vitesse de knockback réduite
-                knockbackArgs[1] = dy * 5.0f;
-                knockbackArgs[2] = 200.0f;    // Force de knockback augmentée
-                
-                Force* knockback = create_force(knockback_force, knockbackArgs);
-                add_force(collision->entity1, knockback);
-                
-                printf("Applied knockback to entity %d\n", collision->entity1);
+    if (pos1 && pos2 && body1 && body2) {
+        if(damager2 && health1) {
+            if (body1->layer == 2 && damager2->damage_player) { // Entity 2 attacks
+                damage(collision->entity1, collision->entity2);
             }
+            else if (body1->layer == 1 && !damager2->damage_player) {
+                damage(collision->entity1, collision->entity2);
+            }
+        }
+
+        TileComponent* chest_tile = ECS_GetComponent(collision->entity2, TILE);
+        
+        // Check if entity is a chest by checking its texture
+        if (body1->layer == 2 && chest_tile && chest_tile->tile_x == 8) {
+            chest_tile->tile_x = 9;
+            
+            ChestOpenedEvent* event = malloc(sizeof(ChestOpenedEvent));
+            event->chest_id = collision->entity2;
+            event->player_id = collision->entity1;
+            event->x = pos2->x; event->y = pos2->y;
+            trigger_event(EVENT_CHEST_OPENED, event, true);
         }
     }
 

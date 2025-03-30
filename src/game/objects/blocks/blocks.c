@@ -40,7 +40,8 @@ uint32_t add_background_tile(float x, float y) {
     return block;
 }
 uint32_t add_chest(float x, float y) {
-    uint32_t chest = add_tile(x, y, 8, 1, get_sprites()->tileset_texture, true, 0);
+    uint32_t chest = add_tile(x, y, 8, 1, get_sprites()->tileset_texture, false, 0);
+
     return chest;
 }
 uint32_t add_teleporter(float x, float y, float xTarget, float yTarget) {
@@ -67,35 +68,4 @@ uint32_t add_trap(float x, float y) {
     init_trap(script);
     
     return trap;
-}
-
-bool is_colliding_with_chest(uint32_t entity, uint32_t* entities, int amount) {
-    PositionComponent* pos = ECS_GetComponent(entity, POSITION);
-
-    for (int i = 0; i < amount; i++) {
-        if(entities[i] == entity) continue;
-        PositionComponent* chest_pos = ECS_GetComponent(entities[i], POSITION);
-        TileComponent* chest_tile = ECS_GetComponent(entities[i], TILE);
-        
-        // Check if entity is a chest by checking its texture
-        if (chest_tile && chest_tile->tile_x == 8) {
-            if (pos && chest_pos) {
-                // Simple distance check for collision
-                float dx = pos->x - chest_pos->x;
-                float dy = pos->y - chest_pos->y;
-                float distance = sqrt(dx*dx + dy*dy);
-                
-                if (distance < 64) { // Assuming 64 is collision radius
-                    chest_tile->tile_x = 9;
-                    ChestOpenedEvent* event = malloc(sizeof(ChestOpenedEvent));
-                    event->chest_id = entities[i];
-                    event->player_id = entity;
-                    event->x = chest_pos->x; event->y = chest_pos->y;
-                    trigger_event(EVENT_CHEST_OPENED, event, true);
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
 }

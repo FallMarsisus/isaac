@@ -68,7 +68,6 @@ static void handle_mouse_input(uint32_t player) {
     Uint32 mouseState = SDL_GetMouseState(&x, &y);
     
     if ((mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) && !mouseClicked) {
-        printf("mouse is in slot n° %d\n", on_clic(player, x, y));
         mouseClicked = true;
     } else if (!(mouseState & SDL_BUTTON(SDL_BUTTON_LEFT))) {
         mouseClicked = false;
@@ -109,6 +108,7 @@ static Vector get_4dir_attack_vector(float dx, float dy) {
     } else {
         direction.y = (dy > 0) ? 1 : -1;
     }
+
     return direction;
 }
 
@@ -150,6 +150,23 @@ static void handle_combat(uint32_t player, PositionComponent* position,
     }
     else if(!(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT))) {
         mouse_pressed = false;
+    }
+
+    int sx = 0, sy = 0;
+    const Uint8* state = SDL_GetKeyboardState(NULL);
+    if(state[SDL_SCANCODE_UP]) sy--;
+    if(state[SDL_SCANCODE_DOWN]) sy++;
+    if(state[SDL_SCANCODE_LEFT]) sx--;
+    if(state[SDL_SCANCODE_RIGHT]) sx++;
+
+    if(!sword_used && (sx != 0 || sy != 0)) {
+        float attack_x = sx * 24.0f;
+        float attack_y = sy * 24.0f;
+        
+        use_sword(player, attack_x, attack_y);
+        
+        sword_used = true;
+        sword_counter = 0;
     }
 
     // Sword cooldown

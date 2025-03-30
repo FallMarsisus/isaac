@@ -14,10 +14,14 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     StateMachineComponent* sm = ECS_AddComponent(enemy, STATE_MACHINE, sizeof(StateMachineComponent));
     HealthComponent* health = ECS_AddComponent(enemy, HEALTH, sizeof(HealthComponent));
     StunComponent* stun = ECS_AddComponent(enemy, STUN, sizeof(StunComponent));
+    DamagerComponent* damager = ECS_AddComponent(enemy, DAMAGER, sizeof(DamagerComponent));
+
+    init_health_component(health, 10);
+    init_damager_component(damager, 2, true);
+
     stun->duration = 0;
     stun->start_time = 0;
     
-    init_health_component(health, 100, 10, 0);
     init_state_machine(sm, enemy);
     init_position_component(position, x, y);
     
@@ -34,8 +38,6 @@ uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl
     add_state(sm, follow_state);
     
     switch_state(sm, "idle");
-    
-    create_damager(enemy, (DamagerComponent) {1, 0, false, 0});
 
     ID_array* col_layers_mask = create_id_array();
     add_id(col_layers_mask, 0);
@@ -116,12 +118,16 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     HealthComponent* health = ECS_AddComponent(boss, HEALTH, sizeof(HealthComponent));
     AnimationComponent* animation = ECS_AddComponent(boss, ANIMATION, sizeof(AnimationComponent));
     StunComponent* stun = ECS_AddComponent(boss, STUN, sizeof(StunComponent));
+    DamagerComponent* damager = ECS_AddComponent(boss, DAMAGER, sizeof(DamagerComponent));
+
+    init_health_component(health, 100);
+    init_damager_component(damager, 4, true);
+
     stun->duration = 0;
     stun->start_time = 0;
     
     init_position_component(position, x, y);
     
-    init_health_component(health, 1000, 10, 0);
     init_state_machine(sm, boss);
 
     State* attack_state = create_state("attack", on_attack_boss_enter, on_attack_boss_update, on_attack_boss_exit, on_attack_boss_free);
@@ -129,8 +135,6 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     add_state(sm, attack_state);
     
     switch_state(sm, "attack");
-    
-    create_damager(boss, (DamagerComponent) {1, 0, false, 0});
 
     ID_array* col_layers_mask = create_id_array();
     add_id(col_layers_mask, 0);

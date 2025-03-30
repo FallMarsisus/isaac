@@ -10,7 +10,6 @@
 #include "../../ecs/pathFinding/pathfindingSystems.h"
 #include "../../ecs/other/otherSystems.h"
 #include "../../ecs/health/healthSystem.h"
-#include "../../ecs/damager/damagerSystem.h"
 
 #include "../../event/eventSystem.h"
 #include "../../ecs/physics/forceSystem.h"

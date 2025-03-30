@@ -193,10 +193,7 @@ void update_game(int win_width, int win_height, float delta) {
     }
 
     update_player_positions(game->player);
-
-    // is_colliding_with_item(game->player);
-    is_colliding_with_chest(game->player, get_entities(game->current_room), get_entity_amount(game->current_room));
-
+    
     PositionComponent* pos = ECS_GetComponent(game->player, POSITION);
     SpriteComponent* sprite = ECS_GetComponent(game->player, SPRITE);
 

@@ -47,7 +47,7 @@ void update_entity(uint32_t entity, uint32_t* entities, int amount, SDL_Rect cam
     update_item(entity);
     update_physics(entity, entities, amount, delta);
 
-    update_health_effect(entity);
+    update_health(entity);
     update_anim(entity);
 }
 

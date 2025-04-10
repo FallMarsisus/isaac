@@ -122,15 +122,15 @@ void throwItem(uint32_t player, int itemIndex, Vector* throwDirection) {
         pop(itemBody->forces); //pour suppr le vent de con que j'ai ajouté
     }
 
-    sdfArgs* dragCoef = malloc(sizeof(sdfArgs));
-	dragCoef->movingCoef = 150;
-	dragCoef->staticCoef = 500;
-	dragCoef->lastSignX = 0;
-	dragCoef->timesOsciliatingX = 0;
-	dragCoef->lastSignY = 0;
-	dragCoef->timesOsciliatingY = 0;
+    sdfArgs* dragProperties = malloc(sizeof(sdfArgs));
+	dragProperties->movingCoef = item->item.throwProp->solidDragCoef;
+	dragProperties->staticCoef = 500;
+	dragProperties->lastSignX = 0;
+	dragProperties->timesOsciliatingX = 0;
+	dragProperties->lastSignY = 0;
+	dragProperties->timesOsciliatingY = 0;
 	printf("adding force de con\n");
-    Force* f = create_force(solid_drag_force, dragCoef);
+    Force* f = create_force(solid_drag_force, dragProperties);
     add_force(itemEntity, f);
 }
 

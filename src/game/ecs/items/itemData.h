@@ -22,6 +22,7 @@ enum ItemID {
 typedef struct {
 	ScriptDeWish* script;
 	float timeBeforeScriptActivation;
+	float solidDragCoef;
 } ThrowProperties;
 
 typedef struct { //faudra changer ça pour plutot avoir un type et un identifiant unique 

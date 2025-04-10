@@ -81,6 +81,8 @@ void selfDestroyingFunc(uint32_t entity, SDL_Rect cam, uint32_t* entites, int am
 	ScriptComponent* script = ECS_GetComponent(entity, SCRIPT);
 	if (!script) return;
 
+	// do stuff
+
 	free(script->data);
 	script->update = NULL;
 	script->data = NULL;
@@ -93,6 +95,7 @@ ThrowProperties* get_default_throw_prop(enum ItemID itemType) {
 	tp->script = malloc(sizeof(ScriptDeWish));
 	tp->script->data = NULL;
 	tp->script->update = NULL;
+	tp->solidDragCoef = 150;
 
 
 	switch (itemType) {

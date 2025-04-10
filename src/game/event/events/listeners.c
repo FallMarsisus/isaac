@@ -32,35 +32,43 @@ void on_collision(Event event) {
     PositionComponent* pos1 = ECS_GetComponent(collision->entity1, POSITION);
     RigidbodyComponent* body1 = ECS_GetComponent(collision->entity1, BODY);
     HealthComponent* health1 = ECS_GetComponent(collision->entity1, HEALTH);
-    DamagerComponent* damager1 = ECS_GetComponent(collision->entity1, DAMAGER);
 
     PositionComponent* pos2 = ECS_GetComponent(collision->entity2, POSITION);
     RigidbodyComponent* body2 = ECS_GetComponent(collision->entity2, BODY);
-    HealthComponent* health2 = ECS_GetComponent(collision->entity2, HEALTH);
     DamagerComponent* damager2 = ECS_GetComponent(collision->entity2, DAMAGER);
 
-    // Gérer les dégâts et le knockback dans les deux sens
     if (pos1 && pos2 && body1 && body2) {
-        if(damager2 && health1) {
-            if (body1->layer == 2 && damager2->damage_player) { // Entity 2 attacks
-                damage(collision->entity1, collision->entity2);
-            }
-            else if (body1->layer == 1 && !damager2->damage_player) {
-                damage(collision->entity1, collision->entity2);
-            }
-        }
+        TileComponent* tile = ECS_GetComponent(collision->entity2, TILE);
 
-        TileComponent* chest_tile = ECS_GetComponent(collision->entity2, TILE);
-        
-        // Check if entity is a chest by checking its texture
-        if (body1->layer == 2 && chest_tile && chest_tile->tile_x == 8) {
-            chest_tile->tile_x = 9;
+        if(tile && tile->tile_x == 8 && tile->tile_y == 1) {
+            tile->tile_x = 9;
             
             ChestOpenedEvent* event = malloc(sizeof(ChestOpenedEvent));
             event->chest_id = collision->entity2;
             event->player_id = collision->entity1;
             event->x = pos2->x; event->y = pos2->y;
             trigger_event(EVENT_CHEST_OPENED, event, true);
+        }
+        if(damager2 && health1) {
+            if (body1->layer == 2 && damager2->damage_player) {
+                if(tile) { 
+                    if(tile->tile_x == 4 && tile->tile_y == 1) {
+                        ScriptComponent* script = ECS_GetComponent(collision->entity1, SCRIPT);
+                        if(script && script->data) {
+                            TrapData* tdata = script->data;
+                            if(tdata && tdata->active) {
+                                damage(collision->entity1, collision->entity2);
+                            }
+                        }
+                    }
+                }
+                else {
+                    damage(collision->entity1, collision->entity2);
+                }
+            }
+            else if (body1->layer == 1 && !damager2->damage_player) {
+                damage(collision->entity1, collision->entity2);
+            }
         }
     }
 

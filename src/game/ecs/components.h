@@ -69,6 +69,8 @@ typedef struct {
     SDL_Point* center; // center of rotation
     SDL_RendererFlip flip;
 
+    bool colored;
+
     SDL_Texture* texture;
 } SpriteComponent;
 

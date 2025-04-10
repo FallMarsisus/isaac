@@ -19,7 +19,6 @@ SDL_Rect cam = {
 void create_game(SDL_Window* win, SDL_Renderer* renderer) {
     if(game_active) return;
 
-    game_active = true;
     game = malloc(sizeof(Game));
 
     int win_width, win_height;
@@ -39,16 +38,21 @@ void create_game(SDL_Window* win, SDL_Renderer* renderer) {
     game->map = create_map();
     change_room(0, 0);
 
-    for (int i = 0; i < 30; i++) {
-        float x1 = random_int(-5000, 5000), y1 = random_int(-5000, 5000),
-              x2 = random_int(-5000, 5000), y2 = random_int(-5000, 5000);
+    for (int i = 0; i < 60; i++) {
+        float x1 = (random_float(-10, 10) + 0.5) * 1920 + random_float(-200, 200),
+              y1 = (random_float(-10, 10) + 0.5) * 1280 + random_float(-100, 100),
+              x2 = (random_float(-10, 10) + 0.5) * 1920 + random_float(-200, 200), 
+              y2 = (random_float(-10, 10) + 0.5) * 1280 + random_float(-100, 100);
+
+        printf("Teleporter from %f %f to %f %f\n", x1, y1, x2, y2);
         add_teleporter(x1, y1, x2, y2);
         add_teleporter(x2, y2, x1, y1);
     }
+
+    game_active = true;
 }
 void free_game() {
     if(!game_active) return;
-    game_active = false;
     
     free_player_positions();
 
@@ -56,6 +60,8 @@ void free_game() {
 
     free_map(game->map);
     free(game);
+    
+    game_active = false;
 }
 
 int get_room_x(Entity entity) {
@@ -207,8 +213,8 @@ void update_game(int win_width, int win_height, float delta) {
             int room_x = get_x(game->current_room);
             int room_y = get_y(game->current_room);
             
-            //cam.x = fmax(room_x * 1920 + 32, fmin(cam.x, (room_x + 1) * 1920 - cam.w - 32));
-            //cam.y = fmax(room_y * 1280 + 32, fmin(cam.y, (room_y + 1) * 1280 - cam.h - 32));
+            cam.x = fmax(room_x * 1920 + 32, fmin(cam.x, (room_x + 1) * 1920 - cam.w - 32));
+            cam.y = fmax(room_y * 1280 + 32, fmin(cam.y, (room_y + 1) * 1280 - cam.h - 32));
         }
 
         if (changeX != get_x(game->current_room) || changeY != get_y(game->current_room)) {
@@ -217,7 +223,7 @@ void update_game(int win_width, int win_height, float delta) {
                 cam.y = changeY * 1280 + 32;
             }
             change_room(changeX, changeY);
-            printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, 1920, pos->y, 1280, changeX, changeY);
+            //printf("Player To cam : %f/%d - %f/%d\nRoom nb : %d - %d\n", pos->x, 1920, pos->y, 1280, changeX, changeY);
         }
     }
 

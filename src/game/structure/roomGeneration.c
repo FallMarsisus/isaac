@@ -41,7 +41,12 @@ void parse_tiled_map(int rX, int rY, uint32_t player_id, int layout_type) {
                     }
                 }
 
-                add_tile(world_x, world_y, tile_x, tile_y, get_sprites()->tileset_texture, has_collision, (is_layer2 ? 2 : 0));
+                if(tile_id == 16) {
+                    add_trap(world_x, world_y);
+                }
+                else {
+                    add_tile(world_x, world_y, tile_x, tile_y, get_sprites()->tileset_texture, has_collision, (is_layer2 ? 2 : 0));
+                }
             }
             
             map_token = strtok_r(NULL, ",", &saveptr_map);
@@ -151,7 +156,7 @@ void generate_room(int rX, int rY, uint32_t player_id) {
     srand(time(NULL));
 
     // Choose a random room layout type
-    int layout_type = rand() % 6;
+    int layout_type = 3;//rand() % 6;
 
     parse_tiled_map(rX, rY, player_id, layout_type);
     generate_enemies(rX, rY, player_id, layout_type);

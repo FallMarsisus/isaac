@@ -46,6 +46,8 @@ int main() {
         return 1;
     }
 
+    printf("\n---------------------------------------GAME-STARTED---------------------------------------\n\n");
+
     init_renderer(win);
 
     load_sprites();

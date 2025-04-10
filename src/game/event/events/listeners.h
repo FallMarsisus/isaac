@@ -9,6 +9,7 @@
 #include "../../ecs/physics/physicsSystems.h"
 
 #include "../../objects/player/scripts.h"
+#include "../../objects/blocks/scripts.h"
 
 #include <stdint.h>
 

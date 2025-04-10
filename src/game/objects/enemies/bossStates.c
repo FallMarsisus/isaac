@@ -14,7 +14,7 @@ AttackBossStateVars* create_attack_boss_vars(uint32_t player) {
     vars->last_attack = SDL_GetTicks();
     vars->last_sleep = SDL_GetTicks();
 
-    vars->wander_radius = 150.0f;
+    vars->wander_radius = 300.0f;
     vars->movement_speed = 1.0f;
     vars->target_x = 0;
     vars->target_y = 0;
@@ -29,8 +29,14 @@ void on_attack_boss_enter(State* state, uint32_t id) {
     PositionComponent* position = ECS_GetComponent(id, POSITION);
     if(!position) return;
 
-    vars->center_x = (((int) position->x) / 1920) * 1920 + 960 - 64;
-    vars->center_y = (((int) position->y) / 1280) * 1280 + 640 - 64;
+    vars->center_x = floor(position->x / 1920) * 1920 + 960 - 64;
+    vars->center_y = floor(position->y / 1280) * 1280 + 640 - 64;
+
+    printf("Id : %d / Target : %f %f / Position : %f %f\n", 
+        id,
+        vars->center_x, vars->center_y,
+        position->x, position->y
+    );
 
     vars->last_attack = SDL_GetTicks();
     vars->last_sleep = SDL_GetTicks();
@@ -108,7 +114,7 @@ void on_attack_boss_update(State* state, uint32_t id) {
         vars->nb_attacks = 0;
     }
     else if(vars->nb_attacks <= 3 && current_time > vars->time_between_attacks + vars->last_attack) {
-        printf("Attacking\n");
+        //printf("Attacking\n");
         vars->nb_attacks++;
         vars->last_attack = current_time;
 

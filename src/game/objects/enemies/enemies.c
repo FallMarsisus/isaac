@@ -2,8 +2,6 @@
 
 uint32_t add_standard_enemy(float x, float y, int width, int height, uint32_t pl, SDL_Texture* texture) {
     uint32_t enemy = ECS_CreateEntity();
-
-
 	if (enemy == 137) {
 		printf("enemy ID is 137\n");
 	}
@@ -120,13 +118,13 @@ uint32_t add_boss(float x, float y, uint32_t pl) {
     StunComponent* stun = ECS_AddComponent(boss, STUN, sizeof(StunComponent));
     DamagerComponent* damager = ECS_AddComponent(boss, DAMAGER, sizeof(DamagerComponent));
 
+    init_position_component(position, x, y);
+
     init_health_component(health, 100);
     init_damager_component(damager, 4, true);
 
     stun->duration = 0;
     stun->start_time = 0;
-    
-    init_position_component(position, x, y);
     
     init_state_machine(sm, boss);
 

@@ -43,8 +43,7 @@ bool damage(uint32_t entity, uint32_t damager) {
     }
 
 	health->is_invincible = true;
-	//Add effects
-	SDL_SetTextureColorMod(sprite1->texture, 255, 50, 50);
+	sprite1->colored = true;
 
 	float dx = pos1->x - sprite1->width/2 - (pos2->x - sprite2->width / 2);
 	float dy = pos1->y - sprite1->height/2 - (pos2->y - sprite2->height/2);
@@ -125,7 +124,7 @@ void update_health(uint32_t e) {
 	if (health && sprite && sprite->texture) {
 		Uint32 current_time = SDL_GetTicks();
 		if (current_time > health->last_damage_time + health->damage_cooldown && health->is_invincible) {
-			SDL_SetTextureColorMod(sprite->texture, 255, 255, 255);
+			sprite->colored = false;
 			health->is_invincible = false;
 		}
 	}

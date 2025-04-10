@@ -64,8 +64,12 @@ uint32_t add_door(float x, float y) {
 }
 uint32_t add_trap(float x, float y) {
     uint32_t trap = add_tile(x, y, 4, 1, get_sprites()->tileset_texture, false, 0);
+
     ScriptComponent* script = ECS_AddComponent(trap, SCRIPT, sizeof(ScriptComponent));
     init_trap(script);
+    
+    DamagerComponent* damager = ECS_AddComponent(trap, DAMAGER, sizeof(DamagerComponent));
+    init_damager_component(damager, 2, true);
     
     return trap;
 }

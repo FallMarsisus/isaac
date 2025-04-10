@@ -165,6 +165,10 @@ void render_component(uint32_t id, SDL_Rect cam, SDL_Renderer* renderer) {
         dest.x = position->x;
         dest.y = position->y;
     }
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     
     SDL_RenderCopyEx(renderer, sprite->texture, srcRect, &dest, sprite->angle, sprite->center, sprite->flip);
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 }

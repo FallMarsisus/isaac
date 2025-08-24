@@ -33,13 +33,12 @@ int main() {
     if (Mix_OpenAudio(96000, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) < 0)
     {
         SDL_Log("Erreur initialisation SDL_mixer : %s", Mix_GetError());
-        SDL_Quit();
-        return -1;
+        // Continue without audio instead of exiting
     }
 
-    // Create a window
-	int true_width = 1280, true_height = 720;
-    SDL_Window* win = SDL_CreateWindow("Hello SDL2", 100, 100, true_width, true_height, SDL_WINDOW_SHOWN);
+    // Create a window - Changed to 240x240 for smartwatch theme
+	int true_width = 240, true_height = 240;
+    SDL_Window* win = SDL_CreateWindow("Isaac Smartwatch", 100, 100, true_width, true_height, SDL_WINDOW_SHOWN);
     if (win == NULL) {
         printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
         SDL_Quit();
@@ -75,6 +74,8 @@ int main() {
 
     init_menu_manager(win, get_renderer());
 
+    // Temporarily disable music to focus on UI
+    /*
     Mix_Music* music = Mix_LoadMUS("assets/AssetPack/Musics/21 - Dungeon.ogg");
     if (music == NULL)
     {
@@ -85,6 +86,7 @@ int main() {
     }
     Mix_PlayMusic(music, -1); // Joue notre musique
     Mix_VolumeMusic(16); // Mets le volume a 0
+    */
 
     SDL_Event event;
     while (running) {
@@ -117,7 +119,7 @@ int main() {
     unregister_listener(EVENT_ENTITY_CREATED, on_entity_created);
     unregister_listener(EVENT_ENTITY_REMOVED, on_entity_removed);
 
-    Mix_FreeMusic(music); // Libére en mémoire notre musique
+    // Mix_FreeMusic(music); // Libére en mémoire notre musique
 
     free_menu_manager();
 

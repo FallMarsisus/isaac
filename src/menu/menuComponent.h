@@ -9,6 +9,7 @@ typedef enum {
     MENU_MAIN,
     MENU_PAUSE,
     MENU_GAME_OVER,
+    MENU_SETTINGS,
     MENU_NONE
 } MenuType;
 

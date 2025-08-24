@@ -1,5 +1,6 @@
 #include "healthSystem.h"
 #include <limits.h>
+#include <math.h>
 
 void init_damager_component(DamagerComponent* damager, int damage, bool damages_player) {
     damager->damage = damage;
@@ -97,13 +98,49 @@ bool display_health(uint32_t entity, SDL_Renderer *renderer)
 		return false;
 	}
 
-	int screenWidth;
-	SDL_RenderGetLogicalSize(renderer, &screenWidth, NULL);
+	int screenWidth, screenHeight;
+	SDL_RenderGetLogicalSize(renderer, &screenWidth, &screenHeight);
 
-	for (int i = (health->max_health / 2 + health->max_health % 2) - 1; i >= 0; i--) {
-		SDL_Rect heartRect = { screenWidth - 50 - ((health->max_health / 2 + health->max_health % 2) - 1 - i) * 50, 10, 40, 40 }; // Position and size of each heart
+	// For smartwatch 240x240 screen, position hearts in top-right area within circular bounds
+	int heartSize = 20; // Smaller hearts for smartwatch
+	int spacing = 3;
+	int maxHeartsPerRow = 3; // Fit within circular screen
+	int totalHearts = health->max_health / 2 + health->max_health % 2;
+	
+	// Position hearts in circular arc at top-right
+	int startX = screenWidth - 30;
+	int startY = 30;
+
+	for (int i = 0; i < totalHearts; i++) {
+		int row = i / maxHeartsPerRow;
+		int col = i % maxHeartsPerRow;
+		
+		// Arc positioning for circular screen
+		SDL_Rect heartRect = { 
+			startX - col * (heartSize + spacing), 
+			startY + row * (heartSize + spacing), 
+			heartSize, 
+			heartSize 
+		};
+		
+		// Ensure hearts stay within circular bounds
+		int centerX = screenWidth / 2;
+		int centerY = screenHeight / 2;
+		int radius = screenWidth / 2 - 20;
+		
+		int heartCenterX = heartRect.x + heartSize / 2;
+		int heartCenterY = heartRect.y + heartSize / 2;
+		int distFromCenter = sqrt((heartCenterX - centerX) * (heartCenterX - centerX) + 
+		                         (heartCenterY - centerY) * (heartCenterY - centerY));
+		
+		if (distFromCenter > radius) {
+			// Adjust position to stay within circle
+			float angle = atan2(heartCenterY - centerY, heartCenterX - centerX);
+			heartRect.x = centerX + (int)((radius - heartSize/2) * cos(angle)) - heartSize/2;
+			heartRect.y = centerY + (int)((radius - heartSize/2) * sin(angle)) - heartSize/2;
+		}
+
 		SDL_Texture* heartTexture;
-
 		if (i < health->health / 2) {
 			heartTexture = get_sprites()->red_heart_full_texture;
 		} else if (i == health->health / 2 && health->health % 2 != 0) {

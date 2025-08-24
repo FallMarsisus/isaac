@@ -45,24 +45,24 @@ void init_menu_manager(SDL_Window* win, SDL_Renderer* renderer) {
     rendererRef = renderer;
 
     init_menu_component(&mainMenu, MENU_MAIN);
-    add_menu_item(&mainMenu, "🎮 Game", start_game);
-    add_menu_item(&mainMenu, "⚙️ Settings", open_settings);
-    add_menu_item(&mainMenu, "❌ Quit", quit_game);
+    add_menu_item(&mainMenu, "> Game", start_game);
+    add_menu_item(&mainMenu, "> Settings", open_settings);
+    add_menu_item(&mainMenu, "> Quit", quit_game);
 
     init_menu_component(&pauseMenu, MENU_PAUSE);
-    add_menu_item(&pauseMenu, "▶️ Resume", resume_game);
-    add_menu_item(&pauseMenu, "🏠 Home", return_to_main_menu);
-    add_menu_item(&pauseMenu, "❌ Quit", quit_game);
+    add_menu_item(&pauseMenu, "> Resume", resume_game);
+    add_menu_item(&pauseMenu, "> Home", return_to_main_menu);
+    add_menu_item(&pauseMenu, "> Quit", quit_game);
 
     init_menu_component(&gameOverMenu, MENU_GAME_OVER);
-    add_menu_item(&gameOverMenu, "🔄 Retry", start_game);
-    add_menu_item(&gameOverMenu, "🏠 Home", return_to_main_menu);
-    add_menu_item(&gameOverMenu, "❌ Quit", quit_game);
+    add_menu_item(&gameOverMenu, "> Retry", start_game);
+    add_menu_item(&gameOverMenu, "> Home", return_to_main_menu);
+    add_menu_item(&gameOverMenu, "> Quit", quit_game);
 
     init_menu_component(&settingsMenu, MENU_SETTINGS);
-    add_menu_item(&settingsMenu, "🔊 Audio", toggle_audio);
-    add_menu_item(&settingsMenu, "🔄 Reset", reset_game);
-    add_menu_item(&settingsMenu, "🔙 Back", return_to_main_menu);
+    add_menu_item(&settingsMenu, "> Audio", toggle_audio);
+    add_menu_item(&settingsMenu, "> Reset", reset_game);
+    add_menu_item(&settingsMenu, "> Back", return_to_main_menu);
 
     currentMenu = &mainMenu;
 
